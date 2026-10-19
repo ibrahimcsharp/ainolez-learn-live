@@ -139,3 +139,13 @@ def test_bad_requests_are_refused(admin_api, api):
         == 400
     )
     assert api.post(API + "/", {"topic": "x"}, format="json").status_code == 401
+
+
+@pytest.mark.django_db
+def test_switched_off_generator_refuses_new_work(admin_api):
+    admin_api.patch(
+        "/api/v1/admin/assistant/settings/", {"course_generator_enabled": False}, format="json"
+    )
+    response = admin_api.post(API + "/", {"topic": "SQL"}, format="json")
+    assert response.status_code == 400
+    assert response.json()["code"] == "generator_off"

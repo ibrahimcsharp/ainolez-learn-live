@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 
+from modules.catalog import services
 from modules.catalog.models import Category, Chapter, Course, Lesson, LessonBlock
 
 
@@ -41,8 +42,13 @@ class ChapterOutlineSerializer(serializers.ModelSerializer):
 
 
 class CourseDetailSerializer(CourseCardSerializer):
+    intro_video_html = serializers.SerializerMethodField()
+
     class Meta(CourseCardSerializer.Meta):
-        fields = [*CourseCardSerializer.Meta.fields, "description"]
+        fields = [*CourseCardSerializer.Meta.fields, "description", "intro_video_html"]
+
+    def get_intro_video_html(self, course):
+        return services.course_video_html(course)
 
 
 class LessonSerializer(serializers.ModelSerializer):

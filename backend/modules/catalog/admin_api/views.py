@@ -32,6 +32,13 @@ class CourseViewSet(ServiceViewSet):
     def record_changed(self, course):
         publish(CourseChanged(course.pk))
 
+    @action(detail=True, methods=["post"], url_path="publish")
+    def publish_all(self, request, pk=None):
+        """Publish the course and every draft lesson in it."""
+        course = self.get_object()
+        lessons = services.publish_course(course, request.user)
+        return Response({**self.get_serializer(course).data, "lessons_published": lessons})
+
 
 class ChapterViewSet(ServiceViewSet):
     model = Chapter

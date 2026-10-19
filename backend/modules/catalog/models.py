@@ -49,6 +49,7 @@ class Course(BaseModel):
     level = models.CharField(max_length=20, choices=Level, default=Level.BEGINNER)
     language_key = models.CharField(max_length=20, choices=Language, default=Language.OTHER)
     thumbnail_media_id = models.BigIntegerField(null=True, blank=True)  # media module
+    intro_video_url = models.CharField(max_length=500, blank=True)
     estimated_minutes = models.IntegerField(default=0)
     status = models.CharField(max_length=20, choices=Status, default=Status.DRAFT)
     ai_generated = models.BooleanField(default=False)

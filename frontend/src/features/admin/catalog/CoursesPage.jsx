@@ -8,6 +8,10 @@ import { RecordActions, StatusBadge } from "../shared/RecordActions";
 import styles from "../shared/admin.module.css";
 
 export const COURSES = "/admin/catalog/courses";
+export const LANGUAGES = [
+  ["html", "HTML"], ["css", "CSS"], ["javascript", "JavaScript"], ["python", "Python"], ["sql", "SQL"],
+  ["ai", "AI (no code)"], ["other", "Other"],
+].map(([key, label]) => <option key={key} value={key}>{label}</option>);
 
 export function CoursesPage() {
   const [query, setQuery] = useState("");
@@ -58,18 +62,43 @@ export function CoursesPage() {
   );
 }
 
+/** Step 1 of a course: the basics. The course page then guides through chapters and lessons. */
 function NewCourseForm({ onSaved, onCancel }) {
-  const form = useResourceForm(COURSES, { title: "", category: "" }, onSaved);
+  const blank = { title: "", category: "", level: "beginner", language_key: "python", short_description: "" };
+  const form = useResourceForm(COURSES, blank, onSaved);
+  const { values, onChange, error } = form;
   return (
     <EditPanel title="New course" form={form} onCancel={onCancel}>
-      <CategorySelect value={form.values.category} onChange={form.onChange} error={form.error} />
-      <Field label="Title" name="title" required value={form.values.title} onChange={form.onChange} error={form.error} />
+      <Field label="Course title" name="title" required value={values.title} onChange={onChange} error={error}
+        placeholder="Python for Beginners" />
+      <CategorySelect value={values.category} onChange={onChange} error={error} />
+      <Field label="Level" name="level" as="select" value={values.level} onChange={onChange} error={error}>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </Field>
+      <Field label="Code language" name="language_key" as="select" value={values.language_key} onChange={onChange}
+        error={error}>
+        {LANGUAGES}
+      </Field>
+      <div style={{ gridColumn: "1 / -1" }}>
+        <Field label="One-line description (optional)" name="short_description" value={values.short_description}
+          onChange={onChange} error={error} />
+        <p className="muted">The course starts as a draft. Next you add chapters and lessons, then press Publish.</p>
+      </div>
     </EditPanel>
   );
 }
 
 export function CategorySelect({ value, onChange, error }) {
   const { data } = useApi("/admin/catalog/categories/?page_size=500");
+  if (data && !data.results.length) {
+    return (
+      <p className="field">
+        No categories yet. <Link to="/admin/categories">Add a category</Link> first (for example “Web Development”).
+      </p>
+    );
+  }
   return (
     <Field label="Category" name="category" as="select" required value={value} onChange={onChange} error={error}>
       <option value="">Choose…</option>

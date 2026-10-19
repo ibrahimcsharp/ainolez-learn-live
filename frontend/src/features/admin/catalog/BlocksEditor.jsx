@@ -1,9 +1,10 @@
-import { Plus } from "lucide-react";
+import { Code, FileQuestion, Image, Lightbulb, MonitorPlay, PencilLine, SquareCode, SquarePlay } from "lucide-react";
 import { useState } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
 import { Field } from "../../../shared/ui/Field";
 import { EditPanel, useResourceForm } from "../shared/EditPanel";
-import { MediaPicker } from "../shared/MediaPicker";
+import { markdownFor, MEDIA } from "../media/MediaPage";
+import { MediaPicker, useImages } from "../shared/MediaPicker";
 import { RecordActions, StatusBadge } from "../shared/RecordActions";
 import { SortableList } from "../shared/SortableList";
 import { useMarkdownPreview } from "../shared/useMarkdownPreview";
@@ -11,14 +12,18 @@ import styles from "../shared/admin.module.css";
 
 const BLOCKS = "/admin/catalog/blocks";
 const TYPES = {
-  markdown: "Text (Markdown)",
+  markdown: "Text",
   example: "Code example",
-  video: "Video",
-  callout: "Callout box",
+  video: "YouTube video",
   image: "Image",
-  embed: "Embed",
+  callout: "Note box",
   exercise: "Exercise",
   quiz: "Quiz",
+  embed: "Embed (CodePen…)",
+};
+const ICONS = {
+  markdown: PencilLine, example: Code, video: SquarePlay, image: Image,
+  callout: Lightbulb, exercise: SquareCode, quiz: FileQuestion, embed: MonitorPlay,
 };
 const LANGUAGE_OPTIONS = ["html", "css", "javascript", "python", "sql"].map((k) => <option key={k}>{k}</option>);
 const VIDEO_PAGES = {
@@ -42,7 +47,7 @@ export function BlocksEditor({ lessonId, courseId, blocks, onChange }) {
 
   return (
     <section>
-      <h2>Blocks</h2>
+      <h2>Lesson content</h2>
       <SortableList
         items={blocks}
         base={BLOCKS}
@@ -62,17 +67,24 @@ export function BlocksEditor({ lessonId, courseId, blocks, onChange }) {
           )
         }
       />
-      {newType && (
+      {newType ? (
         <BlockForm lessonId={lessonId} courseId={courseId} type={newType} onSaved={saved}
           onCancel={() => setNewType(null)} />
+      ) : (
+        <div className={`card ${styles.addBlock}`}>
+          <strong>{blocks.length ? "Add the next part of the lesson" : "This lesson is empty. What comes first?"}</strong>
+          <div className={styles.blockTypes}>
+            {Object.entries(TYPES).map(([type, label]) => {
+              const Icon = ICONS[type];
+              return (
+                <button key={type} type="button" onClick={() => setNewType(type)}>
+                  <Icon size={22} /> {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       )}
-      <div className={styles.actions} style={{ justifyContent: "flex-start", marginTop: 12 }}>
-        {Object.entries(TYPES).map(([type, label]) => (
-          <button key={type} className="btn btn-outline" onClick={() => setNewType(type)}>
-            <Plus /> {label}
-          </button>
-        ))}
-      </div>
     </section>
   );
 }
@@ -134,9 +146,12 @@ function BlockForm({ lessonId, courseId, block, type, onSaved, onCancel }) {
       )}
       {type === "video" && (
         <>
-          {field("Video link (YouTube, Vimeo, Loom, Google Drive or .mp4)", "url", { required: true })}
+          {field("YouTube link (Vimeo, Loom, Google Drive or .mp4 work too)", "url", {
+            required: true, placeholder: "https://www.youtube.com/watch?v=…",
+          })}
           {field("Start at (seconds)", "start", { type: "number", min: 0 })}
           {field("Caption", "caption")}
+          <VideoPreview url={values.url} start={values.start} />
         </>
       )}
       {type === "image" && (
@@ -181,16 +196,49 @@ function BlockForm({ lessonId, courseId, block, type, onSaved, onCancel }) {
 
 function MarkdownField({ values, onChange, error }) {
   const html = useMarkdownPreview(values.content_md);
+  const images = useImages(useApi(`${MEDIA}/?page_size=500&active=1`));
+  const insert = (text) => {
+    const value = [values.content_md.trimEnd(), text].filter(Boolean).join("\n\n");
+    onChange({ target: { name: "content_md", value } });
+  };
+
   return (
     <div className={styles.split} style={{ gridColumn: "1 / -1" }}>
-      <Field label="Markdown" name="content_md" as="textarea" rows={12} className={styles.code}
-        value={values.content_md} onChange={onChange} error={error} />
+      <div>
+        <select aria-label="Insert image" value="" className={styles.insert}
+          onChange={(e) => insert(markdownFor(images.find((file) => String(file.id) === e.target.value)))}>
+          <option value="">Add an image from Media…</option>
+          {images.map((file) => (
+            <option key={file.id} value={file.id}>{file.original_name}</option>
+          ))}
+        </select>
+        <Field label="Text (Markdown: **bold**, # heading, - list)" name="content_md" as="textarea" rows={12}
+          className={styles.code} value={values.content_md} onChange={onChange} error={error} />
+      </div>
       <div>
         <strong>Preview</strong>
         <div className={`lesson-content ${styles.preview}`} dangerouslySetInnerHTML={{ __html: html }} />
       </div>
     </div>
   );
+}
+
+/** What the learner will see, for YouTube links (other links are checked when saved). */
+function VideoPreview({ url, start }) {
+  const id = youtubeId(url);
+  if (!id) return null;
+  return (
+    <div className="media-frame" style={{ gridColumn: "1 / -1" }}>
+      <iframe src={`https://www.youtube-nocookie.com/embed/${id}?start=${Number(start) || 0}`} title="Video preview"
+        allow="encrypted-media; picture-in-picture" allowFullScreen />
+    </div>
+  );
+}
+
+function youtubeId(url) {
+  const match = /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{6,20})/
+    .exec(url ?? "");
+  return match?.[1];
 }
 
 function toBody(lesson, type, v) {

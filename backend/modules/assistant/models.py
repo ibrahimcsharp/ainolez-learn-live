@@ -19,6 +19,7 @@ class AISettings(models.Model):
     enabled = models.BooleanField(default=True)
     enabled_for_visitors = models.BooleanField(default=True)
     enabled_for_learners = models.BooleanField(default=True)
+    course_generator_enabled = models.BooleanField(default=True)
     bot_name = models.CharField(max_length=60, default="ainolez AI")
     welcome_message = models.CharField(max_length=500, blank=True)
     starter_questions = models.JSONField(default=list)

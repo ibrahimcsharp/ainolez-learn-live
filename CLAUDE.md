@@ -120,3 +120,10 @@ npm run build
       Not verified: the sandboxed Try-it iframe in a real browser (the Claude browser
       pane blocks every sandboxed iframe); pandas/scikit-learn seed exercises are
       skipped by pytest unless those packages are installed.
+- [x] After launch: SQL 0015 (courses.intro_video_url, shown on the course page) + 0016
+      (ai_settings.course_generator_enabled, checked by ai_authoring before new work).
+      Course editor: tabs (Lessons first), one "Publish course" (`POST courses/{id}/publish/`
+      also publishes the draft lessons), "Add lesson" opens the new lesson; block picker
+      with icons and YouTube preview; media "Copy link / Markdown", upload inside the image
+      picker, "Add an image from Media" in text blocks; on/off cards for the AI tutor and
+      the course generator.

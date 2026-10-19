@@ -31,7 +31,9 @@ from shared.events import publish
 from shared.exceptions import ServiceError
 from shared.slugs import unique_slug
 
-COURSE_FIELDS = ("title", "slug", "short_description", "description", "level", "language_key")
+COURSE_FIELDS = (
+    "title", "slug", "short_description", "description", "level", "language_key", "intro_video_url",
+)  # fmt: skip
 # Exercises of courses without a runnable language use Python.
 EXERCISE_LANGUAGE = {"ai": "python", "other": "python"}
 
@@ -58,10 +60,34 @@ def save_course(course: Course | None, data: dict, by) -> Course:
         raise ServiceError(
             f"'{course.slug}' is reserved for the site. Pick another slug.", "slug_reserved"
         )
+    if course.intro_video_url:
+        content.normalize_video({"url": course.intro_video_url})  # refuses unknown links
     _stamp_published(course)
     _save(course, by)
     publish(CourseChanged(course.pk))
     return course
+
+
+def publish_course(course: Course, by) -> int:
+    """Publish the course and all its draft lessons. Returns how many lessons went live."""
+    with transaction.atomic():
+        drafts = list(course.lessons.filter(status=Status.DRAFT))
+        for lesson in drafts:
+            lesson.status = Status.PUBLISHED
+            _stamp_published(lesson)
+            _save(lesson, by)
+            publish(LessonChanged(lesson.pk))
+        course.status = Status.PUBLISHED
+        _stamp_published(course)
+        _save(course, by)
+        publish(CourseChanged(course.pk))
+    return len(drafts)
+
+
+def course_video_html(course: Course) -> str:
+    if not course.intro_video_url:
+        return ""
+    return content.video_block_html(content.normalize_video({"url": course.intro_video_url}))
 
 
 def save_chapter(chapter: Chapter | None, data: dict, by) -> Chapter:

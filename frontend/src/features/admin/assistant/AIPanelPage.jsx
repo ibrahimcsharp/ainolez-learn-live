@@ -1,9 +1,10 @@
-import { BookmarkPlus, Check, PlugZap, Plus, RefreshCw, Save, Search } from "lucide-react";
+import { BookmarkPlus, Bot, Check, PlugZap, Plus, RefreshCw, Save, Search } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
 import { useFormFields, useSubmit } from "../../../shared/hooks/useForm";
 import { Field, FormError } from "../../../shared/ui/Field";
+import { AISwitch } from "../shared/AISwitch";
 import { EditPanel, useResourceForm } from "../shared/EditPanel";
 import { RecordActions, StatusBadge } from "../shared/RecordActions";
 import styles from "../shared/admin.module.css";
@@ -25,6 +26,9 @@ export function AIPanelPage() {
   return (
     <>
       <h1>AI tutor</h1>
+      <AISwitch name="enabled" icon={Bot} title="The AI tutor"
+        on="Learners and visitors can chat with the tutor (as allowed under General and model)."
+        off="The chat button is hidden everywhere and the tutor answers no one." />
       <div className={styles.tabs}>
         {Object.entries(TABS).map(([key, [label]]) => (
           <button key={key} className={`btn btn-outline ${styles.small}`} aria-pressed={tab === key} onClick={() => setTab(key)}>
@@ -66,7 +70,8 @@ function SettingsTab() {
 
 function SettingsForm({ initial, onSaved }) {
   const flat = { ...initial, starter_questions: initial.starter_questions.join("\n") };
-  const toBody = ({ models, updated_at, ...v }) => ({
+  // The on/off switches above the tabs save themselves.
+  const toBody = ({ models, updated_at, enabled, course_generator_enabled, ...v }) => ({
     ...v, starter_questions: v.starter_questions.split("\n").map((q) => q.trim()).filter(Boolean),
   });
   const [values, onChange, setValues] = useFormFields(flat);
@@ -88,7 +93,6 @@ function SettingsForm({ initial, onSaved }) {
       <FormError error={error} />
       <div className={styles.formGrid}>
         <div>
-          {check("enabled", "Tutor switched on")}
           {check("enabled_for_visitors", "Visitors can chat")}
           {check("enabled_for_learners", "Learners can chat")}
         </div>

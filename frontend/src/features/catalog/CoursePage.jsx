@@ -38,6 +38,10 @@ export function CoursePage() {
         </div>
       </section>
       <div className={`container ${styles.outline}`}>
+        {course.intro_video_html && (
+          // Built and escaped by the API from an allow-listed video link.
+          <div className={`lesson-content ${styles.intro}`} dangerouslySetInnerHTML={{ __html: course.intro_video_html }} />
+        )}
         {course.description && <p>{course.description}</p>}
         {course.chapters.map((chapter, index) => (
           <section key={chapter.title + index} className="card">

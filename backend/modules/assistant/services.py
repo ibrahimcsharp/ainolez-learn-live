@@ -165,6 +165,7 @@ SETTING_FIELDS = (
     "enabled",
     "enabled_for_visitors",
     "enabled_for_learners",
+    "course_generator_enabled",
     "bot_name",
     "welcome_message",
     "starter_questions",

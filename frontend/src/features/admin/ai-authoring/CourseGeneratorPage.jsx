@@ -5,6 +5,7 @@ import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
 import { useFormFields, useSubmit } from "../../../shared/hooks/useForm";
 import { Field, FormError } from "../../../shared/ui/Field";
+import { AISwitch } from "../shared/AISwitch";
 import styles from "../shared/admin.module.css";
 
 const JOBS = "/admin/ai-authoring/jobs";
@@ -24,6 +25,9 @@ export function CourseGeneratorPage() {
   return (
     <>
       <h1>AI course generator</h1>
+      <AISwitch name="course_generator_enabled" icon={Sparkles} title="The AI course generator"
+        on="Admins can start new AI-drafted courses."
+        off="No new outlines or lessons can be started. Courses already drafted stay as they are." />
       <p className="muted">
         Claude proposes an outline, you edit it, then Claude drafts each lesson with examples, an exercise and a quiz.
         Everything stays a draft until you publish it. Background jobs run every minute (cron).

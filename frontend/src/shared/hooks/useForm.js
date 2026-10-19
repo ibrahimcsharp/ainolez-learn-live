@@ -17,7 +17,7 @@ export function useSubmit(action) {
     setBusy(true);
     setError(null);
     try {
-      await action();
+      await action(event);
     } catch (err) {
       setError(err);
     } finally {

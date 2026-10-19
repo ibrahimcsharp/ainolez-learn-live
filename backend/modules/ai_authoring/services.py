@@ -31,6 +31,7 @@ Status = CourseJob.Status
 
 
 def start_job(data: dict, by) -> CourseJob:
+    _check_switched_on()
     if not data.get("topic", "").strip():
         raise ServiceError("Describe the course topic.", "no_topic")
     level, language = data.get("level", "beginner"), data.get("language_key", "python")
@@ -84,6 +85,7 @@ def save_outline(job: CourseJob, outline: dict, by) -> CourseJob:
 
 def generate(job: CourseJob, by) -> CourseJob:
     """Create the draft course from the outline and queue one job per lesson."""
+    _check_switched_on()
     if job.status != Status.OUTLINE_READY:
         raise ServiceError("Generate from a ready outline.", "not_ready")
     if not job.category_id:
@@ -142,6 +144,7 @@ def write_lesson(job: CourseJob, lesson_id: int) -> None:
 
 def retry(job: CourseJob, by) -> CourseJob:
     """Queue the outline again (failed before one existed) or the lessons still missing."""
+    _check_switched_on()
     if job.outline is None:
         job.status, job.error = Status.OUTLINE_QUEUED, ""
         job.save(update_fields=["status", "error", "updated_at"])
@@ -160,6 +163,13 @@ def retry(job: CourseJob, by) -> CourseJob:
 
 
 # --- helpers --------------------------------------------------------------------
+
+
+def _check_switched_on() -> None:
+    if not assistant.settings_row().course_generator_enabled:
+        raise ServiceError(
+            "The AI course generator is switched off. Switch it on first.", "generator_off"
+        )
 
 
 def _clean_outline(outline: dict) -> dict:

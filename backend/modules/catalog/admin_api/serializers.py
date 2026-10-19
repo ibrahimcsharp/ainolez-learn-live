@@ -31,7 +31,7 @@ class CourseAdminSerializer(serializers.ModelSerializer):
         model = Course
         fields = [
             "id", "category", "category_name", "title", "slug", "short_description",
-            "description", "level", "language_key", "thumbnail_media_id",
+            "description", "level", "language_key", "thumbnail_media_id", "intro_video_url",
             "estimated_minutes", "status", "ai_generated", "published_at", *RECORD_FIELDS,
         ]  # fmt: skip
         read_only_fields = ["ai_generated", "published_at", *RECORD_FIELDS]

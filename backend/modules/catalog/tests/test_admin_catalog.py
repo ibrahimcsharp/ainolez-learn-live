@@ -153,3 +153,19 @@ def test_bulk_deactivate(admin_api):
     )
     assert response.json() == {"done": 2}
     assert admin_api.get(f"{ADMIN}/categories/?active=0").json()["count"] == 2
+
+
+def test_publish_course_publishes_its_draft_lessons(admin_api, course, chapter):
+    admin_api.post(f"{ADMIN}/lessons/", {"chapter": chapter["id"], "title": "Lists"})
+    response = admin_api.post(f"{ADMIN}/courses/{course['id']}/publish/").json()
+    assert response["status"] == "published" and response["lessons_published"] == 1
+    assert not Lesson.objects.filter(course_id=course["id"], status="draft").exists()
+
+
+def test_course_intro_video(admin_api, api, course):
+    url = f"{ADMIN}/courses/{course['id']}/"
+    bad = admin_api.patch(url, {"intro_video_url": "https://example.com/v"})
+    assert bad.status_code == 400
+    admin_api.patch(url, {"intro_video_url": "https://youtu.be/dQw4w9WgXcQ", "status": "published"})
+    page = api.get(f"/api/v1/public/courses/{course['slug']}/").json()
+    assert "youtube-nocookie.com/embed/dQw4w9WgXcQ" in page["intro_video_html"]

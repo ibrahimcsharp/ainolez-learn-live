@@ -1,8 +1,9 @@
-import { Download, ExternalLink, Eye, Pencil } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, Eye, Pencil, Rocket, Undo2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
+import { useSubmit } from "../../../shared/hooks/useForm";
 import { Field } from "../../../shared/ui/Field";
 import { LessonContent } from "../../lesson/LessonContent";
 import { EditPanel, useResourceForm } from "../shared/EditPanel";
@@ -32,9 +33,9 @@ export function LessonEditPage() {
 
   return (
     <>
-      <p>
-        <Link to={`/admin/courses/${data.course}`}>← Back to the course</Link>
-      </p>
+      <Link to={`/admin/courses/${data.course}`} className={styles.back}>
+        <ArrowLeft size={16} /> Back to the course
+      </Link>
       <div className={styles.toolbar}>
         <h1>
           {data.title} <StatusBadge row={data} />
@@ -51,9 +52,13 @@ export function LessonEditPage() {
           <button className="btn btn-outline" aria-pressed={preview} onClick={() => setPreview(!preview)}>
             {preview ? <><Pencil /> Edit blocks</> : <><Eye /> Preview</>}
           </button>
+          <PublishButton lesson={data} onDone={lesson.reload} />
         </div>
       </div>
-      <LessonForm key={data.updated_at} initial={data} onSaved={lesson.reload} />
+      <details className={styles.panel}>
+        <summary><strong>Lesson settings</strong> <span className="muted">title, web address, minutes, summary</span></summary>
+        <LessonForm key={data.updated_at} initial={data} onSaved={lesson.reload} />
+      </details>
       <details className={styles.panel}>
         <summary><strong>SEO and social sharing</strong></summary>
         <SeoEditor key={data.slug} path={`/${data.course_slug}/${data.slug}`} />
@@ -71,18 +76,29 @@ export function LessonEditPage() {
   );
 }
 
+function PublishButton({ lesson, onDone }) {
+  const live = lesson.status === "published";
+  const { submit, busy, error } = useSubmit(async () => {
+    await api(`${LESSONS}/${lesson.id}/`, { method: "PATCH", body: { status: live ? "draft" : "published" } });
+    onDone();
+  });
+  return (
+    <>
+      {error && <span className={styles.danger}>{error.message}</span>}
+      <button className={live ? "btn btn-outline" : "btn btn-primary"} disabled={busy} onClick={submit}>
+        {live ? <><Undo2 /> Unpublish</> : <><Rocket /> Publish lesson</>}
+      </button>
+    </>
+  );
+}
+
 function LessonForm({ initial, onSaved }) {
   const form = useResourceForm(LESSONS, initial, onSaved);
   const { values, onChange, error } = form;
   return (
-    <EditPanel title="Lesson settings" form={form}>
+    <EditPanel form={form}>
       <Field label="Title" name="title" required value={values.title} onChange={onChange} error={error} />
-      <Field label="Slug (URL)" name="slug" value={values.slug} onChange={onChange} error={error} />
-      <Field label="Status" name="status" as="select" value={values.status} onChange={onChange} error={error}>
-        <option value="draft">Draft</option>
-        <option value="published">Published</option>
-        <option value="archived">Archived</option>
-      </Field>
+      <Field label="Web address (slug)" name="slug" value={values.slug} onChange={onChange} error={error} />
       <Field label="Minutes" name="estimated_minutes" type="number" min="1" value={values.estimated_minutes}
         onChange={onChange} error={error} />
       <Field label="Summary" name="summary" value={values.summary} onChange={onChange} error={error} />

@@ -63,6 +63,8 @@ KEEP_TABLES = {
     "seo_settings",
     "seo_pages",
     "community_settings",
+    "ai_settings",
+    "ai_prompt_versions",
 }
 
 

@@ -1,4 +1,4 @@
-import { Upload } from "lucide-react";
+import { Check, Copy, FileText, Image, Link as LinkIcon, Upload } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -7,16 +7,34 @@ import { FormError } from "../../../shared/ui/Field";
 import { RecordActions, StatusBadge } from "../shared/RecordActions";
 import styles from "../shared/admin.module.css";
 
-const BASE = "/admin/media/files";
+export const MEDIA = "/admin/media/files";
 
 export function MediaPage() {
-  const list = useApi(`${BASE}/?page_size=500`);
+  const list = useApi(`${MEDIA}/?page_size=500`);
   return (
     <>
       <div className={styles.toolbar}>
         <h1>Media library</h1>
         <UploadForm onDone={list.reload} />
       </div>
+      <section className={`card ${styles.panel}`}>
+        <h3>How to use your files</h3>
+        <ul className={styles.howTo}>
+          <li>
+            <Image /> <span><strong>In a lesson:</strong> open the lesson, add an <em>Image</em> block and pick the
+            file. In a <em>Text</em> block, use <em>Add an image from Media</em> above the text box.</span>
+          </li>
+          <li>
+            <FileText /> <span><strong>As a course picture:</strong> open the course, then <em>Details</em> →
+            Thumbnail.</span>
+          </li>
+          <li>
+            <LinkIcon /> <span><strong>Anywhere else:</strong> press <em>Copy link</em> (or <em>Copy Markdown</em>)
+            on a file below and paste it into any text. PDFs become a download link, .mp4 files can go in a
+            Video block.</span>
+          </li>
+        </ul>
+      </section>
       <div className={styles.mediaGrid}>
         {(list.data?.results ?? []).map((file) => (
           <MediaCard key={file.id} file={file} onChange={list.reload} />
@@ -26,21 +44,19 @@ export function MediaPage() {
   );
 }
 
-function UploadForm({ onDone }) {
+/** Upload one file. `onDone(file)` gets the saved file. */
+export function UploadForm({ onDone, accept = ".jpg,.jpeg,.png,.gif,.webp,.pdf,.mp4" }) {
   const [file, setFile] = useState(null);
   const [alt, setAlt] = useState("");
   const { submit, busy, error } = useSubmit(async () => {
-    const body = new FormData();
-    body.append("file", file);
-    body.append("alt_text", alt);
-    await api(`${BASE}/`, { method: "POST", body });
+    const saved = await api(`${MEDIA}/`, { method: "POST", body: uploadBody(file, alt) });
     setAlt("");
-    onDone();
+    onDone(saved);
   });
   return (
     <form onSubmit={submit} className={styles.actions}>
-      <input type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.mp4" required onChange={(e) => setFile(e.target.files[0])} />
-      <input placeholder="Alt text" value={alt} onChange={(e) => setAlt(e.target.value)} />
+      <input type="file" accept={accept} required onChange={(e) => setFile(e.target.files[0])} />
+      <input placeholder="Alt text (describe the image)" value={alt} onChange={(e) => setAlt(e.target.value)} />
       <button className="btn btn-primary" disabled={busy}>
         <Upload /> {busy ? "Uploading…" : "Upload"}
       </button>
@@ -49,9 +65,22 @@ function UploadForm({ onDone }) {
   );
 }
 
+export function uploadBody(file, alt = "") {
+  const body = new FormData();
+  body.append("file", file);
+  body.append("alt_text", alt);
+  return body;
+}
+
+/** `![alt](url)` for images, `[name](url)` for other files. */
+export function markdownFor(file) {
+  const text = file.alt_text || file.original_name;
+  return file.mime_type.startsWith("image/") ? `![${text}](${file.url})` : `[${text}](${file.url})`;
+}
+
 function MediaCard({ file, onChange }) {
   async function saveAlt(alt_text) {
-    if (alt_text !== file.alt_text) await api(`${BASE}/${file.id}/`, { method: "PATCH", body: { alt_text } });
+    if (alt_text !== file.alt_text) await api(`${MEDIA}/${file.id}/`, { method: "PATCH", body: { alt_text } });
   }
   return (
     <article className="card" style={{ padding: 12 }}>
@@ -68,7 +97,25 @@ function MediaCard({ file, onChange }) {
       </p>
       <input defaultValue={file.alt_text} placeholder="Alt text" aria-label="Alt text"
         onBlur={(e) => saveAlt(e.target.value)} style={{ width: "100%", margin: "8px 0" }} />
-      <RecordActions base={BASE} row={file} onChange={onChange} />
+      <div className={styles.actions} style={{ justifyContent: "flex-start", marginBottom: 8 }}>
+        <CopyButton text={file.url} label="Copy link" />
+        <CopyButton text={markdownFor(file)} label="Copy Markdown" />
+      </div>
+      <RecordActions base={MEDIA} row={file} onChange={onChange} />
     </article>
+  );
+}
+
+function CopyButton({ text, label }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+  return (
+    <button type="button" className={`btn btn-outline ${styles.small}`} onClick={copy}>
+      {copied ? <><Check /> Copied</> : <><Copy /> {label}</>}
+    </button>
   );
 }
