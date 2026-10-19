@@ -1,3 +1,4 @@
+import { Ban, Check, EyeOff, Plus, Save, X } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -53,10 +54,10 @@ export function ModerationPage() {
           {item.title && <h3>{item.title}</h3>}
           <div className="lesson-content" dangerouslySetInnerHTML={{ __html: item.body_html }} />
           <div className={styles.actions} style={{ justifyContent: "flex-start" }}>
-            <button className="btn btn-primary" onClick={() => moderate(item, "approve")}>Approve</button>
-            <button className="btn btn-outline" onClick={() => moderate(item, "reject")}>Reject</button>
+            <button className="btn btn-primary" onClick={() => moderate(item, "approve")}><Check /> Approve</button>
+            <button className="btn btn-outline" onClick={() => moderate(item, "reject")}><X /> Reject</button>
             <button className={`btn btn-outline ${styles.danger}`} onClick={() => moderate(item, "ban")}>
-              Hide and ban author
+              <Ban /> Hide and ban author
             </button>
           </div>
         </article>
@@ -73,9 +74,9 @@ export function ModerationPage() {
           <div className={styles.actions} style={{ justifyContent: "flex-start" }}>
             <button className="btn btn-outline"
               onClick={async () => (await moderate(report, "hide")) && resolve(report, false)}>
-              Hide it
+              <EyeOff /> Hide it
             </button>
-            <button className="btn btn-outline" onClick={() => resolve(report, true)}>Dismiss</button>
+            <button className="btn btn-outline" onClick={() => resolve(report, true)}><X /> Dismiss</button>
           </div>
         </article>
       ))}
@@ -126,7 +127,7 @@ function BlockedWords() {
         <FormError error={state.error} />
         <div className={styles.actions} style={{ justifyContent: "flex-start" }}>
           <button className="btn btn-primary" disabled={state.saving}>
-            {state.saving ? "Saving…" : "Save"}
+            <Save /> {state.saving ? "Saving…" : "Save"}
           </button>
           {state.saved && <span className="muted">Saved.</span>}
         </div>
@@ -144,7 +145,7 @@ function Spaces() {
     <section style={{ marginTop: 32 }}>
       <div className={styles.toolbar}>
         <h2>Spaces</h2>
-        <button className="btn btn-primary" onClick={() => setEditing(blank)}>New space</button>
+        <button className="btn btn-primary" onClick={() => setEditing(blank)}><Plus /> New space</button>
       </div>
       {editing && (
         <SpaceForm key={editing.id ?? "new"} base={BASE} initial={editing}

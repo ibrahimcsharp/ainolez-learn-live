@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
 import { Field } from "../../../shared/ui/Field";
@@ -23,7 +24,7 @@ export function CategoriesPage() {
       <div className={styles.toolbar}>
         <h1>Categories</h1>
         <button className="btn btn-primary" onClick={() => setEditing(NEW)}>
-          New category
+          <Plus /> New category
         </button>
       </div>
       {editing && (

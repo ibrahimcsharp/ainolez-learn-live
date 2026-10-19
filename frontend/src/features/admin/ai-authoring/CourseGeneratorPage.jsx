@@ -1,3 +1,4 @@
+import { ArrowLeft, Eye, FolderOpen, Plus, RotateCcw, Save, Sparkles, Trash2, Wand2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { api } from "../../../shared/api/client";
@@ -44,7 +45,7 @@ export function CourseGeneratorPage() {
                   <td>{job.lessons_total ? `${job.lessons_done} / ${job.lessons_total}` : "–"}</td>
                   <td>${Number(job.cost_usd).toFixed(2)}</td>
                   <td>
-                    <button className={`btn btn-outline ${styles.small}`} onClick={() => setOpenId(job.id)}>Open</button>
+                    <button className={`btn btn-outline ${styles.small}`} onClick={() => setOpenId(job.id)}><FolderOpen /> Open</button>
                   </td>
                 </tr>
               ))}
@@ -89,7 +90,7 @@ function NewJobForm({ onStarted }) {
         placeholder="Complete beginners who have never written code" />
       <Field label="Notes for Claude (optional)" name="notes" as="textarea" rows={2} value={values.notes}
         onChange={onChange} placeholder="End with a small project. Use pandas from chapter 3." />
-      <button className="btn btn-primary" disabled={busy}>{busy ? "Starting…" : "Propose an outline"}</button>
+      <button className="btn btn-primary" disabled={busy}><Sparkles /> {busy ? "Starting…" : "Propose an outline"}</button>
     </form>
   );
 }
@@ -127,7 +128,7 @@ function JobDetail({ id, onBack }) {
 
   return (
     <>
-      <button className={`btn btn-outline ${styles.small}`} onClick={onBack}>← All courses</button>
+      <button className={`btn btn-outline ${styles.small}`} onClick={onBack}><ArrowLeft /> All courses</button>
       <section className={`card ${styles.panel}`}>
         <div className={styles.toolbar}>
           <h2 style={{ margin: 0 }}>{data.outline?.title ?? data.topic}</h2>
@@ -147,9 +148,9 @@ function JobDetail({ id, onBack }) {
         )}
         <div className={styles.actions} style={{ justifyContent: "flex-start" }}>
           {data.course_id && (
-            <Link className="btn btn-primary" to={`/admin/courses/${data.course_id}`}>Review the draft course</Link>
+            <Link className="btn btn-primary" to={`/admin/courses/${data.course_id}`}><Eye /> Review the draft course</Link>
           )}
-          {status === "failed" && <button className="btn btn-outline" onClick={() => run("retry")}>Retry</button>}
+          {status === "failed" && <button className="btn btn-outline" onClick={() => run("retry")}><RotateCcw /> Retry</button>}
         </div>
       </section>
       {status === "outline_ready" && <OutlineEditor job={data} onChange={job.reload} onGenerate={() => run("generate")} />}
@@ -197,7 +198,7 @@ function OutlineEditor({ job, onChange, onGenerate }) {
             <input value={chapter.title} aria-label="Chapter title" style={{ flex: 1, fontWeight: 600 }}
               onChange={(e) => updateChapter(ci, { title: e.target.value })} />
             <button type="button" className={`btn btn-outline ${styles.small} ${styles.danger}`}
-              onClick={() => update({ chapters: remove(outline.chapters, ci) })}>Remove chapter</button>
+              onClick={() => update({ chapters: remove(outline.chapters, ci) })}><Trash2 /> Remove chapter</button>
           </div>
           {chapter.lessons.map((lesson, li) => (
             <div key={li} className={styles.toolbar}>
@@ -206,23 +207,23 @@ function OutlineEditor({ job, onChange, onGenerate }) {
               <input value={lesson.summary} aria-label="Lesson summary" style={{ flex: 1 }}
                 onChange={(e) => updateLesson(ci, li, { summary: e.target.value })} />
               <button type="button" className={`btn btn-outline ${styles.small}`}
-                onClick={() => updateChapter(ci, { lessons: remove(chapter.lessons, li) })}>✕</button>
+                onClick={() => updateChapter(ci, { lessons: remove(chapter.lessons, li) })} aria-label="Remove lesson"><X /></button>
             </div>
           ))}
           <button type="button" className={`btn btn-outline ${styles.small}`}
             onClick={() => updateChapter(ci, { lessons: [...chapter.lessons, { title: "", summary: "" }] })}>
-            + Lesson
+            <Plus /> Lesson
           </button>
         </fieldset>
       ))}
       <div className={styles.actions} style={{ justifyContent: "flex-start" }}>
         <button type="button" className="btn btn-outline"
           onClick={() => update({ chapters: [...outline.chapters, { title: "New chapter", description: "", lessons: [] }] })}>
-          + Chapter
+          <Plus /> Chapter
         </button>
-        <button className="btn btn-outline" disabled={busy}>Save outline</button>
+        <button className="btn btn-outline" disabled={busy}><Save /> Save outline</button>
         <button type="button" className="btn btn-primary" disabled={busy || !category} onClick={saveAndGenerate}>
-          Write the lessons
+          <Wand2 /> Write the lessons
         </button>
         {!category && <span className="muted">Pick a category first.</span>}
       </div>

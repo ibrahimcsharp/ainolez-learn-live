@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
 import { Field } from "../../../shared/ui/Field";
@@ -46,7 +47,7 @@ export function GamificationPage() {
 
       <div className={styles.toolbar} style={{ marginTop: 32 }}>
         <h2>Badges</h2>
-        <button className="btn btn-primary" onClick={() => setEditingBadge(NEW_BADGE)}>New badge</button>
+        <button className="btn btn-primary" onClick={() => setEditingBadge(NEW_BADGE)}><Plus /> New badge</button>
       </div>
       {editingBadge && (
         <BadgeForm key={editingBadge.id ?? "new"} initial={editingBadge}

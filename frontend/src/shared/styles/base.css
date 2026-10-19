@@ -57,12 +57,18 @@ code {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
-  border: 2px solid transparent;
-  border-radius: 999px;
-  font: 600 15px var(--font-body);
+  padding: var(--btn-padding, 10px 20px);
+  border: var(--btn-border, 2px) solid transparent;
+  border-radius: var(--btn-radius, 999px);
+  font: 600 var(--btn-font-size, 15px) var(--font-body);
   text-decoration: none;
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
 }
 .btn:disabled {
   opacity: 0.6;
@@ -80,9 +86,12 @@ code {
   color: var(--navy-900);
 }
 .btn-outline {
-  border-color: currentColor;
-  background: transparent;
+  border-color: var(--btn-outline-border, currentColor);
+  background: var(--btn-outline-bg, transparent);
   color: inherit;
+}
+.btn-outline:hover {
+  background: var(--btn-outline-hover, transparent);
 }
 .btn-block {
   width: 100%;

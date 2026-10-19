@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
 import { Field } from "../../../shared/ui/Field";
@@ -68,7 +69,7 @@ export function BlocksEditor({ lessonId, courseId, blocks, onChange }) {
       <div className={styles.actions} style={{ justifyContent: "flex-start", marginTop: 12 }}>
         {Object.entries(TYPES).map(([type, label]) => (
           <button key={type} className="btn btn-outline" onClick={() => setNewType(type)}>
-            + {label}
+            <Plus /> {label}
           </button>
         ))}
       </div>

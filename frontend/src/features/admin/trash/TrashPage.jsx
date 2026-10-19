@@ -1,3 +1,4 @@
+import { ArchiveRestore, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -60,10 +61,10 @@ export function TrashPage() {
               <td>
                 <div className={styles.actions}>
                   <button className={`btn btn-outline ${styles.small}`} onClick={() => restore(row)}>
-                    Restore
+                    <ArchiveRestore /> Restore
                   </button>
                   <button className={`btn btn-outline ${styles.small} ${styles.danger}`} onClick={() => setDeleting(row)}>
-                    Delete forever
+                    <Trash2 /> Delete forever
                   </button>
                 </div>
               </td>
@@ -117,10 +118,10 @@ function HardDeleteDialog({ url, onClose, onDeleted }) {
         {error && <p className="notice notice-error">{error}</p>}
         <div className={styles.actions}>
           <button type="button" className="btn btn-outline" onClick={() => dialog.current.close()}>
-            Cancel
+            <X /> Cancel
           </button>
           <button className="btn btn-primary" style={{ background: "var(--red-600)" }} disabled={typed !== confirmText}>
-            Delete forever
+            <Trash2 /> Delete forever
           </button>
         </div>
       </form>

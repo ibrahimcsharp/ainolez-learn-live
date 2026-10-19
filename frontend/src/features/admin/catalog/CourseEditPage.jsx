@@ -1,3 +1,4 @@
+import { Plus, Save } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { api } from "../../../shared/api/client";
@@ -160,7 +161,7 @@ function QuickAdd({ placeholder, onAdd, initial = "" }) {
     <form onSubmit={submit} className={styles.actions}>
       <input value={text} onChange={(e) => setText(e.target.value)} placeholder={placeholder} required />
       <button className={`btn btn-outline ${styles.small}`} disabled={busy}>
-        Save
+        <Save /> Save
       </button>
       {error && <span className="field-error">{error.message}</span>}
     </form>
@@ -207,7 +208,7 @@ function Quizzes({ courseId }) {
       <div className={styles.toolbar}>
         <h2>Quizzes</h2>
         <button className="btn btn-primary" onClick={() => setCreating(true)}>
-          New quiz
+          <Plus /> New quiz
         </button>
       </div>
       {creating && (

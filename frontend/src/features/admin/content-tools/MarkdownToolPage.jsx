@@ -1,3 +1,4 @@
+import { Copy } from "lucide-react";
 import { useState } from "react";
 import { useMarkdownPreview } from "../shared/useMarkdownPreview";
 import styles from "../shared/admin.module.css";
@@ -20,7 +21,7 @@ export function MarkdownToolPage() {
       <div className={styles.toolbar}>
         <h1>Markdown converter</h1>
         <button className="btn btn-outline" onClick={() => navigator.clipboard.writeText(html)}>
-          Copy HTML
+          <Copy /> Copy HTML
         </button>
       </div>
       <p className="muted">

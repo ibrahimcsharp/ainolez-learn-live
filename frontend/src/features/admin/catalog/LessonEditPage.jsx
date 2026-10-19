@@ -1,3 +1,4 @@
+import { Download, ExternalLink, Eye, Pencil } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { api } from "../../../shared/api/client";
@@ -41,14 +42,14 @@ export function LessonEditPage() {
         <div className={styles.actions}>
           {data.status === "published" && (
             <a className="btn btn-outline" href={`/${data.course_slug}/${data.slug}`}>
-              View on site
+              <ExternalLink /> View on site
             </a>
           )}
           <button className="btn btn-outline" onClick={exportMarkdown}>
-            Export .md
+            <Download /> Export .md
           </button>
           <button className="btn btn-outline" aria-pressed={preview} onClick={() => setPreview(!preview)}>
-            {preview ? "Edit blocks" : "Preview"}
+            {preview ? <><Pencil /> Edit blocks</> : <><Eye /> Preview</>}
           </button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { Ban, Eye, Pencil, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -67,12 +68,12 @@ export function CertificatesPage() {
                   )}
                   {cert.status === "issued" && (
                     <>
-                      <a className={`btn btn-outline ${styles.small}`} href={cert.verify_url} target="_blank" rel="noreferrer">View</a>
-                      <button className={`btn btn-outline ${styles.small} ${styles.danger}`} onClick={() => revoke(cert)}>Revoke</button>
+                      <a className={`btn btn-outline ${styles.small}`} href={cert.verify_url} target="_blank" rel="noreferrer"><Eye /> View</a>
+                      <button className={`btn btn-outline ${styles.small} ${styles.danger}`} onClick={() => revoke(cert)}><Ban /> Revoke</button>
                     </>
                   )}
                   {cert.status !== "pending_review" && (
-                    <button className={`btn btn-outline ${styles.small}`} onClick={() => run(cert, "reissue")}>Re-issue</button>
+                    <button className={`btn btn-outline ${styles.small}`} onClick={() => run(cert, "reissue")}><RotateCcw /> Re-issue</button>
                   )}
                 </div>
               </td>
@@ -103,7 +104,7 @@ function Templates() {
             <span style={{ background: template.accent_color, padding: "2px 10px", marginRight: 10 }} />
             <strong>{template.name}</strong> {template.is_default && "(default)"} · “{template.heading}”
           </span>
-          <button className={`btn btn-outline ${styles.small}`} onClick={() => setEditing(template)}>Edit</button>
+          <button className={`btn btn-outline ${styles.small}`} onClick={() => setEditing(template)}><Pencil /> Edit</button>
         </div>
       ))}
     </section>

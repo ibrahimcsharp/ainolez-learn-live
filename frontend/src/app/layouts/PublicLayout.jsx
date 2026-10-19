@@ -67,14 +67,31 @@ function SearchBox() {
   );
 }
 
+const FOOTER_LINKS = [
+  ["Learn", [["/courses", "All courses"], ["/python", "Python"], ["/html", "HTML"], ["/intro-to-ai", "AI"]]],
+  ["Community", [["/community", "Forum"], ["/leaderboard", "Leaderboard"], ["/ai", "AI tutor"]]],
+  ["Account", [["/register", "Sign up free"], ["/login", "Log in"], ["/dashboard", "My dashboard"]]],
+];
+
 function SiteFooter() {
   return (
     <footer className={styles.footer}>
       <div className={`container ${styles.footerInner}`}>
-        <Logo variant="reversed" height={24} />
-        <p>Learn it. Code it. Own it.</p>
-        <p className={styles.footerSmall}>© {new Date().getFullYear()} ainolez · Free for everyone, forever.</p>
+        <div className={styles.footerBrand}>
+          <Logo variant="reversed" height={26} />
+          <p>Learn it. Code it. Own it.</p>
+          <p className={styles.footerSmall}>Free coding and AI courses for everyone, forever.</p>
+        </div>
+        {FOOTER_LINKS.map(([title, links]) => (
+          <nav key={title} aria-label={title} className={styles.footerCol}>
+            <strong>{title}</strong>
+            {links.map(([to, label]) => (
+              <Link key={to} to={to}>{label}</Link>
+            ))}
+          </nav>
+        ))}
       </div>
+      <div className={`container ${styles.footerBottom}`}>© {new Date().getFullYear()} ainolez</div>
     </footer>
   );
 }

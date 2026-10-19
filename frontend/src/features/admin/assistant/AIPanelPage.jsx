@@ -1,3 +1,4 @@
+import { BookmarkPlus, Check, PlugZap, Plus, RefreshCw, Save, Search } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -52,7 +53,7 @@ function SettingsTab() {
       <section className="card">
         <h3>API connection</h3>
         <p className="muted">The Anthropic API key lives in the server's .env file (ANTHROPIC_API_KEY), never in the browser.</p>
-        <button className="btn btn-outline" onClick={runTest}>Test connection</button>{" "}
+        <button className="btn btn-outline" onClick={runTest}><PlugZap /> Test connection</button>{" "}
         {test && (
           <span className={test.ok === false ? styles.danger : ""}>
             {test.ok ? `✓ ${test.model} answered in ${test.latency_ms} ms` : test.detail}
@@ -106,7 +107,7 @@ function SettingsForm({ initial, onSaved }) {
           {field("Starter questions (one per line)", "starter_questions", { as: "textarea", rows: 3 })}
         </div>
       </div>
-      <button className="btn btn-primary" disabled={busy}>{busy ? "Saving…" : "Save settings"}</button>
+      <button className="btn btn-primary" disabled={busy}><Save /> {busy ? "Saving…" : "Save settings"}</button>
     </form>
   );
 }
@@ -138,7 +139,7 @@ function PromptTab() {
         <textarea className={styles.code} rows={16} style={{ width: "100%" }} value={text ?? current?.system_prompt ?? ""}
           onChange={(e) => setText(e.target.value)} aria-label="System prompt" />
         <input placeholder="What changed?" value={notes} onChange={(e) => setNotes(e.target.value)} style={{ width: "100%", margin: "8px 0" }} />
-        <button className="btn btn-primary" disabled={busy || text === null}>Save as new version</button>
+        <button className="btn btn-primary" disabled={busy || text === null}><Save /> Save as new version</button>
       </form>
       <table className={styles.table}>
         <tbody>
@@ -147,7 +148,7 @@ function PromptTab() {
               <td>v{version.version_no} {version.is_current && <strong>(in use)</strong>}</td>
               <td>{version.notes}</td>
               <td>{new Date(version.created_at).toLocaleString()}</td>
-              <td>{!version.is_current && <button className={`btn btn-outline ${styles.small}`} onClick={() => activate(version)}>Use this version</button>}</td>
+              <td>{!version.is_current && <button className={`btn btn-outline ${styles.small}`} onClick={() => activate(version)}><Check /> Use this version</button>}</td>
             </tr>
           ))}
         </tbody>
@@ -180,8 +181,8 @@ function KnowledgeTab() {
           Published lessons are added and updated automatically. Add documents for anything else the tutor should know.
         </p>
         <div className={styles.actions}>
-          <button className="btn btn-outline" onClick={reindexAll}>Re-index everything</button>
-          <button className="btn btn-primary" onClick={() => setEditing({ title: "", url: "", body: "" })}>Add document</button>
+          <button className="btn btn-outline" onClick={reindexAll}><RefreshCw /> Re-index everything</button>
+          <button className="btn btn-primary" onClick={() => setEditing({ title: "", url: "", body: "" })}><Plus /> Add document</button>
         </div>
       </div>
       {message && <p className="notice notice-info">{message}</p>}
@@ -193,7 +194,7 @@ function KnowledgeTab() {
         <h3>Test search</h3>
         <div className={styles.actions} style={{ justifyContent: "flex-start" }}>
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="A question a learner might ask" style={{ flex: 1 }} />
-          <button className="btn btn-outline">Search</button>
+          <button className="btn btn-outline"><Search /> Search</button>
         </div>
         {results?.length === 0 && <p className="muted">Nothing found: the tutor would answer from general knowledge.</p>}
         {results?.map((r, i) => (
@@ -214,7 +215,7 @@ function KnowledgeTab() {
                   onEdit={source.type === "document" ? setEditing : undefined}>
                   <button className={`btn btn-outline ${styles.small}`}
                     onClick={() => api(`${BASE}/${source.id}/reindex/`, { method: "POST" }).then((d) => setMessage(d.detail))}>
-                    Re-index
+                    <RefreshCw /> Re-index
                   </button>
                 </RecordActions>
               </td>
@@ -249,7 +250,7 @@ function FaqTab() {
     <>
       <div className={styles.toolbar}>
         <p className="muted" style={{ margin: 0 }}>A question close to one of these gets the curated answer, free and instant.</p>
-        <button className="btn btn-primary" onClick={() => setEditing({ question: "", answer_md: "", keywords: "" })}>New FAQ</button>
+        <button className="btn btn-primary" onClick={() => setEditing({ question: "", answer_md: "", keywords: "" })}><Plus /> New FAQ</button>
       </div>
       {editing && <FaqForm key={editing.id ?? "new"} base={BASE} initial={editing}
         onSaved={() => { setEditing(null); list.reload(); }} onCancel={() => setEditing(null)} />}
@@ -321,7 +322,7 @@ function ConversationsTab() {
               <strong>{m.role === "user" ? "Learner" : `Tutor (${m.answered_by})`}</strong> {m.feedback === "down" && "👎"}{m.feedback === "up" && "👍"}
               <div className="lesson-content" dangerouslySetInnerHTML={{ __html: m.content_html }} />
               {m.role === "assistant" && (
-                <button className={`btn btn-outline ${styles.small}`} onClick={() => toFaq(i)}>Save as FAQ</button>
+                <button className={`btn btn-outline ${styles.small}`} onClick={() => toFaq(i)}><BookmarkPlus /> Save as FAQ</button>
               )}
             </div>
           ))}

@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -20,7 +21,7 @@ export function CoursesPage() {
         <h1>Courses</h1>
         <input type="search" placeholder="Search courses" value={query} onChange={(e) => setQuery(e.target.value)} />
         <button className="btn btn-primary" onClick={() => setCreating(true)}>
-          New course
+          <Plus /> New course
         </button>
       </div>
       {creating && (

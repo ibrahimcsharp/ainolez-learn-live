@@ -1,3 +1,4 @@
+import { Pencil, Power, PowerOff, Trash2 } from "lucide-react";
 import { api } from "../../../shared/api/client";
 import styles from "./admin.module.css";
 
@@ -17,20 +18,20 @@ export function RecordActions({ base, row, onChange, onEdit, children }) {
       {children}
       {onEdit && (
         <button className={`btn btn-outline ${styles.small}`} onClick={() => onEdit(row)}>
-          Edit
+          <Pencil /> Edit
         </button>
       )}
       <button
         className={`btn btn-outline ${styles.small}`}
         onClick={() => run(row.is_active ? "deactivate" : "activate")}
       >
-        {row.is_active ? "Deactivate" : "Activate"}
+        {row.is_active ? <><PowerOff /> Deactivate</> : <><Power /> Activate</>}
       </button>
       <button
         className={`btn btn-outline ${styles.small} ${styles.danger}`}
         onClick={() => run("soft-delete")}
       >
-        Trash
+        <Trash2 /> Trash
       </button>
     </div>
   );

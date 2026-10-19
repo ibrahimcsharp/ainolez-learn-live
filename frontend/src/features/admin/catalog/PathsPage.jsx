@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
 import { Field } from "../../../shared/ui/Field";
@@ -19,7 +20,7 @@ export function PathsPage() {
       <div className={styles.toolbar}>
         <h1>Learning paths</h1>
         <button className="btn btn-primary" onClick={() => setEditing(NEW)}>
-          New path
+          <Plus /> New path
         </button>
       </div>
       {editing && (

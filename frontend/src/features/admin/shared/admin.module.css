@@ -55,6 +55,11 @@
 .danger {
   color: var(--red-600);
 }
+.danger:global(.btn) {
+  color: var(--red-600);
+  --btn-outline-border: #f3c4cc;
+  --btn-outline-hover: #fdecef;
+}
 
 .badge {
   display: inline-block;

@@ -1,3 +1,4 @@
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -43,7 +44,7 @@ export function QuizEditPage() {
       <div className={styles.toolbar}>
         <h2>Questions</h2>
         <button className="btn btn-primary" onClick={() => setEditing({ ...NEW_QUESTION, quiz: Number(id) })}>
-          New question
+          <Plus /> New question
         </button>
       </div>
       {editing && (
@@ -129,14 +130,14 @@ function QuestionForm({ initial, onSaved, onCancel }) {
             {options.length > 2 && (
               <button type="button" className={`btn btn-outline ${styles.small}`}
                 onClick={() => setValues({ ...values, options: options.filter((_, i) => i !== index) })}>
-                Remove
+                <Trash2 /> Remove
               </button>
             )}
           </div>
         ))}
         <button type="button" className={`btn btn-outline ${styles.small}`}
           onClick={() => setValues({ ...values, options: [...options, { option_text: "", is_correct: false }] })}>
-          + Add answer
+          <Plus /> Add answer
         </button>
       </fieldset>
     </EditPanel>

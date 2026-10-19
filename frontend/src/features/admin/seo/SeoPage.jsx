@@ -1,3 +1,4 @@
+import { Pencil, RefreshCw, Save, X } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -55,11 +56,11 @@ function PagesTab({ editing, onOpen, onClose }) {
       <form className={styles.toolbar} onSubmit={openTyped}>
         <input name="path" placeholder="/courses, /python, /python/lists, /community/posts/12" style={{ flex: 1 }}
           aria-label="Page path" />
-        <button className="btn btn-primary">Edit SEO of this page</button>
+        <button className="btn btn-primary"><Pencil /> Edit SEO of this page</button>
       </form>
       {editing && (
         <>
-          <button className={`btn btn-outline ${styles.small}`} onClick={onClose}>Close editor</button>
+          <button className={`btn btn-outline ${styles.small}`} onClick={onClose}><X /> Close editor</button>
           <SeoEditor key={editing} path={editing} onSaved={list.reload} />
         </>
       )}
@@ -143,7 +144,7 @@ function SiteForm({ initial, onSaved }) {
       {field("default_description", "Default description", { as: "textarea", rows: 2 })}
       {field("social_profiles", "Social profile links, one per line (schema.org sameAs)", { as: "textarea", rows: 3 })}
       {field("robots_txt_extra", "Extra robots.txt lines", { as: "textarea", rows: 3, className: styles.code })}
-      <button className="btn btn-primary" disabled={busy}>{busy ? "Saving…" : "Save"}</button>
+      <button className="btn btn-primary" disabled={busy}><Save /> {busy ? "Saving…" : "Save"}</button>
     </form>
   );
 }
@@ -173,7 +174,7 @@ function ReportTab({ onOpen }) {
           Rebuilt automatically a minute after content or SEO changes, and every night.{" "}
           {builtAt ? `Last build: ${new Date(builtAt).toLocaleString()} (${built} pages).` : "Not built yet."}
         </p>
-        <button className="btn btn-outline" onClick={rebuild}>Rebuild now</button> <span>{build}</span>
+        <button className="btn btn-outline" onClick={rebuild}><RefreshCw /> Rebuild now</button> <span>{build}</span>
         <details>
           <summary className="muted">robots.txt</summary>
           <pre className={styles.code}>{robots}</pre>
@@ -209,7 +210,7 @@ function ReportTab({ onOpen }) {
               </td>
               <td>{page.robots}{page.in_sitemap && <div className="muted">in sitemap</div>}</td>
               <td>
-                <button className={`btn btn-outline ${styles.small}`} onClick={() => onOpen(page.path)}>Edit</button>
+                <button className={`btn btn-outline ${styles.small}`} onClick={() => onOpen(page.path)}><Pencil /> Edit</button>
               </td>
             </tr>
           ))}

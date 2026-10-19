@@ -1,3 +1,4 @@
+import { RotateCcw, Save } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -157,10 +158,10 @@ function SeoForm({ path, page, automatic, result, onSaved }) {
       )}
 
       <div className={styles.actions} style={{ justifyContent: "flex-start" }}>
-        <button className="btn btn-primary" disabled={busy}>{busy ? "Saving…" : "Save SEO"}</button>
+        <button className="btn btn-primary" disabled={busy}><Save /> {busy ? "Saving…" : "Save SEO"}</button>
         {page && (
           <button type="button" className={`btn btn-outline ${styles.danger}`} onClick={reset}>
-            Reset to automatic
+            <RotateCcw /> Reset to automatic
           </button>
         )}
       </div>

@@ -1,3 +1,4 @@
+import { Save, X } from "lucide-react";
 import { api } from "../../../shared/api/client";
 import { useFormFields, useSubmit } from "../../../shared/hooks/useForm";
 import { FormError } from "../../../shared/ui/Field";
@@ -27,11 +28,11 @@ export function EditPanel({ title, form, onCancel, children }) {
       <div className={styles.formGrid}>{children}</div>
       <div className={styles.actions} style={{ justifyContent: "flex-start" }}>
         <button className="btn btn-primary" disabled={form.busy}>
-          {form.busy ? "Saving…" : "Save"}
+          <Save /> {form.busy ? "Saving…" : "Save"}
         </button>
         {onCancel && (
           <button type="button" className="btn btn-outline" onClick={onCancel}>
-            Cancel
+            <X /> Cancel
           </button>
         )}
       </div>

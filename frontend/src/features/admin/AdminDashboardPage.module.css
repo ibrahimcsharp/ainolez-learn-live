@@ -1,14 +1,25 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 16px;
+  margin-top: 24px;
 }
 .stat {
   display: grid;
   gap: 4px;
-  border-top: 4px solid var(--green-400);
+  padding: 20px;
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  background: rgb(4 170 109 / 10%);
+  color: var(--green-700);
 }
 .value {
-  font: 700 34px var(--font-heading);
+  font: 700 30px var(--font-heading);
   color: var(--navy-900);
 }

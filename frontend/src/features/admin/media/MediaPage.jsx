@@ -1,3 +1,4 @@
+import { Upload } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
@@ -41,7 +42,7 @@ function UploadForm({ onDone }) {
       <input type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.mp4" required onChange={(e) => setFile(e.target.files[0])} />
       <input placeholder="Alt text" value={alt} onChange={(e) => setAlt(e.target.value)} />
       <button className="btn btn-primary" disabled={busy}>
-        {busy ? "Uploading…" : "Upload"}
+        <Upload /> {busy ? "Uploading…" : "Upload"}
       </button>
       <FormError error={error} />
     </form>
