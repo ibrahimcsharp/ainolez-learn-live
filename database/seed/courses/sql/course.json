@@ -1,0 +1,14 @@
+{
+  "title": "SQL for Beginners",
+  "slug": "sql",
+  "category": {"name": "Data", "icon": "📊", "color": "#0B7285", "description": "Work with data: SQL databases, analysis with pandas and charts."},
+  "level": "beginner",
+  "language_key": "sql",
+  "short_description": "Ask questions of data with SQL. Every query runs in your browser on a real SQLite database.",
+  "description": "SQL is the language of databases, used by developers, analysts and data scientists alike. In this course you create tables, add data, and write queries that filter, sort, group and join. Every example runs in the browser, so you can change it and see the result at once.",
+  "chapters": [
+    {"title": "First Queries", "description": "Tables, SELECT and WHERE.", "lessons": ["01-intro.md", "02-select.md", "03-where.md"]},
+    {"title": "Summarising Data", "description": "Sort, count and group.", "lessons": ["04-order-limit.md", "05-aggregate.md"]},
+    {"title": "Combining and Changing Data", "description": "JOIN, UPDATE and DELETE.", "lessons": ["06-joins.md", "07-modify.md"]}
+  ]
+}

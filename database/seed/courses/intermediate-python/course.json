@@ -1,0 +1,16 @@
+{
+  "title": "Intermediate Python",
+  "slug": "intermediate-python",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "intermediate",
+  "language_key": "python",
+  "short_description": "Write cleaner, more powerful Python: comprehensions, classes, generators, decorators and tests.",
+  "description": "You know the basics; now write Python like a professional. This course covers the tools experienced developers use every day: comprehensions and lambdas, your own modules and packages, virtual environments, object-oriented programming, iterators and generators, decorators, and testing your code.",
+  "chapters": [
+    {"title": "Pythonic Code", "description": "Shorter, clearer code.", "lessons": ["01-comprehensions.md", "02-lambda-sorting.md"]},
+    {"title": "Modules and Packages", "description": "Organise code and install libraries.", "lessons": ["03-packages.md"]},
+    {"title": "Object-Oriented Python", "description": "Model things with classes.", "lessons": ["04-classes.md", "05-inheritance.md"]},
+    {"title": "Iterators, Generators and Decorators", "description": "Advanced building blocks.", "lessons": ["06-generators.md", "07-decorators.md"]},
+    {"title": "Testing", "description": "Make sure your code works.", "lessons": ["08-testing.md"]}
+  ]
+}

@@ -1,0 +1,87 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin: 20px 0 8px;
+}
+.stat {
+  display: grid;
+  gap: 2px;
+  border-top: 4px solid var(--green-400);
+}
+.stat span:first-child {
+  font: 700 30px var(--font-heading);
+  color: var(--navy-900);
+}
+.stat .accent {
+  color: var(--amber-500);
+}
+
+.section {
+  margin-top: 28px;
+}
+.course {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.course h3 {
+  margin: 0 0 8px;
+}
+.course a {
+  text-decoration: none;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+.bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--gray-200);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--green-400);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.badges,
+.points {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.badges li {
+  display: grid;
+  justify-items: center;
+  width: 96px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.badges li span {
+  font-size: 34px;
+}
+.points li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+.points strong {
+  color: var(--amber-500);
+}

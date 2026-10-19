@@ -1,0 +1,14 @@
+{
+  "title": "CSS for Beginners",
+  "slug": "css",
+  "category": {"name": "Web Development", "icon": "🌐", "color": "#E34F26", "description": "Build websites with HTML, CSS and JavaScript."},
+  "level": "beginner",
+  "language_key": "css",
+  "short_description": "Style web pages with colours, fonts, spacing, Flexbox and Grid, and make them work on phones.",
+  "description": "CSS turns plain HTML into a designed page. In this course you learn selectors, colours and fonts, the box model, Flexbox and Grid layouts, and responsive design with media queries. Every example is a live editor, so you can change a value and see the page update.",
+  "chapters": [
+    {"title": "CSS Basics", "description": "Rules, selectors, colours and text.", "lessons": ["01-intro.md", "02-selectors.md", "03-colors-text.md"]},
+    {"title": "Layout", "description": "Boxes, Flexbox and Grid.", "lessons": ["04-box-model.md", "05-flexbox.md", "06-grid.md"]},
+    {"title": "Responsive Design", "description": "Pages that fit every screen.", "lessons": ["07-responsive.md"]}
+  ]
+}

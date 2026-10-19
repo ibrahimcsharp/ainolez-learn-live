@@ -1,0 +1,14 @@
+{
+  "title": "Prompt Engineering",
+  "slug": "prompt-engineering",
+  "category": {"name": "Artificial Intelligence", "icon": "🤖", "color": "#7048E8", "description": "Understand, build and use AI: machine learning, language models and responsible AI."},
+  "level": "beginner",
+  "language_key": "ai",
+  "short_description": "Get reliable, useful results from AI assistants such as Claude, and use them from your own code.",
+  "description": "The same AI model can give a vague answer or an excellent one depending on how you ask. This course teaches the habits that work: clear instructions and context, examples, structure, asking for a specific output format, breaking big tasks into steps, and testing prompts. The last lesson shows how to call Claude from a Python program.",
+  "chapters": [
+    {"title": "Writing Good Prompts", "description": "Clarity, context and examples.", "lessons": ["01-clear-prompts.md", "02-examples-structure.md"]},
+    {"title": "Reliable Results", "description": "Formats, steps and testing.", "lessons": ["03-output-formats.md", "04-iterate.md"]},
+    {"title": "Prompts in Code", "description": "Use a model from your own program.", "lessons": ["05-api.md"]}
+  ]
+}

@@ -1,0 +1,141 @@
+/* Public site */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.main {
+  flex: 1;
+}
+
+.header {
+  background: var(--navy-900);
+  color: var(--white);
+}
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+}
+.headerNav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.headerNav a:not(:global(.btn)) {
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.search {
+  width: 180px;
+  padding: 7px 12px;
+  border: 1px solid #33475b;
+  border-radius: 999px;
+  background: var(--ink-800);
+  color: var(--white);
+  font: inherit;
+}
+
+.footer {
+  background: var(--navy-900);
+  color: #c8d3e0;
+  padding: 32px 0;
+}
+.footerInner {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.footerInner p {
+  margin: 0;
+}
+.footerSmall {
+  font-size: 13px;
+}
+
+/* Learner portal + admin panel */
+.portal {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+.sidebar,
+.sidebarAdmin {
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.sidebar {
+  background: var(--white);
+  border-right: 1px solid var(--gray-200);
+}
+.sidebarAdmin {
+  background: var(--navy-900);
+  color: var(--white);
+}
+.sidebarLogo {
+  padding: 4px 8px;
+}
+.badge {
+  align-self: flex-start;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--green-400);
+  color: var(--navy-900);
+  font-size: 12px;
+  font-weight: 600;
+}
+.sideNav {
+  display: grid;
+  gap: 4px;
+}
+.sideNav a {
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 500;
+}
+.sideNav a:hover {
+  background: rgb(4 170 109 / 10%);
+}
+.sideNav a:global(.active) {
+  background: var(--green-600);
+  color: var(--white);
+}
+
+.portalBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+.portalMain {
+  padding: 32px 24px;
+}
+
+@media (max-width: 760px) {
+  .portal {
+    grid-template-columns: 1fr;
+  }
+  .sideNav {
+    grid-auto-flow: column;
+    justify-content: start;
+  }
+  .headerNav {
+    gap: 12px;
+  }
+}

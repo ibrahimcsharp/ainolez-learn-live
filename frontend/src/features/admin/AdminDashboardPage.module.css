@@ -1,0 +1,14 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.stat {
+  display: grid;
+  gap: 4px;
+  border-top: 4px solid var(--green-400);
+}
+.value {
+  font: 700 34px var(--font-heading);
+  color: var(--navy-900);
+}

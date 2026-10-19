@@ -1,0 +1,51 @@
+.hero {
+  background: var(--navy-900);
+  color: var(--white);
+  padding: 72px 0 64px;
+}
+.slogan {
+  font-size: clamp(36px, 6vw, 60px);
+  max-width: 14ch;
+}
+.slogan span {
+  color: var(--green-400);
+}
+.lead {
+  font-size: 19px;
+  color: #c8d3e0;
+  max-width: 48ch;
+  margin: 0 0 28px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0;
+}
+.topics a {
+  display: block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: var(--ink-800);
+  color: var(--white);
+  text-decoration: none;
+  font: 500 14px var(--font-code);
+}
+.topics a:hover {
+  background: var(--green-600);
+}
+
+.promises {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  padding-top: 48px;
+  padding-bottom: 64px;
+}

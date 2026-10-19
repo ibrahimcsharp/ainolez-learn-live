@@ -1,0 +1,14 @@
+{
+  "title": "Python for Data Analysis",
+  "slug": "python-data-analysis",
+  "category": {"name": "Data", "icon": "📊", "color": "#0B7285", "description": "Work with data: SQL databases, analysis with pandas and charts."},
+  "level": "intermediate",
+  "language_key": "python",
+  "short_description": "Clean, explore and summarise data with NumPy and pandas, running in your browser.",
+  "description": "Data analysis turns raw numbers into answers. In this course you use NumPy for fast arrays and pandas for tables: load data, select and filter rows, clean missing values, group and summarise, and combine tables. The examples run in the browser with real pandas, so you can explore freely. You should know basic Python first.",
+  "chapters": [
+    {"title": "Arrays and DataFrames", "description": "NumPy and your first pandas tables.", "lessons": ["01-numpy.md", "02-dataframes.md"]},
+    {"title": "Working with Data", "description": "Select, filter and clean.", "lessons": ["03-selecting.md", "04-cleaning.md"]},
+    {"title": "Summarising", "description": "Group, aggregate and combine tables.", "lessons": ["05-groupby.md", "06-merge.md"]}
+  ]
+}

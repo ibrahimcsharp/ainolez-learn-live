@@ -1,0 +1,14 @@
+{
+  "title": "HTML for Beginners",
+  "slug": "html",
+  "category": {"name": "Web Development", "icon": "🌐", "color": "#E34F26", "description": "Build websites with HTML, CSS and JavaScript."},
+  "level": "beginner",
+  "language_key": "html",
+  "short_description": "Build your first web pages. Write HTML and see the page change as you type.",
+  "description": "HTML is the structure of every web page. In this course you learn elements and attributes, headings and text, links and images, lists and tables, forms, and the semantic tags that make pages accessible and search friendly. Every example opens in an editor, so you can change it and see the result.",
+  "chapters": [
+    {"title": "HTML Basics", "description": "Elements, text and links.", "lessons": ["01-intro.md", "02-text.md", "03-links-images.md"]},
+    {"title": "Structuring Content", "description": "Lists, tables and page layout.", "lessons": ["04-lists-tables.md", "05-semantic.md"]},
+    {"title": "Forms", "description": "Collect input from visitors.", "lessons": ["06-forms.md"]}
+  ]
+}

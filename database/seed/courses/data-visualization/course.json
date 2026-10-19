@@ -1,0 +1,14 @@
+{
+  "title": "Data Visualization with Python",
+  "slug": "data-visualization",
+  "category": {"name": "Data", "icon": "📊", "color": "#0B7285", "description": "Work with data: SQL databases, analysis with pandas and charts."},
+  "level": "intermediate",
+  "language_key": "python",
+  "short_description": "Turn data into clear charts with matplotlib and pandas. Charts draw right under your code.",
+  "description": "A good chart shows in a second what a table hides. In this course you draw line, bar, scatter and histogram charts with matplotlib, plot straight from pandas, combine charts into figures, and learn the design habits that make charts honest and easy to read. Every chart draws in the browser under the code.",
+  "chapters": [
+    {"title": "First Charts", "description": "Line and bar charts.", "lessons": ["01-line.md", "02-bar.md"]},
+    {"title": "Distributions and Relationships", "description": "Histograms and scatter plots.", "lessons": ["03-hist-scatter.md"]},
+    {"title": "Better Charts", "description": "pandas plotting, subplots and design.", "lessons": ["04-pandas-subplots.md", "05-design.md"]}
+  ]
+}

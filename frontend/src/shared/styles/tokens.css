@@ -1,0 +1,25 @@
+/* ainolez design tokens: W3Schools greens and yellow x DataCamp navy and neon. */
+:root {
+  --navy-900: #05192d;
+  --ink-800: #282a35;
+  --green-600: #04aa6d;
+  --green-700: #038a58;
+  --green-400: #03ef62;
+  --yellow-100: #fff4a3;
+  --sky-100: #e7f0ff;
+  --gray-50: #f5f7fa;
+  --gray-200: #e3e8ef;
+  --gray-500: #67748a;
+  --text-900: #1f2933;
+  --amber-500: #f5a524;
+  --red-600: #d6304a;
+  --white: #ffffff;
+
+  --font-heading: "Poppins", "Segoe UI", Arial, sans-serif;
+  --font-body: "Inter", "Segoe UI", Arial, sans-serif;
+  --font-code: "JetBrains Mono", Consolas, monospace;
+
+  --radius: 10px;
+  --shadow: 0 1px 2px rgb(5 25 45 / 6%), 0 4px 16px rgb(5 25 45 / 6%);
+  --content-width: 1120px;
+}

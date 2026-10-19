@@ -1,0 +1,70 @@
+.tryit {
+  margin-top: 12px;
+}
+.editor {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 14px;
+}
+.editor :global(.cm-editor) {
+  max-height: 420px;
+}
+.editor :global(.cm-scroller) {
+  font-family: var(--font-code);
+}
+.fallback {
+  width: 100%;
+  min-height: 140px;
+  border: 0;
+  padding: 12px;
+  font: 14px/1.5 var(--font-code);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0;
+}
+.output {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 12px;
+}
+.output pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font: 14px/1.5 var(--font-code);
+  background: none;
+  color: var(--text-900);
+  padding: 0;
+}
+.error {
+  color: var(--red-600) !important;
+}
+.frame {
+  width: 100%;
+  min-height: 220px;
+  border: 0;
+  background: var(--white);
+}
+.table {
+  border-collapse: collapse;
+  margin-bottom: 8px;
+  font: 14px var(--font-code);
+}
+.table th,
+.table td {
+  border: 1px solid var(--gray-200);
+  padding: 4px 10px;
+  text-align: left;
+}
+.chart {
+  display: block;
+  max-width: 100%;
+  margin: 8px 0;
+  background: var(--white);
+}
