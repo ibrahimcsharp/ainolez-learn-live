@@ -26,8 +26,8 @@ Passenger app on `api.<domain>`.
    python manage.py createsuperuser
    python manage.py seed_courses        # the 11 starter courses, published
    ```
-   If `mysqlclient` fails to compile, ask the host to enable the MySQL development
-   headers.
+   The MySQL driver is PyMySQL (pure Python), so nothing needs compiling. If
+   mysqlclient happens to be installed it is used instead (`config/__init__.py`).
 6. **Cron** (cPanel → Cron Jobs), replace the paths with yours:
    ```
    * * * * *  cd ~/apps/ainolez/backend && ~/virtualenv/apps/ainolez/backend/3.11/bin/python manage.py run_jobs --settings=config.settings.production >> tmp/cron.log 2>&1
