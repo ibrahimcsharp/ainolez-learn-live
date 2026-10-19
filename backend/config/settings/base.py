@@ -50,10 +50,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": env("DB_ENGINE", default="django.db.backends.mysql"),
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
+        # .strip(): a stray space after a value in .env would otherwise be part of it.
+        "NAME": env("DB_NAME").strip(),
+        "USER": env("DB_USER").strip(),
         "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOST", default="localhost"),
+        "HOST": env("DB_HOST", default="localhost").strip(),
         "PORT": env("DB_PORT", default="3306"),
         "OPTIONS": {
             "charset": "utf8mb4",
