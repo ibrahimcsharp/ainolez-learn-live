@@ -1,0 +1,16 @@
+{
+  "title": "Data Structures and Algorithms in Python",
+  "slug": "python-dsa",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "intermediate",
+  "language_key": "python",
+  "short_description": "Stacks, queues, linked lists, hash tables, trees, graphs, searching and sorting - built step by step in Python.",
+  "description": "Data structures are ways of organising data; algorithms are step-by-step methods for working with it. Knowing them helps you write fast programs and pass coding interviews. In this course you measure speed with Big O, build stacks, queues, linked lists, hash tables, binary trees, binary search trees and graphs yourself, then implement the classic searching and sorting algorithms and compare how fast they are.",
+  "chapters": [
+    {"title": "Foundations", "description": "Big O and Python's built-in structures.", "lessons": ["01-intro.md", "02-lists-arrays.md"]},
+    {"title": "Linear Structures", "description": "Items in a line.", "lessons": ["03-stacks.md", "04-queues.md", "05-linked-lists.md"]},
+    {"title": "Hashing", "description": "Find anything in one step.", "lessons": ["06-hash-tables.md"]},
+    {"title": "Trees and Graphs", "description": "Branching and connected data.", "lessons": ["07-trees.md", "08-binary-search-trees.md", "09-graphs.md"]},
+    {"title": "Searching and Sorting", "description": "The classic algorithms.", "lessons": ["10-searching.md", "11-simple-sorts.md", "12-fast-sorts.md"]}
+  ]
+}

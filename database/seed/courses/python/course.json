@@ -1,0 +1,18 @@
+{
+  "title": "Python for Absolute Beginners",
+  "slug": "python",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "beginner",
+  "language_key": "python",
+  "short_description": "Your first programming language, step by step. Write and run Python in the browser, no setup needed.",
+  "description": "Python is the most popular first language: it reads almost like English and runs everything from websites to artificial intelligence. In this course you write real Python from the first lesson, right here in the browser. You learn values and variables, text, lists and dictionaries, decisions and loops, functions, errors and files, and finish with a small project.",
+  "chapters": [
+    {"title": "Getting Started", "description": "What Python is and your first lines of code.", "lessons": ["01-intro.md", "02-output.md", "03-variables.md"]},
+    {"title": "Data Types", "description": "Numbers, text and true or false.", "lessons": ["04-numbers.md", "05-strings.md", "06-booleans.md"]},
+    {"title": "Collections", "description": "Keep many values together.", "lessons": ["07-lists.md", "08-tuples-sets.md", "09-dictionaries.md"]},
+    {"title": "Making Decisions and Repeating", "description": "if, for and while.", "lessons": ["10-if-else.md", "11-for-loops.md", "12-while-loops.md"]},
+    {"title": "Functions", "description": "Name a piece of code and reuse it.", "lessons": ["13-functions.md", "14-modules.md"]},
+    {"title": "Errors and Files", "description": "Handle problems and save data.", "lessons": ["15-errors.md", "16-files.md"]},
+    {"title": "Project", "description": "Put it all together.", "lessons": ["17-project.md"]}
+  ]
+}

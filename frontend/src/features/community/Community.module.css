@@ -1,0 +1,128 @@
+.layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 28px;
+  padding-top: 32px;
+  padding-bottom: 64px;
+}
+.spaces {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+.spaces button {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  font: 500 15px var(--font-body);
+  cursor: pointer;
+}
+.spaces button:hover {
+  background: var(--gray-200);
+}
+.spaces button[aria-pressed="true"] {
+  background: var(--green-600);
+  color: var(--white);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.toolbar h1 {
+  margin: 0 auto 0 0;
+}
+.search {
+  padding: 8px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 999px;
+  font: inherit;
+}
+
+.postRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+.postRow h3 {
+  margin: 0 0 4px;
+}
+.postRow:hover {
+  border-color: var(--green-600);
+}
+.meta {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--gray-500);
+}
+.counts {
+  white-space: nowrap;
+  color: var(--gray-500);
+}
+.pending {
+  color: var(--amber-500);
+  font-weight: 600;
+}
+
+.reply {
+  margin-bottom: 10px;
+}
+.helpful {
+  border-left: 5px solid var(--green-600);
+}
+.accepted {
+  color: var(--green-700);
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+.action {
+  border: 1px solid var(--gray-200);
+  border-radius: 999px;
+  background: var(--white);
+  padding: 3px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.action[aria-pressed="true"] {
+  color: var(--red-600);
+  border-color: var(--red-600);
+}
+
+.comments {
+  margin-top: 40px;
+}
+.item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+.textarea {
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font: inherit;
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .spaces {
+    grid-auto-flow: column;
+    overflow-x: auto;
+  }
+}

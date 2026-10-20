@@ -1,0 +1,97 @@
+/* Lesson HTML produced by the Markdown converter (server-side). */
+.lesson-content {
+  font-size: 17px;
+  line-height: 1.7;
+}
+.lesson-content h2 {
+  margin-top: 1.6em;
+}
+.lesson-content pre {
+  background: var(--ink-800);
+  color: #f3f4f6;
+  padding: 14px 18px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font: 14px/1.5 var(--font-code);
+}
+.lesson-content :not(pre) > code {
+  background: var(--gray-200);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.lesson-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+}
+.lesson-content th,
+.lesson-content td {
+  border: 1px solid var(--gray-200);
+  padding: 8px 10px;
+  text-align: left;
+}
+.lesson-content th {
+  background: var(--gray-50);
+}
+.lesson-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.lesson-content figure {
+  margin: 24px 0;
+}
+.lesson-content figcaption {
+  color: var(--gray-500);
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+/* 16:9 frame for videos and embeds */
+.lesson-content .media-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--navy-900);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.lesson-content .media-frame iframe,
+.lesson-content .media-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Callouts (callout blocks) and admonitions (!!! note in Markdown) */
+.lesson-content .callout,
+.lesson-content .admonition {
+  border-left: 5px solid var(--green-600);
+  background: var(--sky-100);
+  padding: 12px 18px;
+  border-radius: 6px;
+  margin: 20px 0;
+}
+.lesson-content .admonition-title {
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.lesson-content .callout-tip,
+.lesson-content .admonition.tip {
+  background: #e3f8ee;
+}
+.lesson-content .callout-warning,
+.lesson-content .admonition.warning {
+  background: #fff1e0;
+  border-color: var(--amber-500);
+}
+.lesson-content .callout-example,
+.lesson-content .admonition.example {
+  background: var(--yellow-100);
+}
+.lesson-content .callout > :last-child,
+.lesson-content .admonition > :last-child {
+  margin-bottom: 0;
+}

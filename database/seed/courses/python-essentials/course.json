@@ -1,0 +1,17 @@
+{
+  "title": "Python Essentials",
+  "slug": "python-essentials",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "beginner",
+  "language_key": "python",
+  "short_description": "The everyday building blocks: syntax, type conversion, operators, formatting, input, match, range and iterators.",
+  "description": "This course fills in the small things every Python programmer uses all day. You learn how Python reads your code, how to convert between types, every kind of operator, neat output with format specifiers, the special value None, reading what the user types, choosing between many cases with match, counting with range, and how for loops really work with iterators. It ends with a small receipt project. Take it after (or alongside) Python for Absolute Beginners.",
+  "chapters": [
+    {"title": "How Python Reads Code", "description": "Indentation, statements and comments.", "lessons": ["01-syntax.md"]},
+    {"title": "Values and Types", "description": "Convert values and work with None.", "lessons": ["02-casting.md", "03-none.md"]},
+    {"title": "Operators and Output", "description": "Calculate, compare and print neatly.", "lessons": ["04-operators.md", "05-string-formatting.md"]},
+    {"title": "Talking to the User", "description": "Read input and react to it.", "lessons": ["06-user-input.md", "07-match.md"]},
+    {"title": "Counting and Looping", "description": "range() and what a for loop really does.", "lessons": ["08-range.md", "09-iterators.md"]},
+    {"title": "Project", "description": "Put it all together.", "lessons": ["10-project.md"]}
+  ]
+}

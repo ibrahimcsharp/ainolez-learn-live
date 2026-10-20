@@ -1,0 +1,14 @@
+{
+  "title": "JavaScript for Beginners",
+  "slug": "javascript",
+  "category": {"name": "Web Development", "icon": "🌐", "color": "#E34F26", "description": "Build websites with HTML, CSS and JavaScript."},
+  "level": "beginner",
+  "language_key": "javascript",
+  "short_description": "Make web pages interactive. Learn the language of the browser with live examples.",
+  "description": "JavaScript is the programming language of the web: it runs in every browser and makes pages react to clicks, typing and data. In this course you learn variables and types, decisions and loops, functions, arrays and objects, and finally change a web page with the DOM and events.",
+  "chapters": [
+    {"title": "The Language", "description": "Values, decisions and loops.", "lessons": ["01-intro.md", "02-variables.md", "03-conditions-loops.md"]},
+    {"title": "Functions and Data", "description": "Reusable code, arrays and objects.", "lessons": ["04-functions.md", "05-arrays-objects.md"]},
+    {"title": "JavaScript in the Page", "description": "The DOM and events.", "lessons": ["06-dom-events.md"]}
+  ]
+}

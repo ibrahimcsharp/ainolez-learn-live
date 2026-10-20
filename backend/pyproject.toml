@@ -1,0 +1,15 @@
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"  # the cPanel server runs Python 3.11
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "DJ"]
+ignore = [
+  "DJ008",  # internal tables do not need __str__
+  "DJ001",  # models mirror the SQL, where some TEXT columns are NULL-able
+]

@@ -1,0 +1,14 @@
+{
+  "title": "Machine Learning with scikit-learn",
+  "slug": "machine-learning",
+  "category": {"name": "Artificial Intelligence", "icon": "🤖", "color": "#7048E8", "description": "Understand, build and use AI: machine learning, language models and responsible AI."},
+  "level": "intermediate",
+  "language_key": "ai",
+  "short_description": "Train, test and improve real machine learning models in Python, right in your browser.",
+  "description": "Build machine learning models the way professionals do, with scikit-learn. You train regression and classification models, split data to test them honestly, measure accuracy and error, prepare features with pipelines, and group data with clustering. The examples run in the browser with real scikit-learn. You should know basic Python and pandas.",
+  "chapters": [
+    {"title": "First Models", "description": "Regression and classification.", "lessons": ["01-workflow.md", "02-regression.md", "03-classification.md"]},
+    {"title": "Better Models", "description": "Evaluation, pipelines and tuning.", "lessons": ["04-evaluation.md", "05-pipelines.md"]},
+    {"title": "Unsupervised Learning", "description": "Find groups without labels.", "lessons": ["06-clustering.md"]}
+  ]
+}

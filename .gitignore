@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+backend/.venv/
+backend/.env
+backend/tmp/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+backend/media/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.claude/settings.local.json

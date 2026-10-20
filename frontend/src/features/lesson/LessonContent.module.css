@@ -1,0 +1,60 @@
+/* W3Schools-style yellow "Example" box */
+.example {
+  background: var(--yellow-100);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 24px 0;
+}
+.example h3,
+.exercise h3,
+.quiz h3 {
+  font-size: 18px;
+}
+
+.exercise {
+  background: var(--sky-100);
+  border-left: 5px solid var(--green-600);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 24px 0;
+}
+
+.quiz {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-top: 5px solid var(--green-400);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 24px 0;
+}
+.question {
+  border: 0;
+  padding: 0;
+  margin: 0 0 18px;
+}
+.question legend {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.question label {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.question label:hover {
+  background: var(--gray-50);
+}
+.right {
+  background: #e3f8ee;
+  font-weight: 600;
+}
+.wrong {
+  background: #fdecef;
+  text-decoration: line-through;
+}
+
+.done {
+  color: var(--green-700);
+  font-size: 14px;
+}

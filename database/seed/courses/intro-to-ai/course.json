@@ -1,0 +1,14 @@
+{
+  "title": "Introduction to Artificial Intelligence",
+  "slug": "intro-to-ai",
+  "category": {"name": "Artificial Intelligence", "icon": "🤖", "color": "#7048E8", "description": "Understand, build and use AI: machine learning, language models and responsible AI."},
+  "level": "beginner",
+  "language_key": "ai",
+  "short_description": "What AI really is, how machines learn from data, how chatbots work, and how to use AI responsibly.",
+  "description": "AI is changing every job, and you do not need a maths degree to understand it. This course explains what artificial intelligence is and is not, how machine learning finds patterns in data, how neural networks and large language models work, and the risks and responsibilities that come with AI. Small Python examples let you see the ideas in action.",
+  "chapters": [
+    {"title": "What Is AI?", "description": "The big picture.", "lessons": ["01-what-is-ai.md", "02-machine-learning.md"]},
+    {"title": "How Modern AI Works", "description": "Neural networks and language models.", "lessons": ["03-neural-networks.md", "04-language-models.md"]},
+    {"title": "AI and Society", "description": "Using AI responsibly.", "lessons": ["05-ethics.md"]}
+  ]
+}

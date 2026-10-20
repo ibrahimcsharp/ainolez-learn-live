@@ -1,0 +1,5 @@
+---
+# cPanel Git deployment: runs after the server pulls new code (see deploy/cpanel/README.md).
+deployment:
+  tasks:
+    - /bin/bash deploy/cpanel/release.sh

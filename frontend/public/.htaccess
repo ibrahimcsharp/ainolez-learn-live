@@ -1,0 +1,31 @@
+# public_html/.htaccess for the React build on cPanel (Apache).
+Options -Indexes
+DirectorySlash Off
+DirectoryIndex index.html
+
+RewriteEngine On
+RewriteBase /
+
+# Prerendered pages: /python/lists is served from python/lists/index.html,
+# written by the API's SEO build (manage.py seo_build). They carry each page's
+# title, meta tags and content for search engines and link previews.
+RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+RewriteRule ^(.+?)/?$ /$1/index.html [L]
+
+# Every other path: the plain app page; React shows the page (or "not found").
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule . /shell.html [L]
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Built files have a content hash in their name, so they can be cached forever.
+  <If "%{REQUEST_URI} =~ m#^/assets/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  <FilesMatch "^(index|shell)\.html$|^(sitemap\.xml|robots\.txt)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

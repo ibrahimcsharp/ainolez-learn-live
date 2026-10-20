@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 238 84" width="476" height="168" role="img" aria-label="ainolez">
+  <g fill="#05192D" font-family="Poppins, 'Segoe UI', Arial, sans-serif" font-weight="600" font-size="64" text-anchor="middle">
+    <text x="19" y="66">a</text><text x="49" y="66">ı</text><text x="79" y="66">n</text>
+    <text x="152" y="66">l</text><text x="181.5" y="66">e</text><text x="218.5" y="66">z</text>
+  </g>
+  <circle cx="121" cy="48.5" r="15.5" fill="none" stroke="#05192D" stroke-width="8" stroke-linecap="round" stroke-dasharray="84 13.4" transform="rotate(-30 121 48.5)"/>
+  <rect x="43.5" y="10" width="11" height="11" rx="1.5" fill="#05192D"/>
+</svg>
