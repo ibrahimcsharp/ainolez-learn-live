@@ -33,18 +33,16 @@ echo "Pulling the deploy branch on the server"
 api VersionControl/update "${repo[@]}" --data-urlencode branch=deploy > /dev/null
 
 echo "Running .cpanel.yml"
-created=$(api VersionControlDeployment/create "${repo[@]}")
-log=$(jq -r '.log_path // empty' <<<"$created")
-if [ -z "$log" ]; then
-  echo "Unexpected reply from cPanel: $created" >&2
-  exit 1
-fi
+# create() returns no details on some cPanel versions, so remember the deployments that
+# already exist and follow the new one that appears.
+before=$(api VersionControlDeployment/retrieve | jq -c '[(. // [])[].log_path]')
+api VersionControlDeployment/create "${repo[@]}" > /dev/null
 
 state=running
 for _ in $(seq 120); do  # up to 10 minutes
   sleep 5
-  deployment=$(api VersionControlDeployment/retrieve |
-    jq --arg log "$log" '[.[] | select(.log_path == $log)][0] // {}')
+  deployment=$(api VersionControlDeployment/retrieve | jq --argjson before "$before" \
+    '[(. // [])[] | select(.log_path as $p | $before | any(. == $p) | not)] | last // {}')
   state=$(jq -r '.timestamps // {} | if .succeeded then "succeeded" elif .failed then "failed"
     elif .canceled then "canceled" else "running" end' <<<"$deployment")
   [ "$state" != running ] && break
@@ -54,8 +52,9 @@ if [ "$deployment" = "{}" ]; then
   api VersionControlDeployment/retrieve | jq -c '.[-2:]' >&2
 fi
 
+log=$(jq -r ".log_path // empty" <<<"$deployment")
 echo "--- server log ($log)"
-api Fileman/get_file_content --data-urlencode "dir=$(dirname "$log")" \
+[ -n "$log" ] && api Fileman/get_file_content --data-urlencode "dir=$(dirname "$log")" \
   --data-urlencode "file=$(basename "$log")" | jq -r .content || true
 echo "--- deployment $state"
 [ "$state" = succeeded ]
