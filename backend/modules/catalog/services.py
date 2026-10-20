@@ -184,10 +184,11 @@ def import_course_folder(folder: Path, publish: bool, by) -> Course | None:
                        short_description, description,
                        chapters: [{title, description, lessons: ["01-intro.md", ...]}]}
         *.md          one lesson each, in the .md import format
-    Returns None when a course with that slug already exists.
+    Returns None when a course with that slug already exists, even in the Trash, so
+    running the seed again on every deploy never brings back a deleted course.
     """
     meta = json.loads((folder / "course.json").read_text(encoding="utf-8"))
-    if Course.objects.filter(slug=meta["slug"]).exists():
+    if Course.all_objects.filter(slug=meta["slug"]).exists():
         return None
     status = Status.PUBLISHED if publish else Status.DRAFT
     with transaction.atomic():

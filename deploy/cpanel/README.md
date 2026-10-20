@@ -42,10 +42,34 @@ Passenger app on `api.<domain>`.
 7. **AI tutor**: put `ANTHROPIC_API_KEY` in `.env`, then use *Test connection* in
    Admin → AI tutor. The host must allow outbound HTTPS to api.anthropic.com.
 
-## Every release
+## Automatic deploys (GitHub Actions)
 
-- **API**: `bash deploy/cpanel/deploy_backend.sh` (backs up the database, applies new
-  SQL files, restarts Passenger).
+Every push to `main` that passes the tests goes live by itself:
+
+1. CI builds the website and pushes a `deploy` branch (main + `frontend/dist`).
+2. It calls the cPanel API to pull that branch into `~/apps/ainolez` and run `.cpanel.yml`.
+3. `.cpanel.yml` runs `release.sh`: pip install, database backup (`~/backups`, newest 10),
+   `apply_schema`, `migrate`, `seed_courses` (new courses only), copy the website to
+   `public_html`, `seo_build`, restart. Output goes to `~/deploy.log` and the Actions log.
+4. CI checks `/api/v1/health/`.
+
+One-time setup:
+
+- cPanel → *Security* → *Manage API Tokens* → *Create*: name `github-deploy`, set an
+  expiry date, copy the token. It can do anything your cPanel login can, so it only ever
+  goes into GitHub's secret store.
+- GitHub → repository *Settings* → *Secrets and variables* → *Actions*:
+  - secret `CPANEL_TOKEN`: the token
+  - variables `CPANEL_HOST` (e.g. `server2.secureserverpanel.com`), `CPANEL_USER`
+    (e.g. `ainolezc`), `CPANEL_REPO_ROOT` (e.g. `/home2/ainolezc/apps/ainolez`)
+- `~/apps/ainolez` must be the cPanel Git clone of this repository, with no local edits.
+
+If a deploy fails, the Actions log shows the server's log; nothing after the failing
+step ran. Restore a database backup with phpMyAdmin → Import.
+
+## Manual release
+
+- **API**: `bash deploy/cpanel/deploy_backend.sh` over SSH (pulls, then runs `release.sh`).
 - **Website**: on your PC, `cd frontend`, create `.env` with
   `VITE_API_URL=https://api.<domain>/api/v1`, run `npm run build`, then upload the
   contents of `frontend/dist/` (including `.htaccess` and `shell.html`) to `public_html/`.

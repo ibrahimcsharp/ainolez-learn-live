@@ -47,3 +47,47 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website
+          path: frontend/dist
+          include-hidden-files: true  # .htaccess
+
+  # Every push to main that passes the tests goes live on cPanel (deploy/cpanel/README.md).
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    concurrency: deploy
+    permissions:
+      contents: write  # updates the "deploy" branch
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: website
+          path: frontend/dist
+      # The server has no Node.js, so it pulls a branch that includes the built website.
+      # Each deploy commit sits on top of the previous one, so the server's pull is always
+      # a fast-forward; its files are exactly main plus frontend/dist.
+      - name: Update the deploy branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f frontend/dist
+          tree=$(git write-tree)
+          parent=()
+          if git fetch -q --depth=1 origin deploy; then parent=(-p FETCH_HEAD); fi
+          commit=$(git commit-tree "$tree" "${parent[@]}" -m "Deploy $GITHUB_SHA")
+          git push origin "$commit:refs/heads/deploy"
+      - name: Deploy on cPanel
+        run: bash deploy/cpanel/github_deploy.sh
+        env:
+          CPANEL_HOST: ${{ vars.CPANEL_HOST }}
+          CPANEL_USER: ${{ vars.CPANEL_USER }}
+          CPANEL_REPO_ROOT: ${{ vars.CPANEL_REPO_ROOT }}
+          CPANEL_TOKEN: ${{ secrets.CPANEL_TOKEN }}
+      - name: Check the API
+        run: |
+          api=$(grep -E '^VITE_API_URL=' frontend/.env.production | cut -d= -f2-)
+          curl -fsS --retry 5 --retry-delay 5 "$api/health/"

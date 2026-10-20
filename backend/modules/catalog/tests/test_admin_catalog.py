@@ -169,3 +169,18 @@ def test_course_intro_video(admin_api, api, course):
     admin_api.patch(url, {"intro_video_url": "https://youtu.be/dQw4w9WgXcQ", "status": "published"})
     page = api.get(f"/api/v1/public/courses/{course['slug']}/").json()
     assert "youtube-nocookie.com/embed/dQw4w9WgXcQ" in page["intro_video_html"]
+
+
+def test_seed_skips_a_course_that_is_in_the_trash(make_user):
+    from django.conf import settings
+
+    from modules.catalog import services
+    from modules.identity.models import Role
+
+    admin = make_user("seed@example.com", "seed", role_name=Role.SUPER_ADMIN)
+    folder = settings.BASE_DIR.parent / "database" / "seed" / "courses" / "python-essentials"
+    course = services.import_course_folder(folder, publish=True, by=admin)
+    course.soft_delete(by=admin)
+
+    assert services.import_course_folder(folder, publish=True, by=admin) is None
+    assert Course.all_objects.filter(slug="python-essentials").count() == 1
