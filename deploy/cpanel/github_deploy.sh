@@ -33,19 +33,27 @@ echo "Pulling the deploy branch on the server"
 api VersionControl/update "${repo[@]}" --data-urlencode branch=deploy > /dev/null
 
 echo "Running .cpanel.yml"
-deploy_id=$(api VersionControlDeployment/create "${repo[@]}" | jq -r .deploy_id)
+created=$(api VersionControlDeployment/create "${repo[@]}")
+log=$(jq -r '.log_path // empty' <<<"$created")
+if [ -z "$log" ]; then
+  echo "Unexpected reply from cPanel: $created" >&2
+  exit 1
+fi
 
 state=running
 for _ in $(seq 120); do  # up to 10 minutes
   sleep 5
   deployment=$(api VersionControlDeployment/retrieve |
-    jq --arg id "$deploy_id" '.[] | select((.deploy_id | tostring) == $id)')
-  state=$(jq -r '.timestamps | if .succeeded then "succeeded" elif .failed then "failed"
+    jq --arg log "$log" '[.[] | select(.log_path == $log)][0] // {}')
+  state=$(jq -r '.timestamps // {} | if .succeeded then "succeeded" elif .failed then "failed"
     elif .canceled then "canceled" else "running" end' <<<"$deployment")
   [ "$state" != running ] && break
 done
+if [ "$deployment" = "{}" ]; then
+  echo "cPanel did not list this deployment; latest entries:" >&2
+  api VersionControlDeployment/retrieve | jq -c '.[-2:]' >&2
+fi
 
-log=$(jq -r .log_path <<<"$deployment")
 echo "--- server log ($log)"
 api Fileman/get_file_content --data-urlencode "dir=$(dirname "$log")" \
   --data-urlencode "file=$(basename "$log")" | jq -r .content || true
