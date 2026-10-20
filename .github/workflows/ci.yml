@@ -83,9 +83,9 @@ jobs:
       - name: Deploy on cPanel
         run: bash deploy/cpanel/github_deploy.sh
         env:
-          CPANEL_HOST: ${{ vars.CPANEL_HOST }}
-          CPANEL_USER: ${{ vars.CPANEL_USER }}
-          CPANEL_REPO_ROOT: ${{ vars.CPANEL_REPO_ROOT }}
+          CPANEL_HOST: ${{ vars.CPANEL_HOST || secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ vars.CPANEL_USER || secrets.CPANEL_USER }}
+          CPANEL_REPO_ROOT: ${{ vars.CPANEL_REPO_ROOT || secrets.CPANEL_REPO_ROOT }}
           CPANEL_TOKEN: ${{ secrets.CPANEL_TOKEN }}
       - name: Check the API
         run: |
