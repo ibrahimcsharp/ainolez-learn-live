@@ -1,0 +1,15 @@
+{
+  "title": "Object-Oriented Python",
+  "slug": "python-oop",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "intermediate",
+  "language_key": "python",
+  "short_description": "Model the real world with classes: objects, __init__ and self, inheritance, polymorphism and encapsulation.",
+  "description": "Object-oriented programming (OOP) groups data and the code that works on it into objects. Most large Python programs - and libraries like Django and pandas - are built this way. Step by step you create classes and objects, give them attributes and methods, share code with inheritance, write code that works with many types through polymorphism, protect data with encapsulation and properties, nest classes, and make objects feel built-in with special methods. You finish by building a small bank system.",
+  "chapters": [
+    {"title": "Classes and Objects", "description": "Your first classes.", "lessons": ["01-oop-intro.md", "02-classes-objects.md", "03-init-self.md", "04-attributes-methods.md"]},
+    {"title": "The Pillars of OOP", "description": "Inheritance, polymorphism and encapsulation.", "lessons": ["05-inheritance.md", "06-polymorphism.md", "07-encapsulation.md"]},
+    {"title": "Advanced Classes", "description": "Inner classes and special methods.", "lessons": ["08-inner-classes.md", "09-special-methods.md"]},
+    {"title": "Project", "description": "A small bank, built with classes.", "lessons": ["10-project.md"]}
+  ]
+}

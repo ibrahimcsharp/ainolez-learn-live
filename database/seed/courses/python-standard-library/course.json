@@ -1,0 +1,16 @@
+{
+  "title": "Python Standard Library",
+  "slug": "python-standard-library",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "beginner",
+  "language_key": "python",
+  "short_description": "Python's built-in toolbox: math, random, dates, JSON, regular expressions, files, collections and pip.",
+  "description": "Python comes with batteries included: hundreds of ready-made modules you can import without installing anything. This course teaches the ones you will use most - math and random numbers, dates and times, JSON data, regular expressions for searching text, working with files and folders, and the collections module. The last lesson shows how to install extra packages with pip inside a virtual environment.",
+  "chapters": [
+    {"title": "Numbers", "description": "Maths and randomness.", "lessons": ["01-math.md", "02-random.md"]},
+    {"title": "Dates and Data", "description": "Times, dates and JSON.", "lessons": ["03-dates.md", "04-json.md"]},
+    {"title": "Text and Files", "description": "Search text and manage files.", "lessons": ["05-regex.md", "06-files.md"]},
+    {"title": "Better Containers", "description": "Counter, defaultdict, namedtuple and deque.", "lessons": ["07-collections.md"]},
+    {"title": "Beyond the Standard Library", "description": "Install packages safely.", "lessons": ["08-pip-venv.md"]}
+  ]
+}

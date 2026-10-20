@@ -127,3 +127,6 @@ npm run build
       with icons and YouTube preview; media "Copy link / Markdown", upload inside the image
       picker, "Add an image from Media" in text blocks; on/off cards for the AI tutor and
       the course generator.
+      5 more Python seed courses (original text, following the W3Schools Python topic list):
+      python-essentials, python-standard-library, python-oop, python-dsa, python-databases.
+      CGI fallback for the API (`deploy/cpanel/cgi/`) while the host has Passenger off.

@@ -24,7 +24,7 @@ Passenger app on `api.<domain>`.
    python manage.py apply_schema
    python manage.py migrate
    python manage.py createsuperuser
-   python manage.py seed_courses        # the 11 starter courses, published
+   python manage.py seed_courses        # the 16 starter courses, published
    ```
    The MySQL driver is PyMySQL (pure Python), so nothing needs compiling. If
    mysqlclient happens to be installed it is used instead (`config/__init__.py`).

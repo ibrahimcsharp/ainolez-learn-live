@@ -1,0 +1,15 @@
+{
+  "title": "Python and Databases",
+  "slug": "python-databases",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "intermediate",
+  "language_key": "python",
+  "short_description": "Store and query data from Python with SQL: create tables, insert, select, update, delete and join - then connect to MySQL.",
+  "description": "Almost every real application keeps its data in a database. In this course you use Python's built-in sqlite3 module, which runs right here in the browser, to create tables, insert rows safely with placeholders, query them with WHERE, ORDER BY and LIMIT, update and delete rows, and join tables together. The final lesson shows how the same code talks to a MySQL server with mysql-connector-python.",
+  "chapters": [
+    {"title": "Getting Started", "description": "Connect and create tables.", "lessons": ["01-intro.md", "02-create-insert.md"]},
+    {"title": "Working with Rows", "description": "Read, change and remove data.", "lessons": ["03-select.md", "04-update-delete.md"]},
+    {"title": "Related Tables", "description": "Join tables together.", "lessons": ["05-join.md"]},
+    {"title": "Real Servers", "description": "From SQLite to MySQL.", "lessons": ["06-mysql.md"]}
+  ]
+}
