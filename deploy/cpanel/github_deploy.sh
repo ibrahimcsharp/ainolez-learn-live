@@ -32,6 +32,16 @@ repo=(--data-urlencode "repository_root=$CPANEL_REPO_ROOT")
 echo "Pulling the deploy branch on the server"
 api VersionControl/update "${repo[@]}" --data-urlencode branch=deploy > /dev/null
 
+info=$(api VersionControl/retrieve | jq --arg root "$CPANEL_REPO_ROOT" \
+  '[(. // [])[] | select(.repository_root == $root)][0] // {}')
+echo "Server repository: branch $(jq -r .branch <<<"$info"),"\
+  "commit $(jq -r '.last_update.identifier // "?"' <<<"$info"), deployable $(jq -r .deployable <<<"$info")"
+if [ "$(jq -r .deployable <<<"$info")" != 1 ]; then
+  echo "::error::cPanel will not deploy this repository. It needs .cpanel.yml and a clean" \
+    "working tree: no changed or extra files in $CPANEL_REPO_ROOT (see deploy/cpanel/README.md)."
+  exit 1
+fi
+
 echo "Running .cpanel.yml"
 # create() returns no details on some cPanel versions, so remember the deployments that
 # already exist and follow the new one that appears.
