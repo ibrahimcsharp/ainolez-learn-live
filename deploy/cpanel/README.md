@@ -67,6 +67,11 @@ One-time setup:
 If a deploy fails, the Actions log shows the server's log; nothing after the failing
 step ran. Restore a database backup with phpMyAdmin → Import.
 
+"deployable 0" means a file in `~/apps/ainolez` was changed on the server. Creating the
+app again in *Setup Python App* overwrites `backend/passenger_wsgi.py`; restore it with a
+one-off cron job: `cd ~/apps/ainolez && git checkout -- backend/passenger_wsgi.py`
+(`git status --porcelain > ~/gitstatus.txt` lists any other changed files).
+
 ## Manual release
 
 - **API**: `bash deploy/cpanel/deploy_backend.sh` over SSH (pulls, then runs `release.sh`).
