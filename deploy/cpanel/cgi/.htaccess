@@ -1,0 +1,8 @@
+# CGI fallback while Passenger is off: every request that is not a real file
+# (such as /media/...) goes to app.cgi.
+Options +ExecCGI -Indexes
+AddHandler cgi-script .cgi
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ app.cgi [L]
