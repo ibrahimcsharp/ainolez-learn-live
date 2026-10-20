@@ -8,6 +8,12 @@ if [ -z "${CPANEL_TOKEN:-}" ]; then
   echo "::notice::CPANEL_TOKEN is not set, so nothing was deployed (see deploy/cpanel/README.md)"
   exit 0
 fi
+for name in CPANEL_HOST CPANEL_USER CPANEL_REPO_ROOT; do
+  if [ -z "${!name:-}" ]; then
+    echo "::error::$name is empty: add it in GitHub Settings > Secrets and variables > Actions"
+    exit 1
+  fi
+done
 
 api() {  # api Module/function [--data-urlencode name=value ...] -> prints .data
   local call=$1 reply
