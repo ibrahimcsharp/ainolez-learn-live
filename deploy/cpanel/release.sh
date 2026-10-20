@@ -13,7 +13,12 @@ SITE="${SITE:-$HOME/public_html}"
 PYTHON="$VENV/bin/python"
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
-exec > >(tee -a "$HOME/deploy.log") 2>&1
+# Copy all output to ~/deploy.log. (exec > >(tee) needs /dev/fd, which cPanel's CageFS lacks.)
+if [ -z "${RELEASE_LOGGED:-}" ]; then
+  RELEASE_LOGGED=1 bash "$0" "$@" 2>&1 | tee -a "$HOME/deploy.log"
+  exit "${PIPESTATUS[0]}"
+fi
+
 echo "=== $(date '+%F %T') deploying $(git -C "$REPO" rev-parse --short HEAD)"
 cd "$REPO/backend"
 
