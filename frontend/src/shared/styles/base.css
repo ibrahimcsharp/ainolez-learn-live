@@ -32,11 +32,17 @@ code {
   outline-offset: 2px;
 }
 
+/* Only sets the sides, so a page's own top and bottom padding is never overridden. */
 .container {
   width: 100%;
-  max-width: var(--content-width);
+  max-width: calc(var(--content-width) + 2 * var(--gutter));
   margin: 0 auto;
-  padding: 0 16px;
+  padding-inline: var(--gutter);
+}
+
+/* Top and bottom space for a plain page inside .container */
+.page-body {
+  padding-block: 56px 88px;
 }
 
 .card {

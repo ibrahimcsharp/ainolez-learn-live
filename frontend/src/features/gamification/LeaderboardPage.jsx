@@ -10,7 +10,7 @@ export function LeaderboardPage() {
   const leaders = data?.leaders ?? [];
 
   return (
-    <div className="container" style={{ maxWidth: 720, padding: "40px 16px 64px" }}>
+    <div className="container page-body" style={{ maxWidth: "calc(720px + 2 * var(--gutter))" }}>
       <h1>Leaderboard</h1>
       <p className="muted">Earn points by finishing lessons, solving exercises and passing quizzes.</p>
       <div className={styles.tabs}>

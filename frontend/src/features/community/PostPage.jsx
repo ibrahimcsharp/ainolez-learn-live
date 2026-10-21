@@ -23,7 +23,7 @@ export function PostPage() {
   }
 
   return (
-    <div className="container" style={{ maxWidth: 820, padding: "32px 16px 64px" }}>
+    <div className="container page-body" style={{ maxWidth: "calc(820px + 2 * var(--gutter))" }}>
       <p>
         <Link to={`/community?space=${data.space.slug}`}>← {data.space.icon} {data.space.name}</Link>
       </p>

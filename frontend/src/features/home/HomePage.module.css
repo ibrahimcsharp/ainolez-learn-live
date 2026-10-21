@@ -205,11 +205,11 @@
 
 /* Sections */
 .section {
-  padding-top: 112px;
+  padding-top: 50px;
 }
 .band {
-  margin-top: 112px;
-  padding-bottom: 112px;
+  margin-top: 50px;
+  padding-bottom: 50px;
   background: var(--white);
   border-block: 1px solid var(--gray-200);
 }
@@ -219,7 +219,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 40px;
+  margin-bottom: 48px;
 }
 .sectionHead h2 {
   font-size: clamp(26px, 3vw, 34px);
@@ -361,7 +361,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 112px;
+  margin-bottom: 50px;
   padding: 56px 56px;
   border-radius: 18px;
   background:
@@ -399,11 +399,11 @@
     padding: 64px 0 72px;
   }
   .section {
-    padding-top: 72px;
+    padding-top: 40px;
   }
   .band {
-    margin-top: 72px;
-    padding-bottom: 72px;
+    margin-top: 40px;
+    padding-bottom: 40px;
   }
   .statsInner {
     grid-template-columns: repeat(2, 1fr);

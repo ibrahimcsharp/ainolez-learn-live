@@ -10,7 +10,7 @@ export function CatalogPage() {
   const paths = useApi("/public/paths/");
 
   return (
-    <div className="container" style={{ padding: "40px 16px 64px" }}>
+    <div className="container page-body">
       <h1>All courses</h1>
       <p className="muted">Every course is free. Pick a topic and start.</p>
       <div className={styles.filters}>
