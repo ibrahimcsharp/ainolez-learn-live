@@ -116,6 +116,33 @@
   user-select: none;
   padding-top: 2px;
 }
+/* Move up / Move down, in lists that can be ordered without dragging */
+.order {
+  display: grid;
+  gap: 2px;
+  cursor: grab;
+}
+.order button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  background: var(--gray-50);
+  color: var(--text-900);
+  cursor: pointer;
+}
+.order button:hover:not(:disabled) {
+  border-color: var(--green-600);
+  background: rgb(4 170 109 / 8%);
+  color: var(--green-700);
+}
+.order button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
 .grow {
   flex: 1;
   min-width: 0;
