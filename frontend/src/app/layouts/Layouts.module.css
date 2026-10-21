@@ -44,9 +44,12 @@
   color: #c8d3e0;
   padding: 56px 0 0;
 }
+/* The brand, then one column per footer menu (Admin -> Menus). */
 .footerInner {
   display: grid;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 2fr;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
   gap: 32px;
 }
 .footerBrand p {
@@ -299,6 +302,7 @@
   }
   .footerInner {
     grid-template-columns: 1fr 1fr;
+    grid-auto-flow: row;
   }
   .footerBrand {
     grid-column: 1 / -1;

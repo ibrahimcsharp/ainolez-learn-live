@@ -46,6 +46,7 @@ class SeoPage(BaseModel):
         COURSE = "course"
         LESSON = "lesson"
         POST = "post"
+        PAGE = "page"
 
     ROBOTS = ("index,follow", "noindex,follow", "index,nofollow", "noindex,nofollow")
     CHANGEFREQ = ("always", "hourly", "daily", "weekly", "monthly", "yearly", "never")

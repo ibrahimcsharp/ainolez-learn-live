@@ -17,6 +17,9 @@ import { MarkdownToolPage } from "../features/admin/content-tools/MarkdownToolPa
 import { MediaPage } from "../features/admin/media/MediaPage";
 import { SeoPage } from "../features/admin/seo/SeoPage";
 import { TrashPage } from "../features/admin/trash/TrashPage";
+import { MenusPage } from "../features/admin/website/MenusPage";
+import { PageEditPage } from "../features/admin/website/PageEditPage";
+import { PagesPage } from "../features/admin/website/PagesPage";
 import { ForgotPasswordPage } from "../features/auth/ForgotPasswordPage";
 import { LoginPage } from "../features/auth/LoginPage";
 import { RegisterPage } from "../features/auth/RegisterPage";
@@ -41,7 +44,8 @@ import { RequireRole } from "./RequireRole";
 export function AppRoutes() {
   return (
     <Routes>
-      {/* Public website. Fixed paths win over the /:courseSlug patterns. */}
+      {/* Public website. Fixed paths win over the /:courseSlug patterns.
+          /:courseSlug also shows site pages (Admin -> Pages) when no course has that slug. */}
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
@@ -96,6 +100,9 @@ export function AppRoutes() {
         <Route path="ai" element={<AIPanelPage />} />
         <Route path="course-generator" element={<CourseGeneratorPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="pages" element={<PagesPage />} />
+        <Route path="pages/:id" element={<PageEditPage />} />
+        <Route path="menus" element={<MenusPage />} />
         <Route path="seo" element={<SeoPage />} />
         <Route path="media" element={<MediaPage />} />
         <Route path="markdown" element={<MarkdownToolPage />} />

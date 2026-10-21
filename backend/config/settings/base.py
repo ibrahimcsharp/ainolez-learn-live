@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "modules.assistant",
     "modules.ai_authoring",
     "modules.seo",
+    "modules.website",
     "modules.platform_admin",
 ]
 

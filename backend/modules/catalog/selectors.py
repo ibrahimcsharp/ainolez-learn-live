@@ -45,6 +45,18 @@ def public_courses(category_slug: str = "") -> QuerySet[Course]:
     return courses.order_by("category__sort_order", "title")
 
 
+def public_course_links(course_ids) -> dict[int, dict]:
+    """{id: {"title", "slug"}} for the given courses that are public right now."""
+    ids = [i for i in course_ids if i]
+    rows = public_courses().filter(pk__in=ids).values("pk", "title", "slug") if ids else []
+    return {row["pk"]: {"title": row["title"], "slug": row["slug"]} for row in rows}
+
+
+def course_slug_taken(slug: str) -> bool:
+    """True when a live course (drafts included) already uses ``slug``."""
+    return Course.objects.filter(slug=slug).exists()
+
+
 def public_course(slug: str) -> tuple[Course, list[Chapter]] | None:
     course = public_courses().filter(slug=slug).first()
     return (course, _outline(course)) if course else None

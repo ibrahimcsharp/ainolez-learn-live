@@ -1,0 +1,11 @@
+.page {
+  max-width: calc(780px + 2 * var(--gutter));
+}
+.page h1 {
+  margin-top: 0;
+}
+.page :global(.lesson-content) img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}

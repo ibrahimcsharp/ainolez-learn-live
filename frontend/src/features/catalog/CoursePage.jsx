@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router";
 import { useAuth } from "../../app/AuthProvider";
 import { useApi } from "../../shared/hooks/useApi";
-import { NotFound } from "../../app/NotFound";
+import { SitePage } from "../website/SitePage";
 import styles from "./Catalog.module.css";
 
 export function CoursePage() {
@@ -9,7 +9,7 @@ export function CoursePage() {
   const { user } = useAuth();
   const { data: course, error } = useApi(`/public/courses/${courseSlug}/`);
   const { data: progress } = useApi(user && course ? `/learner/courses/${course.id}/progress/` : null);
-  if (error?.status === 404) return <NotFound />;
+  if (error?.status === 404) return <SitePage slug={courseSlug} />; // no course here: maybe a page
   if (!course) return <p className="page-loading">{error ? error.message : "Loading…"}</p>;
 
   const first = course.chapters.flatMap((chapter) => chapter.lessons)[0];

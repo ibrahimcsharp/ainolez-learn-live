@@ -24,6 +24,7 @@ from modules.catalog import selectors as catalog
 from modules.community import selectors as community
 from modules.seo import resolver
 from modules.seo.models import SeoPage, SeoSettings
+from modules.website import selectors as website
 from shared.exceptions import ServiceError
 
 logger = logging.getLogger(__name__)
@@ -36,8 +37,10 @@ def public_paths() -> list[str]:
     fixed = SeoPage.objects.filter(path__isnull=False, is_active=True).values_list(
         "path", flat=True
     )
-    content = [p["url"] for p in catalog.sitemap_pages()] + [
-        p["url"] for p in community.sitemap_posts()
+    content = [
+        *(p["url"] for p in catalog.sitemap_pages()),
+        *(p["url"] for p in website.sitemap_pages()),
+        *(p["url"] for p in community.sitemap_posts()),
     ]
     return list(dict.fromkeys([*fixed, *content]))
 

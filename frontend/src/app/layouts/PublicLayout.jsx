@@ -1,23 +1,27 @@
 import { Link, Outlet, useNavigate } from "react-router";
 import { ChatLauncher } from "../../features/assistant/ChatLauncher";
+import { MenuLink } from "../../features/website/MenuLink";
+import { useApi } from "../../shared/hooks/useApi";
 import { Logo } from "../../shared/ui/Logo";
 import { homeFor, useAuth } from "../AuthProvider";
 import styles from "./Layouts.module.css";
 
 export function PublicLayout() {
+  // The header links and footer columns come from Admin -> Menus.
+  const { data: menus } = useApi("/public/site/menus/");
   return (
     <div className={styles.page}>
-      <SiteHeader />
+      <SiteHeader links={menus?.header ?? []} />
       <main className={styles.main}>
         <Outlet />
       </main>
-      <SiteFooter />
+      <SiteFooter columns={menus?.footer ?? []} />
       <ChatLauncher />
     </div>
   );
 }
 
-function SiteHeader() {
+function SiteHeader({ links }) {
   const { user, logout } = useAuth();
   return (
     <header className={styles.header}>
@@ -26,10 +30,9 @@ function SiteHeader() {
           <Logo variant="reversed" height={30} />
         </Link>
         <nav className={styles.headerNav}>
-          <Link to="/courses">Courses</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/ai">AI tutor</Link>
-          <Link to="/leaderboard">Leaderboard</Link>
+          {links.map((link, i) => (
+            <MenuLink key={`${link.url}-${i}`} link={link} />
+          ))}
           <SearchBox />
           {user ? (
             <>
@@ -67,13 +70,7 @@ function SearchBox() {
   );
 }
 
-const FOOTER_LINKS = [
-  ["Learn", [["/courses", "All courses"], ["/python", "Python"], ["/html", "HTML"], ["/intro-to-ai", "AI"]]],
-  ["Community", [["/community", "Forum"], ["/leaderboard", "Leaderboard"], ["/ai", "AI tutor"]]],
-  ["Account", [["/register", "Sign up free"], ["/login", "Log in"], ["/dashboard", "My dashboard"]]],
-];
-
-function SiteFooter() {
+function SiteFooter({ columns }) {
   return (
     <footer className={styles.footer}>
       <div className={`container ${styles.footerInner}`}>
@@ -82,11 +79,11 @@ function SiteFooter() {
           <p>Learn it. Code it. Own it.</p>
           <p className={styles.footerSmall}>Free coding and AI courses for everyone, forever.</p>
         </div>
-        {FOOTER_LINKS.map(([title, links]) => (
-          <nav key={title} aria-label={title} className={styles.footerCol}>
-            <strong>{title}</strong>
-            {links.map(([to, label]) => (
-              <Link key={to} to={to}>{label}</Link>
+        {columns.map((column) => (
+          <nav key={column.id} aria-label={column.name} className={styles.footerCol}>
+            <strong>{column.name}</strong>
+            {column.items.map((link, i) => (
+              <MenuLink key={`${link.url}-${i}`} link={link} />
             ))}
           </nav>
         ))}

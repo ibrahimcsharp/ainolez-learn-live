@@ -26,6 +26,7 @@ from modules.catalog.models import (
 )
 from modules.content_tools import services as content
 from modules.media import selectors as media
+from modules.website import selectors as website
 from shared import audit
 from shared.events import publish
 from shared.exceptions import ServiceError
@@ -38,11 +39,17 @@ COURSE_FIELDS = (
 EXERCISE_LANGUAGE = {"ai": "python", "other": "python"}
 
 # Course slugs are top-level URLs (/python), so they must not hide app pages.
+# Site pages (website module) share those URLs too: see slug_is_free().
 RESERVED_SLUGS = {
     "admin", "ai", "api", "assets", "brand", "certificates", "community", "courses", "dashboard",
     "forgot-password", "leaderboard", "login", "media", "paths", "register",
     "reset-password", "search", "share", "verify-email",
 }  # fmt: skip
+
+
+def slug_is_free(slug: str) -> bool:
+    """Whether /<slug> is free for a new course: not an app route and not a site page."""
+    return slug not in RESERVED_SLUGS and not website.page_slug_taken(slug)
 
 
 def save_category(category: Category | None, data: dict, by) -> Category:
@@ -59,6 +66,11 @@ def save_course(course: Course | None, data: dict, by) -> Course:
     if course.slug in RESERVED_SLUGS:
         raise ServiceError(
             f"'{course.slug}' is reserved for the site. Pick another slug.", "slug_reserved"
+        )
+    if website.page_slug_taken(course.slug):
+        raise ServiceError(
+            f"The site page /{course.slug} already uses this address. Pick another slug.",
+            "slug_taken",
         )
     if course.intro_video_url:
         content.normalize_video({"url": course.intro_video_url})  # refuses unknown links
@@ -188,7 +200,7 @@ def import_course_folder(folder: Path, publish: bool, by) -> Course | None:
     running the seed again on every deploy never brings back a deleted course.
     """
     meta = json.loads((folder / "course.json").read_text(encoding="utf-8"))
-    if Course.all_objects.filter(slug=meta["slug"]).exists():
+    if Course.all_objects.filter(slug=meta["slug"]).exists() or not slug_is_free(meta["slug"]):
         return None
     status = Status.PUBLISHED if publish else Status.DRAFT
     with transaction.atomic():
