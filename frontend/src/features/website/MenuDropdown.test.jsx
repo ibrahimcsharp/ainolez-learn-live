@@ -20,7 +20,7 @@ test("a heading opens and closes its sub-menu", () => {
   fireEvent.click(toggle);
   expect(toggle.getAttribute("aria-expanded")).toBe("true");
   expect(screen.getByRole("link", { name: "Python" }).getAttribute("href")).toBe("/python");
-  expect(screen.getByRole("link", { name: "GitHub" }).getAttribute("target")).toBe("_blank");
+  expect(screen.getByRole("link", { name: /GitHub/ }).getAttribute("target")).toBe("_blank");
 
   fireEvent.keyDown(document, { key: "Escape" });
   expect(toggle.getAttribute("aria-expanded")).toBe("false");

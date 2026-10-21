@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { MenuLink } from "./MenuLink";
@@ -63,22 +63,46 @@ export function MenuDropdown({ link }) {
       ) : (
         trigger
       )}
-      <ul id={id} className={styles.panel} style={{ "--panel-top": `${top}px` }}>
-        {link.children.map((child, i) => (
-          <li key={`${child.label}-${i}`}>
-            {child.url ? <MenuLink link={child} /> : <span className={styles.heading}>{child.label}</span>}
-            {child.children && (
-              <ul className={styles.nested}>
-                {child.children.map((sub, j) => (
-                  <li key={`${sub.url}-${j}`}>
-                    <MenuLink link={sub} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div id={id} className={styles.panel} style={{ "--panel-top": `${top}px` }}>
+        <ul className={styles.list}>
+          {link.children.map((child, i) => (
+            <li key={`${child.label}-${i}`} className={child.children ? styles.group : undefined}>
+              {child.url ? (
+                <PanelLink link={child} current={pathname} />
+              ) : (
+                <span className={styles.heading}>{child.label}</span>
+              )}
+              {child.children && (
+                <ul className={styles.nested}>
+                  {child.children.map((sub, j) => (
+                    <li key={`${sub.url}-${j}`}>
+                      <PanelLink link={sub} current={pathname} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
+  );
+}
+
+/** One row of the panel: the label, and an arrow (or a new-tab mark) on the right. */
+function PanelLink({ link, current }) {
+  const here = link.url === current;
+  return (
+    <MenuLink link={link} className={styles.item} aria-current={here ? "page" : undefined}>
+      <span>{link.label}</span>
+      {link.new_tab ? (
+        <>
+          <span className={styles.hidden}> (opens in a new tab)</span>
+          <ArrowUpRight size={15} aria-hidden className={styles.icon} />
+        </>
+      ) : (
+        <ChevronRight size={15} aria-hidden className={styles.icon} />
+      )}
+    </MenuLink>
   );
 }
