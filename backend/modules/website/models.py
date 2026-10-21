@@ -1,4 +1,4 @@
-"""Tables from database/schema/0017_website_pages_menus.sql, 0018 and 0019."""
+"""Tables from database/schema/0017_website_pages_menus.sql, 0018-0020."""
 
 from django.db import models
 
@@ -31,6 +31,7 @@ class Menu(BaseModel):
     location = models.CharField(max_length=10, choices=Location)
     show_as = models.CharField(max_length=10, choices=ShowAs, default=ShowAs.DROPDOWN)
     sort_order = models.IntegerField(default=0)
+    header_position = models.IntegerField(null=True, blank=True)  # 0020: place in the bar
 
     class Meta(BaseModel.Meta):
         managed = False
@@ -70,6 +71,7 @@ class MenuItem(BaseModel):
     url = models.CharField(max_length=500, blank=True)
     open_in_new_tab = models.BooleanField(default=False)
     sort_order = models.IntegerField(default=0)
+    header_position = models.IntegerField(null=True, blank=True)  # 0020: place in the bar
 
     class Meta(BaseModel.Meta):
         managed = False

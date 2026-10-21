@@ -4,3 +4,25 @@
   padding-left: 12px;
   border-left: 2px solid var(--gray-200);
 }
+
+.subTitle {
+  margin: 20px 0 8px;
+  font-size: 16px;
+}
+/* Header bar order: the top bar's entries, left to right */
+.bar {
+  margin-bottom: 8px;
+}
+.barNumber {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-500);
+  font-size: 13px;
+  font-weight: 600;
+}

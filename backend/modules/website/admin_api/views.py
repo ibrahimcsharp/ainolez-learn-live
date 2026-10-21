@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.routers import SimpleRouter
 
 from modules.website import selectors, services
@@ -85,6 +86,22 @@ class MenuViewSet(ServiceViewSet):
         response = super().reorder(request)
         publish(MenuChanged(0))
         return response
+
+    @action(detail=False, methods=["get", "post"], url_path="header-bar")
+    def header_bar(self, request):
+        """GET: what the header bar shows, in order. POST {"entries": [...]}: reorder it."""
+        if request.method == "POST":
+            services.save_header_order(request.data.get("entries", []), request.user)
+        return Response([
+            {
+                "kind": entry["kind"],
+                "id": entry["id"],
+                "label": entry["link"]["label"],
+                "url": entry["link"]["url"],
+                "sub_links": len(entry["link"].get("children", [])),
+            }
+            for entry in selectors.header_bar()
+        ])  # fmt: skip
 
 
 class MenuItemViewSet(ServiceViewSet):

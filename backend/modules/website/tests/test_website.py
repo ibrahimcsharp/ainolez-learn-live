@@ -250,6 +250,32 @@ def test_header_menu_shown_as_a_dropdown_named_after_it(admin_api, api, page):
     assert {"label": "Courses", "url": "/courses", "new_tab": False} in header
 
 
+def test_header_bar_order_mixes_links_and_dropdowns(admin_api, api):
+    games = menu_with(admin_api, name="Games", show_as="dropdown")
+    add_link(admin_api, games, link_type="url", url="/tic-tac-toe", label="Tic Tac Toe")
+    bar = admin_api.get(f"{ADMIN}/menus/header-bar/").json()
+    labels = [entry["label"] for entry in bar]
+    assert labels[:4] == ["Courses", "Community", "AI tutor", "Leaderboard"]  # seeded Main menu
+    assert labels[-1] == "Games" and bar[-1]["kind"] == "menu" and bar[-1]["sub_links"] == 1
+
+    # put Games between Community and AI tutor
+    entries = [{"kind": e["kind"], "id": e["id"]} for e in bar]
+    entries.insert(2, entries.pop())
+    response = admin_api.post(f"{ADMIN}/menus/header-bar/", {"entries": entries}, format="json")
+    assert [e["label"] for e in response.json()][:5] == [
+        "Courses", "Community", "Games", "AI tutor", "Leaderboard",
+    ]  # fmt: skip
+    header = [link["label"] for link in api.get(f"{PUBLIC}/menus/").json()["header"]]
+    assert header[:5] == ["Courses", "Community", "Games", "AI tutor", "Leaderboard"]
+
+    # a link added later goes to the end, and an out-of-date order is refused
+    main = admin_api.get(f"{ADMIN}/menus/", {"location": "header"}).json()["results"][0]
+    add_link(admin_api, main, link_type="url", url="/new", label="New")
+    assert api.get(f"{PUBLIC}/menus/").json()["header"][-1]["label"] == "New"
+    response = admin_api.post(f"{ADMIN}/menus/header-bar/", {"entries": entries}, format="json")
+    assert response.status_code == 400 and response.json()["code"] == "stale"
+
+
 def test_sub_menu_rules(admin_api):
     menu = menu_with(admin_api)
     other = menu_with(admin_api, name="Other")

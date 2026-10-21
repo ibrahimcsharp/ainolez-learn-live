@@ -15,6 +15,7 @@ from django.utils.text import slugify
 from modules.catalog import selectors as catalog
 from modules.catalog import services as catalog_services
 from modules.content_tools import services as content
+from modules.website import selectors
 from modules.website.events import MenuChanged, PageChanged
 from modules.website.models import Menu, MenuItem, SitePage
 from shared import audit, records
@@ -113,6 +114,24 @@ def save_menu_item(item: MenuItem | None, data: dict, by) -> MenuItem:
             MenuItem.all_objects.filter(parent=item).update(menu=item.menu)  # sub-menu moves too
     publish(MenuChanged(item.menu_id))
     return item
+
+
+def save_header_order(entries: list, by) -> None:
+    """Place the header bar's links and dropdown menus in the order given:
+    [{"kind": "item" | "menu", "id"}...], every entry the bar shows now."""
+    try:
+        wanted = [(str(entry["kind"]), int(entry["id"])) for entry in entries]
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ServiceError("Send the header entries as kind and id.", "bad_order") from exc
+    current = [(entry["kind"], entry["id"]) for entry in selectors.header_bar()]
+    if sorted(wanted) != sorted(current):
+        raise ServiceError("The header changed meanwhile. Reload the page and try again.", "stale")
+    with transaction.atomic():
+        for position, (kind, pk) in enumerate(wanted):
+            model = Menu if kind == "menu" else MenuItem
+            model.all_objects.filter(pk=pk).update(header_position=position, updated_by=by)
+    audit.record("menu.header_ordered", actor=by, after={"order": wanted})
+    publish(MenuChanged(0))
 
 
 # --- helpers ----------------------------------------------------------------
