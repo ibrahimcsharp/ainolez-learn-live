@@ -1,7 +1,6 @@
 .page {
-  max-width: 860px;
-  padding-top: 40px;
-  padding-bottom: 64px;
+  max-width: calc(860px + 2 * var(--gutter));
+  padding-block: 56px 88px;
 }
 .verified,
 .revoked {

@@ -2,7 +2,7 @@ import { ChatPanel } from "./ChatPanel";
 
 export function AIPage() {
   return (
-    <div className="container" style={{ maxWidth: 820, padding: "32px 16px 48px" }}>
+    <div className="container page-body" style={{ maxWidth: "calc(820px + 2 * var(--gutter))" }}>
       <h1>Your free AI tutor</h1>
       <p className="muted">
         Ask about any lesson, paste code that does not work, or explore a new topic. Answers point you

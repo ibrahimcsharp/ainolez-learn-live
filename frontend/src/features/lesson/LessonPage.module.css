@@ -41,8 +41,8 @@
 }
 
 .main {
-  padding: 24px 32px 64px;
-  max-width: 900px;
+  padding: 40px var(--gutter) 80px;
+  max-width: 960px;
 }
 .pager {
   display: flex;
@@ -59,7 +59,7 @@
     max-height: 260px;
   }
   .main {
-    padding: 20px 16px 48px;
+    padding: 28px var(--gutter) 56px;
   }
 }
 

@@ -6,7 +6,7 @@ export function SearchPage() {
   const { data: results, loading } = useApi(query ? `/public/search/?q=${encodeURIComponent(query)}` : null);
 
   return (
-    <div className="container" style={{ padding: "40px 16px 64px", maxWidth: 760 }}>
+    <div className="container page-body" style={{ maxWidth: "calc(760px + 2 * var(--gutter))" }}>
       <h1>Search</h1>
       {!query && <p className="muted">Type a topic in the search box above, for example “python lists”.</p>}
       {query && loading && <p className="muted">Searching…</p>}

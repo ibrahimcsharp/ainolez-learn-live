@@ -22,4 +22,5 @@
   --radius: 10px;
   --shadow: 0 1px 2px rgb(5 25 45 / 6%), 0 4px 16px rgb(5 25 45 / 6%);
   --content-width: 1120px;
+  --gutter: clamp(20px, 4vw, 40px); /* space between the content and the screen edge */
 }
