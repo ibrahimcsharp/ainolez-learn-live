@@ -55,11 +55,11 @@ export function MenusPage() {
               <Icon size={22} /> {title}
             </h2>
             <p className="muted">
-              {hint} Only active menus and links are shown. Drag to change the order. A link can hold a
+              {hint} Only active menus and links are shown. Use the arrows (or drag) to change the order. A link can hold a
               sub-menu: a dropdown in the header, an indented list in the footer.
             </p>
             {list.data && !here.length && <p className="muted">No {location} menu yet.</p>}
-            <SortableList items={here} base={MENUS} onChange={list.reload}
+            <SortableList arrows items={here} base={MENUS} onChange={list.reload}
               renderItem={(menu) => <MenuCard menu={menu} onChange={list.reload} />} />
           </section>
         );
@@ -176,7 +176,7 @@ function LinkList({ menuId, rows, items, parent, onChange, addLabel, adding: add
 
   return (
     <>
-      <SortableList items={items} base={ITEMS} onChange={onChange}
+      <SortableList arrows items={items} base={ITEMS} onChange={onChange}
         renderItem={(item) => (
           <>
             {editingId === item.id ? form(item) : (
