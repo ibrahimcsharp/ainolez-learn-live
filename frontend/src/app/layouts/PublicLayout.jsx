@@ -1,5 +1,6 @@
 import { Link, Outlet, useNavigate } from "react-router";
 import { ChatLauncher } from "../../features/assistant/ChatLauncher";
+import { MenuDropdown } from "../../features/website/MenuDropdown";
 import { MenuLink } from "../../features/website/MenuLink";
 import { useMenus } from "../../features/website/menus";
 import { Logo } from "../../shared/ui/Logo";
@@ -30,9 +31,13 @@ function SiteHeader({ links }) {
           <Logo variant="reversed" height={30} />
         </Link>
         <nav className={styles.headerNav}>
-          {links.map((link, i) => (
-            <MenuLink key={`${link.url}-${i}`} link={link} />
-          ))}
+          {links.map((link, i) =>
+            link.children ? (
+              <MenuDropdown key={`${link.label}-${i}`} link={link} />
+            ) : (
+              <MenuLink key={`${link.url}-${i}`} link={link} />
+            ),
+          )}
           <SearchBox />
           {user ? (
             <>
@@ -82,9 +87,20 @@ function SiteFooter({ columns }) {
         {columns.map((column) => (
           <nav key={column.id} aria-label={column.name} className={styles.footerCol}>
             <strong>{column.name}</strong>
-            {column.items.map((link, i) => (
-              <MenuLink key={`${link.url}-${i}`} link={link} />
-            ))}
+            {column.items.map((link, i) =>
+              link.children ? (
+                <div key={`${link.label}-${i}`} className={styles.footerGroup}>
+                  {link.url ? <MenuLink link={link} /> : <span>{link.label}</span>}
+                  <div className={styles.footerSub}>
+                    {link.children.map((child, j) => (
+                      <MenuLink key={`${child.url}-${j}`} link={child} />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <MenuLink key={`${link.url}-${i}`} link={link} />
+              ),
+            )}
           </nav>
         ))}
       </div>

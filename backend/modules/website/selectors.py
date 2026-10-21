@@ -39,8 +39,9 @@ def sitemap_pages() -> list[dict]:
 def public_menus() -> dict:
     """The website's navigation:
     {"header": [link...], "footer": [{"id", "name", "items": [link...]}...]},
-    a link being {"label", "url", "new_tab"}. Links to hidden pages or
-    unpublished courses are left out."""
+    a link being {"label", "url", "new_tab"}, plus "children": [link...] when
+    it has a sub-menu (a heading with no link has "url": None). Links to
+    hidden pages or unpublished courses are left out, with their sub-menu."""
     menus = list(Menu.objects.filter(is_active=True).order_by("location", "sort_order", "id"))
     items = list(
         MenuItem.objects.filter(menu__in=menus, is_active=True)
@@ -50,10 +51,20 @@ def public_menus() -> dict:
     courses = catalog.public_course_links(
         item.course_id for item in items if item.link_type == MenuItem.LinkType.COURSE
     )
+    children: dict[int, list[dict]] = {}
+    for item in items:
+        link = item.parent_id and _link(item, courses)
+        if link:
+            children.setdefault(item.parent_id, []).append(link)
+
     links: dict[int, list[dict]] = {menu.pk: [] for menu in menus}
     for item in items:
+        if item.parent_id:
+            continue
         link = _link(item, courses)
-        if link:
+        if link and item.pk in children:
+            link["children"] = children[item.pk]
+        if link and (link["url"] or "children" in link):  # a heading needs its sub-menu
             links[item.menu_id].append(link)
 
     header = [link for menu in menus if menu.location == "header" for link in links[menu.pk]]
@@ -79,6 +90,8 @@ def item_targets(items: list[MenuItem]) -> dict[int, str]:
         elif item.link_type == MenuItem.LinkType.COURSE:
             course = courses.get(item.course_id)
             targets[item.pk] = f"Course: /{course['slug']}" if course else "(course removed)"
+        elif item.link_type == MenuItem.LinkType.NONE:
+            targets[item.pk] = "Heading only: opens its sub-menu"
         else:
             targets[item.pk] = item.url
     return targets
@@ -95,6 +108,8 @@ def _link(item: MenuItem, courses: dict[int, dict]) -> dict | None:
         if course is None:
             return None
         url, title = f"/{course['slug']}", course["title"]
+    elif item.link_type == MenuItem.LinkType.NONE:
+        url, title = None, item.label
     else:
         url, title = item.url, item.url
     return {"label": item.label or title, "url": url, "new_tab": item.open_in_new_tab}

@@ -1,0 +1,6 @@
+/* The sub-menu links of one menu link, indented under it. */
+.subMenu {
+  margin: 8px 0 4px 20px;
+  padding-left: 12px;
+  border-left: 2px solid var(--gray-200);
+}

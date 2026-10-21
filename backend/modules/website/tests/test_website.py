@@ -191,6 +191,84 @@ def test_menu_items_reorder(admin_api):
     assert [row["label"] for row in rows] == ["c", "b", "a"]
 
 
+def add_link(admin_api, menu, **body):
+    response = admin_api.post(f"{ADMIN}/menu-items/", {"menu": menu["id"], **body}, format="json")
+    return response
+
+
+def test_sub_menus_nest_under_their_link(admin_api, api, page):
+    header = menu_with(admin_api)
+    footer = menu_with(admin_api, "footer", "Company")
+    learn = add_link(admin_api, header, link_type="none", label="Learn").json()
+    add_link(
+        admin_api, header, link_type="url", url="/courses", label="All courses", parent=learn["id"]
+    )
+    add_link(admin_api, header, link_type="page", page=page["id"], parent=learn["id"])
+    add_link(admin_api, header, link_type="none", label="Empty")  # no sub-menu: not shown
+    about = add_link(admin_api, footer, link_type="page", page=page["id"]).json()
+    add_link(admin_api, footer, link_type="url", url="/team", label="Team", parent=about["id"])
+
+    menus = api.get(f"{PUBLIC}/menus/").json()
+    assert {"label": "Learn", "url": None, "new_tab": False, "children": [
+        {"label": "All courses", "url": "/courses", "new_tab": False},
+        {"label": "About us", "url": "/about-us", "new_tab": False},
+    ]} in menus["header"]  # fmt: skip
+    assert not any(link["label"] == "Empty" for link in menus["header"])
+    company = next(m for m in menus["footer"] if m["id"] == footer["id"])
+    team = {"label": "Team", "url": "/team", "new_tab": False}
+    assert company["items"] == [
+        {"label": "About us", "url": "/about-us", "new_tab": False, "children": [team]}
+    ]
+
+    # a hidden link hides its sub-menu, and a hidden page leaves the heading with one link
+    admin_api.post(f"{ADMIN}/menu-items/{about['id']}/deactivate/")
+    assert footer["id"] not in [m["id"] for m in api.get(f"{PUBLIC}/menus/").json()["footer"]]
+    admin_api.post(f"{ADMIN}/pages/{page['id']}/deactivate/")
+    learn_link = next(
+        x for x in api.get(f"{PUBLIC}/menus/").json()["header"] if x["label"] == "Learn"
+    )
+    assert [c["label"] for c in learn_link["children"]] == ["All courses"]
+
+
+def test_sub_menu_rules(admin_api):
+    menu = menu_with(admin_api)
+    other = menu_with(admin_api, name="Other")
+    top = add_link(admin_api, menu, link_type="url", url="/a", label="A").json()
+    child = add_link(admin_api, menu, link_type="url", url="/b", label="B", parent=top["id"]).json()
+    assert child["parent"] == top["id"] and child["sort_order"] == 1
+
+    refused = {
+        "too_deep": add_link(
+            admin_api, menu, link_type="url", url="/c", label="C", parent=child["id"]
+        ),
+        "bad_parent": add_link(
+            admin_api, other, link_type="url", url="/c", label="C", parent=top["id"]
+        ),
+        "no_target": add_link(admin_api, menu, link_type="none", label="H", parent=top["id"]),
+        "no_label": add_link(admin_api, menu, link_type="none"),
+    }
+    for code, response in refused.items():
+        assert response.status_code == 400 and response.json()["code"] == code, code
+    # a link with a sub-menu cannot itself move under another link
+    second = add_link(admin_api, menu, link_type="url", url="/d", label="D").json()
+    response = admin_api.patch(
+        f"{ADMIN}/menu-items/{top['id']}/", {"parent": second["id"]}, format="json"
+    )
+    assert response.json()["code"] == "too_deep"
+
+
+def test_hard_delete_removes_the_sub_menu(admin_api):
+    menu = menu_with(admin_api)
+    top = add_link(admin_api, menu, link_type="none", label="More").json()
+    add_link(admin_api, menu, link_type="url", url="/b", label="B", parent=top["id"])
+    admin_api.post(f"{ADMIN}/menu-items/{top['id']}/soft-delete/")
+    assert admin_api.get(f"{ADMIN}/menu-items/{top['id']}/hard/").json()["will_delete"] == {
+        "menu items": 2
+    }
+    admin_api.delete(f"{ADMIN}/menu-items/{top['id']}/hard/", {"confirm": "More"}, format="json")
+    assert not MenuItem.all_objects.filter(menu_id=menu["id"]).exists()
+
+
 def test_only_admins_manage_the_website(api, make_user):
     assert api.get(f"{ADMIN}/pages/").status_code == 401
     api.force_authenticate(make_user())

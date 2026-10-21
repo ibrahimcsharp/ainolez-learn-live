@@ -63,14 +63,30 @@ def save_menu(menu: Menu | None, data: dict, by) -> Menu:
 
 
 def save_menu_item(item: MenuItem | None, data: dict, by) -> MenuItem:
-    """A link to a page, a course or a URL. Only the chosen target is kept."""
+    """A link to a page, a course or a URL (or a heading with no link, for a
+    sub-menu). Only the chosen target is kept. A link can sit under a
+    top-level link of the same menu, one level deep."""
     is_new = item is None
     item = item or MenuItem()
+    old_parent, old_menu = item.parent_id, item.menu_id
     _assign(item, data)
     item.label = (item.label or "").strip()
     item.url = (item.url or "").strip()
+    has_children = not is_new and MenuItem.objects.filter(parent=item).exists()
+    if item.parent is not None:
+        parent = item.parent
+        if parent.pk == item.pk or parent.menu_id != item.menu_id:
+            raise ServiceError("Put the link under a link of the same menu.", "bad_parent")
+        if parent.parent_id is not None or has_children:
+            raise ServiceError("Sub-menus go one level deep only.", "too_deep")
     kind = item.link_type
-    if kind == MenuItem.LinkType.PAGE:
+    if kind == MenuItem.LinkType.NONE:
+        if item.parent is not None:
+            raise ServiceError("A sub-menu link must open something.", "no_target")
+        if not item.label:
+            raise ServiceError("A heading needs a label.", "no_label")
+        item.page, item.course_id, item.url, item.open_in_new_tab = None, None, "", False
+    elif kind == MenuItem.LinkType.PAGE:
         if item.page_id is None:
             raise ServiceError("Pick the page this link opens.", "no_page")
         item.course_id, item.url = None, ""
@@ -88,9 +104,13 @@ def save_menu_item(item: MenuItem | None, data: dict, by) -> MenuItem:
         item.page, item.course_id = None, None
     else:
         raise ServiceError("Choose what the link opens: a page, a course or a URL.", "bad_type")
-    if is_new:
-        item.sort_order = _next_order(MenuItem.objects.filter(menu=item.menu))
-    _save(item, by)
+    if is_new or item.parent_id != old_parent or item.menu_id != old_menu:
+        siblings = MenuItem.objects.filter(menu=item.menu, parent=item.parent).exclude(pk=item.pk)
+        item.sort_order = _next_order(siblings)  # last among its new neighbours
+    with transaction.atomic():
+        _save(item, by)
+        if has_children and item.menu_id != old_menu:
+            MenuItem.all_objects.filter(parent=item).update(menu=item.menu)  # sub-menu moves too
     publish(MenuChanged(item.menu_id))
     return item
 

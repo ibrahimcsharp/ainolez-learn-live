@@ -1,4 +1,4 @@
-"""Tables from database/schema/0017_website_pages_menus.sql."""
+"""Tables from database/schema/0017_website_pages_menus.sql (+ 0018 sub-menus)."""
 
 from django.db import models
 
@@ -32,17 +32,34 @@ class Menu(BaseModel):
         db_table = "menus"
 
 
+def delete_links(collector, field, sub_objs, using):
+    """CASCADE, minus Django's first step of setting the column to NULL (MySQL
+    cannot defer constraint checks), which ck_menu_items_target would refuse.
+    The links are simply deleted before the page."""
+    collector.collect(
+        sub_objs,
+        source=field.remote_field.model,
+        source_attr=field.name,
+        nullable=False,
+        fail_on_restricted=False,
+    )
+
+
 class MenuItem(BaseModel):
     class LinkType(models.TextChoices):
         PAGE = "page"
         COURSE = "course"
         URL = "url"
+        NONE = "none", "Heading only"  # top level, holds a sub-menu
 
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="items")
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
+    )  # one level: a sub-menu link sits under a top-level link of the same menu
     label = models.CharField(max_length=100, blank=True)
     link_type = models.CharField(max_length=10, choices=LinkType)
     page = models.ForeignKey(
-        SitePage, on_delete=models.CASCADE, null=True, blank=True, related_name="menu_items"
+        SitePage, on_delete=delete_links, null=True, blank=True, related_name="menu_items"
     )
     course_id = models.BigIntegerField(null=True, blank=True)  # catalog module
     url = models.CharField(max_length=500, blank=True)
