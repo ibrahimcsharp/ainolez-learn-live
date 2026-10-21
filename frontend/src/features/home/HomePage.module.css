@@ -205,11 +205,11 @@
 
 /* Sections */
 .section {
-  padding-top: 50px;
+  padding-top: 35px;
 }
 .band {
-  margin-top: 50px;
-  padding-bottom: 50px;
+  margin-top: 35px;
+  padding-bottom: 35px;
   background: var(--white);
   border-block: 1px solid var(--gray-200);
 }
@@ -361,7 +361,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 50px;
+  margin-bottom: 35px;
   padding: 56px 56px;
   border-radius: 18px;
   background:
@@ -399,11 +399,11 @@
     padding: 64px 0 72px;
   }
   .section {
-    padding-top: 40px;
+    padding-top: 28px;
   }
   .band {
-    margin-top: 40px;
-    padding-bottom: 40px;
+    margin-top: 28px;
+    padding-bottom: 28px;
   }
   .statsInner {
     grid-template-columns: repeat(2, 1fr);
