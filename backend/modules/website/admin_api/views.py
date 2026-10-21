@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.routers import SimpleRouter
 
 from modules.website import selectors, services
-from modules.website.events import PageChanged
+from modules.website.events import MenuChanged, PageChanged
 from modules.website.models import Menu, MenuItem, SitePage
 from shared.admin_api import ServiceViewSet
 from shared.events import publish
@@ -75,6 +75,15 @@ class MenuViewSet(ServiceViewSet):
     filter_fields = ("location",)
     ordering = ("location", "sort_order", "id")
 
+    def record_changed(self, menu):
+        publish(MenuChanged(menu.pk))
+
+    @action(detail=False, methods=["post"])
+    def reorder(self, request):
+        response = super().reorder(request)
+        publish(MenuChanged(0))
+        return response
+
 
 class MenuItemViewSet(ServiceViewSet):
     model = MenuItem
@@ -86,6 +95,15 @@ class MenuItemViewSet(ServiceViewSet):
 
     def get_queryset(self):
         return super().get_queryset().select_related("page")
+
+    def record_changed(self, item):
+        publish(MenuChanged(item.menu_id))
+
+    @action(detail=False, methods=["post"])
+    def reorder(self, request):
+        response = super().reorder(request)
+        publish(MenuChanged(0))
+        return response
 
 
 router = SimpleRouter()

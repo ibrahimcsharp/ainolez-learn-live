@@ -56,6 +56,7 @@ def build() -> int:
         )
     shell = (root / SHELL).read_text(encoding="utf-8")
     site = resolver.settings_row()
+    menus = website.public_menus()
     pages = [resolver.resolve(path, site) for path in public_paths()]
 
     written = []
@@ -64,7 +65,7 @@ def build() -> int:
             relative = "index.html" if meta.path == "/" else f"{meta.path.strip('/')}/index.html"
             target = root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(render(shell, meta, site), encoding="utf-8")
+            target.write_text(render(shell, meta, site, menus), encoding="utf-8")
             written.append(relative)
     _remove_stale(root, set(written))
     (root / "sitemap.xml").write_text(sitemap(pages, site), encoding="utf-8")
@@ -77,21 +78,33 @@ def build() -> int:
     return len(written)
 
 
-def render(shell: str, meta: resolver.PageMeta, site: SeoSettings) -> str:
+def render(
+    shell: str, meta: resolver.PageMeta, site: SeoSettings, menus: dict | None = None
+) -> str:
     head = "\n".join(
         [f"<title>{escape(meta.title)}</title>"]
         + [tag_html(tag) for tag in resolver.head_tags(meta, site)]
         + [
-            '<script type="application/ld+json" data-seo>'
-            + json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
-            + "</script>"
+            f'<script type="application/ld+json" data-seo>{_json(data)}</script>'
             for data in meta.json_ld
         ]
+        # The header and footer links, so the app draws them on first paint. MenuChanged
+        # rebuilds the files. A JSON script never runs, so the strict CSP allows it.
+        + (
+            [f'<script type="application/json" id="site-menus">{_json(menus)}</script>']
+            if menus
+            else []
+        )
     )
     html = re.sub(r"\s*<title>.*?</title>", "", shell, flags=re.S)
     html = re.sub(r'\s*<meta\s+name="description"[^>]*>', "", html, flags=re.S)
     html = html.replace("</head>", f"{head}\n</head>", 1)
     return html.replace('<div id="root"></div>', f'<div id="root">{meta.body_html}</div>', 1)
+
+
+def _json(data) -> str:
+    """JSON that is safe inside a <script> element."""
+    return json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
 
 
 def tag_html(tag: dict) -> str:
