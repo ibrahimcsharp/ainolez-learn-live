@@ -78,6 +78,19 @@
 .footerCol a:hover {
   color: var(--green-400);
 }
+/* A footer link with a sub-menu: its links indented under it. */
+.footerGroup,
+.footerSub {
+  display: grid;
+  gap: 8px;
+}
+.footerGroup > span {
+  color: var(--white);
+}
+.footerSub {
+  padding-left: 12px;
+  border-left: 1px solid rgb(255 255 255 / 12%);
+}
 .footerBottom {
   margin-top: 40px;
   padding-top: 20px;

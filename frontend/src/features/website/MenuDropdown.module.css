@@ -1,0 +1,88 @@
+.dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.split {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.chevron {
+  transition: transform 0.15s ease;
+}
+.dropdown[data-open="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+/* The sub-menu panel, under the link. A gap-free bridge keeps hover open. */
+.panel {
+  position: absolute;
+  top: 100%;
+  left: -12px;
+  z-index: 50;
+  display: none;
+  min-width: 200px;
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgb(7 31 56 / 18%);
+}
+.dropdown[data-open="true"] .panel {
+  display: block;
+}
+@media (hover: hover) {
+  .dropdown:hover .panel {
+    display: block;
+  }
+}
+/* Selector repeats .dropdown to beat the header's "a { color: white }" rule. */
+.dropdown .panel li a {
+  display: block;
+  padding: 8px 16px;
+  color: var(--navy-900);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.dropdown .panel li a:hover,
+.dropdown .panel li a:focus-visible {
+  background: var(--gray-50);
+  color: var(--navy-900);
+}
+
+/* Phones: the header row scrolls sideways and would clip the panel, so it
+   sits under the header across the screen instead. */
+@media (max-width: 760px) {
+  .panel {
+    position: fixed;
+    top: var(--panel-top);
+    left: 16px;
+    right: 16px;
+    min-width: 0;
+  }
+  .dropdown:hover .panel {
+    display: none;
+  }
+  .dropdown[data-open="true"] .panel {
+    display: block;
+  }
+  .dropdown .panel li a {
+    white-space: normal;
+  }
+}

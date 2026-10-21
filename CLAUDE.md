@@ -140,3 +140,8 @@ npm run build
       Admin: Pages (smart editor `admin/shared/MarkdownEditor.jsx`: toolbar, live preview,
       image upload / paste / drop into the media library, so it works before the first save)
       and Menus (drag to reorder menus and links).
+      Sub-menus: SQL 0018 (`menu_items.parent_id`, one level; link_type 'none' = a heading that
+      only holds a sub-menu). Header: dropdown (`features/website/MenuDropdown.jsx`, hover or
+      arrow button; on phones the panel sits under the header). Footer: indented list.
+      `MenuItem.page` uses `delete_links` instead of CASCADE: Django's CASCADE first sets
+      page_id to NULL on MySQL, which `ck_menu_items_target` refuses.

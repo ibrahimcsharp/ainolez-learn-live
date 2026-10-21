@@ -7,6 +7,7 @@ import { EditPanel, useResourceForm } from "../shared/EditPanel";
 import { RecordActions, StatusBadge } from "../shared/RecordActions";
 import { SortableList } from "../shared/SortableList";
 import styles from "../shared/admin.module.css";
+import pageStyles from "./MenusPage.module.css";
 import { PAGES } from "./PagesPage";
 
 export const MENUS = "/admin/website/menus";
@@ -15,7 +16,7 @@ const LOCATIONS = {
   header: { title: "Header", icon: PanelTop, hint: "The links in the top bar of every page." },
   footer: { title: "Footer", icon: PanelBottom, hint: "Each footer menu is one column, with its name on top." },
 };
-const LINK_TYPES = { page: "A page", course: "A course", url: "A web address" };
+const LINK_TYPES = { page: "A page", course: "A course", url: "A web address", none: "Nothing: a heading for a sub-menu" };
 
 /** Admin -> Menus: the header links and the footer columns of the website. */
 export function MenusPage() {
@@ -46,7 +47,8 @@ export function MenusPage() {
               <Icon size={22} /> {title}
             </h2>
             <p className="muted">
-              {hint} Only active menus and links are shown. Drag to change the order.
+              {hint} Only active menus and links are shown. Drag to change the order. A link can hold a
+              sub-menu: a dropdown in the header, an indented list in the footer.
             </p>
             {list.data && !here.length && <p className="muted">No {location} menu yet.</p>}
             <SortableList items={here} base={MENUS} onChange={list.reload}
@@ -100,47 +102,90 @@ function MenuCard({ menu, onChange }) {
 }
 
 function MenuItems({ menuId, rows, onChange }) {
+  const [addingUnder, setAddingUnder] = useState(null);
+  const top = rows.filter((item) => !item.parent);
+  return (
+    <LinkList menuId={menuId} rows={rows} items={top} onChange={onChange} addLabel="Add link"
+      rowAction={(item) => (
+        <button type="button" className={`btn btn-outline ${styles.small}`} title="Add a link to its sub-menu"
+          onClick={() => setAddingUnder(item.id)}>
+          <Plus /> Sub-link
+        </button>
+      )}
+      renderBelow={(item) => {
+        const children = rows.filter((child) => child.parent === item.id);
+        if (!children.length && addingUnder !== item.id) return null;
+        return (
+          <div className={pageStyles.subMenu}>
+            <LinkList menuId={menuId} rows={rows} parent={item} items={children} onChange={onChange}
+              adding={addingUnder === item.id} onAddingDone={() => setAddingUnder(null)} />
+          </div>
+        );
+      }} />
+  );
+}
+
+/**
+ * One level of links: the menu's top links, or the sub-menu of one link.
+ * The top level has its own "Add link" button; a sub-menu is opened for a
+ * new link by the "Sub-link" button of its parent row.
+ */
+function LinkList({ menuId, rows, items, parent, onChange, addLabel, adding: addingHere, onAddingDone,
+  rowAction, renderBelow }) {
   const [editingId, setEditingId] = useState(null);
-  const [adding, setAdding] = useState(false);
+  const [addingOwn, setAddingOwn] = useState(false);
+  const adding = addingOwn || addingHere;
+  const stopAdding = () => {
+    setAddingOwn(false);
+    onAddingDone?.();
+  };
   const done = () => {
     setEditingId(null);
-    setAdding(false);
+    stopAdding();
     onChange();
   };
+  const form = (item) => (
+    <ItemForm menuId={menuId} item={item} parentId={item ? item.parent : parent?.id} onSaved={done}
+      onCancel={() => (item ? setEditingId(null) : stopAdding())}
+      parents={rows.filter((row) => !row.parent && row.id !== item?.id)}
+      hasChildren={!!item && rows.some((row) => row.parent === item.id)} />
+  );
 
   return (
     <>
-      <SortableList items={rows} base={ITEMS} onChange={onChange}
-        renderItem={(item) =>
-          editingId === item.id ? (
-            <ItemForm menuId={menuId} item={item} onSaved={done} onCancel={() => setEditingId(null)} />
-          ) : (
-            <div className={styles.toolbar} style={{ margin: 0 }}>
-              <span className={styles.grow}>
-                {item.label ? <strong>{item.label}</strong> : <em className="muted">Title of the {item.link_type}</em>}{" "}
-                <StatusBadge row={item} />
-                {item.open_in_new_tab && <span className="muted" title="Opens in a new tab"> ↗</span>}
-                <div className="muted">{item.target}</div>
-              </span>
-              <RecordActions base={ITEMS} row={item} onChange={onChange} onEdit={() => setEditingId(item.id)} />
-            </div>
-          )
-        }
+      <SortableList items={items} base={ITEMS} onChange={onChange}
+        renderItem={(item) => (
+          <>
+            {editingId === item.id ? form(item) : (
+              <div className={styles.toolbar} style={{ margin: 0 }}>
+                <span className={styles.grow}>
+                  {item.label ? <strong>{item.label}</strong> : <em className="muted">Title of the {item.link_type}</em>}{" "}
+                  <StatusBadge row={item} />
+                  {item.open_in_new_tab && <span className="muted" title="Opens in a new tab"> ↗</span>}
+                  <div className="muted">{item.target}</div>
+                </span>
+                {rowAction?.(item)}
+                <RecordActions base={ITEMS} row={item} onChange={onChange} onEdit={() => setEditingId(item.id)} />
+              </div>
+            )}
+            {renderBelow?.(item)}
+          </>
+        )}
       />
-      {adding ? (
-        <ItemForm menuId={menuId} onSaved={done} onCancel={() => setAdding(false)} />
-      ) : (
-        <button type="button" className={`btn btn-outline ${styles.small}`} onClick={() => setAdding(true)}>
-          <Plus /> Add link
+      {adding && form(null)}
+      {!adding && addLabel && (
+        <button type="button" className={`btn btn-outline ${styles.small}`} onClick={() => setAddingOwn(true)}>
+          <Plus /> {addLabel}
         </button>
       )}
     </>
   );
 }
 
-function ItemForm({ menuId, item, onSaved, onCancel }) {
+function ItemForm({ menuId, item, parentId, parents, hasChildren, onSaved, onCancel }) {
   const initial = {
     id: item?.id,
+    parent: parentId ?? "",
     label: item?.label ?? "",
     link_type: item?.link_type ?? "page",
     page: item?.page ?? "",
@@ -150,20 +195,38 @@ function ItemForm({ menuId, item, onSaved, onCancel }) {
   };
   const form = useResourceForm(ITEMS, initial, onSaved, (v) => ({
     menu: menuId,
+    parent: v.parent || null,
     label: v.label,
     link_type: v.link_type,
     page: v.link_type === "page" ? v.page || null : null,
     course_id: v.link_type === "course" ? v.course_id || null : null,
     url: v.link_type === "url" ? v.url : "",
-    open_in_new_tab: v.open_in_new_tab,
+    open_in_new_tab: v.link_type !== "none" && v.open_in_new_tab,
   }));
   const { values, onChange, setValues, error } = form;
   const kind = values.link_type;
+  const types = Object.entries(LINK_TYPES).filter(([key]) => key !== "none" || !values.parent);
 
   return (
-    <EditPanel title={item ? "Edit link" : "New link"} form={form} onCancel={onCancel}>
+    <EditPanel title={item ? "Edit link" : values.parent ? "New sub-menu link" : "New link"} form={form}
+      onCancel={onCancel}>
+      {hasChildren ? (
+        <p className="field muted">This link has a sub-menu, so it stays at the top level.</p>
+      ) : (
+        <Field label="Sits under" name="parent" as="select" value={values.parent} error={error}
+          onChange={(e) => setValues({
+            ...values,
+            parent: e.target.value,
+            link_type: e.target.value && kind === "none" ? "page" : kind,
+          })}>
+          <option value="">Top level of the menu</option>
+          {parents.map((row) => (
+            <option key={row.id} value={row.id}>Sub-menu of: {row.label || row.target}</option>
+          ))}
+        </Field>
+      )}
       <Field label="Link to" name="link_type" as="select" value={kind} onChange={onChange} error={error}>
-        {Object.entries(LINK_TYPES).map(([key, label]) => (
+        {types.map(([key, label]) => (
           <option key={key} value={key}>{label}</option>
         ))}
       </Field>
@@ -173,12 +236,17 @@ function ItemForm({ menuId, item, onSaved, onCancel }) {
         <Field label="Address" name="url" required value={values.url} onChange={onChange} error={error}
           placeholder="/courses or https://…" />
       )}
-      <Field label={kind === "url" ? "Label" : "Label (blank = the title)"} name="label" value={values.label}
-        required={kind === "url"} onChange={onChange} error={error} maxLength={100} />
-      <label style={{ alignSelf: "center" }}>
-        <input type="checkbox" checked={values.open_in_new_tab}
-          onChange={(e) => setValues({ ...values, open_in_new_tab: e.target.checked })} /> Open in a new tab
-      </label>
+      <Field label={["url", "none"].includes(kind) ? "Label" : "Label (blank = the title)"} name="label"
+        value={values.label} required={["url", "none"].includes(kind)} onChange={onChange} error={error}
+        maxLength={100} placeholder={kind === "none" ? "Learn" : undefined} />
+      {kind === "none" ? (
+        <p className="muted" style={{ alignSelf: "center" }}>Opens its sub-menu. Add sub-links after saving.</p>
+      ) : (
+        <label style={{ alignSelf: "center" }}>
+          <input type="checkbox" checked={values.open_in_new_tab}
+            onChange={(e) => setValues({ ...values, open_in_new_tab: e.target.checked })} /> Open in a new tab
+        </label>
+      )}
     </EditPanel>
   );
 }

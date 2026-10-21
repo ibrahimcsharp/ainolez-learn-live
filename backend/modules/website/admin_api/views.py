@@ -40,8 +40,8 @@ class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
         fields = [
-            "id", "menu", "label", "link_type", "page", "course_id", "url", "open_in_new_tab",
-            "sort_order", "target", *RECORD_FIELDS,
+            "id", "menu", "parent", "label", "link_type", "page", "course_id", "url",
+            "open_in_new_tab", "sort_order", "target", *RECORD_FIELDS,
         ]  # fmt: skip
         read_only_fields = ["sort_order", *RECORD_FIELDS]
 
@@ -90,7 +90,7 @@ class MenuItemViewSet(ServiceViewSet):
     serializer_class = MenuItemSerializer
     save = services.save_menu_item
     search_fields = ("label", "url")
-    filter_fields = ("menu", "link_type")
+    filter_fields = ("menu", "parent", "link_type")
     ordering = ("sort_order", "id")
 
     def get_queryset(self):
