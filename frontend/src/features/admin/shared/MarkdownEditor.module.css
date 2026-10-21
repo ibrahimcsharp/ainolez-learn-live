@@ -1,0 +1,84 @@
+.editor {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+}
+.label,
+.previewLabel {
+  font-weight: 600;
+  font-size: 14px;
+}
+.previewLabel {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.toolbar button,
+.upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 34px;
+  height: 34px;
+  justify-content: center;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-900);
+  font: 500 14px var(--font-body);
+  cursor: pointer;
+}
+.toolbar button:hover,
+.upload:hover {
+  background: var(--white);
+  border-color: var(--gray-200);
+  color: var(--green-700);
+}
+.toolbar button:focus-visible,
+.upload:focus-within {
+  outline: 2px solid var(--green-600);
+  outline-offset: 1px;
+}
+.sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: var(--gray-200);
+}
+.library {
+  height: 34px;
+  max-width: 170px;
+  font-size: 14px;
+}
+
+.callouts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.text {
+  width: 100%;
+  min-height: 420px;
+  resize: vertical;
+  line-height: 1.6;
+}
+.preview {
+  max-height: 640px;
+}

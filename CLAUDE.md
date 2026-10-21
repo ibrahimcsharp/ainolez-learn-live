@@ -35,7 +35,8 @@ Free coding and AI learning platform. Full plan, diagrams and database design:
 - Only `modules/assistant/claude.py` may import `anthropic`. Tests replace
   `claude.complete` (see assistant/tests) so they never call the API.
 - Course slugs are top-level URLs (`/python`); `RESERVED_SLUGS` in catalog/services.py
-  must list every fixed frontend route.
+  must list every fixed frontend route. Site pages (`website` module) share those URLs:
+  each module refuses a slug the other uses.
 - Code must run on Python 3.11 (cPanel) and MariaDB 10.4 (local XAMPP, via
   `config/db/mariadb104`).
 
@@ -130,3 +131,12 @@ npm run build
       5 more Python seed courses (original text, following the W3Schools Python topic list):
       python-essentials, python-standard-library, python-oop, python-dsa, python-databases.
       CGI fallback for the API (`deploy/cpanel/cgi/`) while the host has Passenger off.
+- [x] Pages and menus: SQL 0017 (`site_pages`, `menus`, `menu_items`; seo_pages.entity_type
+      gains 'page'). `website` module: pages at `/<slug>` (Markdown → nh3-sanitised HTML on
+      save, active/inactive, Trash + restore), header and footer menus with ordered links to a
+      page, a course or a URL (0017 seeds the links that were hard-coded). Public API
+      `/api/v1/public/site/menus/` and `pages/<slug>/`; `CoursePage` falls back to the page
+      when no course has the slug. SEO: WebPage JSON-LD, sitemap entries, per-page SEO tab.
+      Admin: Pages (smart editor `admin/shared/MarkdownEditor.jsx`: toolbar, live preview,
+      image upload / paste / drop into the media library, so it works before the first save)
+      and Menus (drag to reorder menus and links).

@@ -18,6 +18,7 @@ from modules.catalog import selectors as catalog
 from modules.certification import selectors as certification
 from modules.community import selectors as community
 from modules.media import selectors as media
+from modules.website import selectors as website
 
 POST_PATH = re.compile(r"^/community/posts/(\d+)$")
 CERTIFICATE_PATH = re.compile(r"^/certificates/([A-Za-z0-9-]+)$")
@@ -49,7 +50,9 @@ def for_path(path: str, site) -> Content | None:
     if match := CERTIFICATE_PATH.match(path):
         return _certificate(match[1])
     if match := COURSE_PATH.match(path):
-        return _lesson(match[1], match[2]) if match[2] else _course(match[1], site)
+        if match[2]:
+            return _lesson(match[1], match[2])
+        return _course(match[1], site) or _page(match[1])
     return None
 
 
@@ -59,7 +62,10 @@ def entity_for_path(path: str) -> tuple[str, int] | None:
         post_id = int(match[1])
         return ("post", post_id) if community.post_exists(post_id) else None
     if path != "/courses" and (match := COURSE_PATH.match(path)):
-        return catalog.find_page(match[1], match[2] or "")
+        found = catalog.find_page(match[1], match[2] or "")
+        if found is None and not match[2] and (page_id := website.find_page(match[1])):
+            return ("page", page_id)
+        return found
     return None
 
 
@@ -203,6 +209,32 @@ def _lesson(course_slug: str, lesson_slug: str) -> Content | None:
         ),
         entity=("lesson", lesson.pk),
         updated_at=lesson.updated_at,
+    )
+
+
+def _page(slug: str) -> Content | None:
+    """A page the admin wrote in Admin -> Pages (website module)."""
+    page = website.public_page(slug)
+    if page is None:
+        return None
+    url = f"/{page.slug}"
+    description = page.summary or snippet(page.content_html or "")
+    data = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": page.title,
+        "description": description,
+        "url": absolute(url),
+        "dateModified": page.updated_at.isoformat(),
+        "inLanguage": "en",
+    }
+    return Content(
+        name=page.title,
+        description=description,
+        json_ld=[data, _breadcrumbs([(page.title, url)])],
+        body_html=f"<h1>{escape(page.title)}</h1>{page.content_html or ''}",
+        entity=("page", page.pk),
+        updated_at=page.updated_at,
     )
 
 

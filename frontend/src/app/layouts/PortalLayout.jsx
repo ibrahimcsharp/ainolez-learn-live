@@ -5,11 +5,13 @@ import {
   ChartColumn,
   ExternalLink,
   FileCode,
+  FileText,
   FolderTree,
   Globe,
   Image,
   LayoutDashboard,
   LogOut,
+  Menu,
   MessagesSquare,
   Route,
   Sparkles,
@@ -68,6 +70,8 @@ const MENUS = {
     {
       title: "Site",
       items: [
+        { to: "/admin/pages", label: "Pages", icon: FileText },
+        { to: "/admin/menus", label: "Menus", icon: Menu },
         { to: "/admin/seo", label: "SEO", icon: Globe },
         { to: "/admin/trash", label: "Trash", icon: Trash2 },
       ],

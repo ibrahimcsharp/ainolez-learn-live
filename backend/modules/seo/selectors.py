@@ -9,6 +9,7 @@ from django.utils import timezone
 from modules.catalog import selectors as catalog
 from modules.seo import prerender, resolver
 from modules.seo.models import PageViewDaily, SeoPage
+from modules.website import selectors as website
 
 TITLE_MAX, DESCRIPTION_MIN, DESCRIPTION_MAX = 60, 50, 160
 
@@ -21,6 +22,9 @@ def page_urls(pages: list[SeoPage]) -> dict[int, str]:
         found = catalog.page_urls(kind, ids) if ids else {}
         urls |= {p.pk: found.get(p.entity_id, "") for p in pages if p.entity_type == kind}
     urls |= {p.pk: f"/community/posts/{p.entity_id}" for p in pages if p.entity_type == "post"}
+    page_ids = {p.entity_id for p in pages if p.entity_type == "page"}
+    found = website.page_urls(page_ids) if page_ids else {}
+    urls |= {p.pk: found.get(p.entity_id, "") for p in pages if p.entity_type == "page"}
     return urls
 
 
