@@ -145,3 +145,5 @@ npm run build
       arrow button; on phones the panel sits under the header). Footer: indented list.
       `MenuItem.page` uses `delete_links` instead of CASCADE: Django's CASCADE first sets
       page_id to NULL on MySQL, which `ck_menu_items_target` refuses.
+      SQL 0019 `menus.show_as` (header only): 'dropdown' = the menu's name in the bar with its
+      links under it (default for new menus), 'links' = its links side by side (Main menu).

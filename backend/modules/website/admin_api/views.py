@@ -27,7 +27,9 @@ class MenuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Menu
-        fields = ["id", "name", "location", "sort_order", "item_count", *RECORD_FIELDS]
+        fields = [
+            "id", "name", "location", "show_as", "sort_order", "item_count", *RECORD_FIELDS,
+        ]  # fmt: skip
         read_only_fields = ["sort_order", *RECORD_FIELDS]
 
     def get_item_count(self, menu) -> int:

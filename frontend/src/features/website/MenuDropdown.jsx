@@ -65,8 +65,17 @@ export function MenuDropdown({ link }) {
       )}
       <ul id={id} className={styles.panel} style={{ "--panel-top": `${top}px` }}>
         {link.children.map((child, i) => (
-          <li key={`${child.url}-${i}`}>
-            <MenuLink link={child} />
+          <li key={`${child.label}-${i}`}>
+            {child.url ? <MenuLink link={child} /> : <span className={styles.heading}>{child.label}</span>}
+            {child.children && (
+              <ul className={styles.nested}>
+                {child.children.map((sub, j) => (
+                  <li key={`${sub.url}-${j}`}>
+                    <MenuLink link={sub} />
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
       </ul>

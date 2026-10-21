@@ -66,6 +66,23 @@
   color: var(--navy-900);
 }
 
+/* A header menu shown as a dropdown can hold links with their own sub-links. */
+.heading {
+  display: block;
+  padding: 10px 16px 4px;
+  color: var(--gray-500);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.nested {
+  margin: 0 0 4px 16px;
+  padding: 0;
+  list-style: none;
+  border-left: 2px solid var(--gray-200);
+}
+
 /* Phones: the header row scrolls sideways and would clip the panel, so it
    sits under the header across the screen instead. */
 @media (max-width: 760px) {

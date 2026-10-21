@@ -1,4 +1,4 @@
-"""Tables from database/schema/0017_website_pages_menus.sql (+ 0018 sub-menus)."""
+"""Tables from database/schema/0017_website_pages_menus.sql, 0018 and 0019."""
 
 from django.db import models
 
@@ -23,8 +23,13 @@ class Menu(BaseModel):
         HEADER = "header"
         FOOTER = "footer"
 
+    class ShowAs(models.TextChoices):  # header only (0019)
+        LINKS = "links"  # its links side by side in the bar
+        DROPDOWN = "dropdown"  # its name in the bar, its links under it
+
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=10, choices=Location)
+    show_as = models.CharField(max_length=10, choices=ShowAs, default=ShowAs.DROPDOWN)
     sort_order = models.IntegerField(default=0)
 
     class Meta(BaseModel.Meta):
