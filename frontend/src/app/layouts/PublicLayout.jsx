@@ -1,21 +1,21 @@
 import { Link, Outlet, useNavigate } from "react-router";
 import { ChatLauncher } from "../../features/assistant/ChatLauncher";
 import { MenuLink } from "../../features/website/MenuLink";
-import { useApi } from "../../shared/hooks/useApi";
+import { useMenus } from "../../features/website/menus";
 import { Logo } from "../../shared/ui/Logo";
 import { homeFor, useAuth } from "../AuthProvider";
 import styles from "./Layouts.module.css";
 
 export function PublicLayout() {
-  // The header links and footer columns come from Admin -> Menus.
-  const { data: menus } = useApi("/public/site/menus/");
+  // The header links and footer columns come from Admin -> Menus, ready on first paint.
+  const menus = useMenus();
   return (
     <div className={styles.page}>
-      <SiteHeader links={menus?.header ?? []} />
+      <SiteHeader links={menus.header} />
       <main className={styles.main}>
         <Outlet />
       </main>
-      <SiteFooter columns={menus?.footer ?? []} />
+      <SiteFooter columns={menus.footer} />
       <ChatLauncher />
     </div>
   );

@@ -1,9 +1,13 @@
+import json
+
 import pytest
 
 from modules.catalog import services as catalog
 from modules.catalog.models import Status
 from modules.seo import prerender
+from modules.seo.services import BUILD_JOB
 from modules.website.models import MenuItem, SitePage
+from shared.models import Job
 
 pytestmark = pytest.mark.django_db
 ADMIN = "/api/v1/admin/website"
@@ -218,3 +222,32 @@ def test_page_seo_settings_follow_a_slug_change(admin_api, api, page):
     admin_api.patch(f"{ADMIN}/pages/{page['id']}/", {"slug": "team"})
     data = api.get("/api/v1/public/seo/", {"path": "/team"}).json()
     assert data["title"] == "Meet the team"
+
+
+def test_prerendered_pages_carry_the_menus(admin_api, tmp_path, settings, page):
+    settings.PRERENDER_DIR = str(tmp_path)
+    (tmp_path / "shell.html").write_text(
+        '<html><head><title>x</title></head><body><div id="root"></div></body></html>'
+    )
+    menu = menu_with(admin_api, "footer", "Company </script>")
+    admin_api.post(
+        f"{ADMIN}/menu-items/", {"menu": menu["id"], "link_type": "page", "page": page["id"]}
+    )
+
+    prerender.build()
+    html = (tmp_path / "index.html").read_text(encoding="utf-8")
+    script = html.split('<script type="application/json" id="site-menus">')[1].split("</script>")[0]
+    assert r"Company <\/script>" in script  # cannot close the script element early
+    menus = json.loads(script)
+    company = next(m for m in menus["footer"] if m["id"] == menu["id"])
+    assert company["items"] == [{"label": "About us", "url": "/about-us", "new_tab": False}]
+
+
+def test_menu_changes_schedule_a_prerender_rebuild(admin_api):
+    Job.objects.all().delete()
+    menu = menu_with(admin_api)
+    assert Job.objects.filter(type=BUILD_JOB, status=Job.Status.QUEUED).exists()
+
+    Job.objects.all().delete()
+    admin_api.post(f"{ADMIN}/menus/reorder/", {"ids": [menu["id"]]}, format="json")
+    assert Job.objects.filter(type=BUILD_JOB).exists()

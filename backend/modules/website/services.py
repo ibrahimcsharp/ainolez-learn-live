@@ -15,7 +15,7 @@ from django.utils.text import slugify
 from modules.catalog import selectors as catalog
 from modules.catalog import services as catalog_services
 from modules.content_tools import services as content
-from modules.website.events import PageChanged
+from modules.website.events import MenuChanged, PageChanged
 from modules.website.models import Menu, MenuItem, SitePage
 from shared import audit, records
 from shared.events import publish
@@ -57,7 +57,9 @@ def save_menu(menu: Menu | None, data: dict, by) -> Menu:
         raise ServiceError("Give the menu a name.", "no_name")
     if is_new:
         menu.sort_order = _next_order(Menu.objects.filter(location=menu.location))
-    return _save(menu, by)
+    _save(menu, by)
+    publish(MenuChanged(menu.pk))
+    return menu
 
 
 def save_menu_item(item: MenuItem | None, data: dict, by) -> MenuItem:
@@ -88,7 +90,9 @@ def save_menu_item(item: MenuItem | None, data: dict, by) -> MenuItem:
         raise ServiceError("Choose what the link opens: a page, a course or a URL.", "bad_type")
     if is_new:
         item.sort_order = _next_order(MenuItem.objects.filter(menu=item.menu))
-    return _save(item, by)
+    _save(item, by)
+    publish(MenuChanged(item.menu_id))
+    return item
 
 
 # --- helpers ----------------------------------------------------------------
