@@ -203,13 +203,17 @@
   font-size: 14px;
 }
 
-/* Sections */
+:root {
+  --section-gap: clamp(20px, 3vw, 35px);
+}
+
+/* Sections: 20px apart on phones, growing to 35px on wide screens */
 .section {
-  padding-top: 35px;
+  padding-top: var(--section-gap);
 }
 .band {
-  margin-top: 35px;
-  padding-bottom: 35px;
+  margin-top: var(--section-gap);
+  padding-bottom: var(--section-gap);
   background: var(--white);
   border-block: 1px solid var(--gray-200);
 }
@@ -361,7 +365,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 35px;
+  margin-bottom: var(--section-gap);
   padding: 56px 56px;
   border-radius: 18px;
   background:
@@ -397,13 +401,6 @@
 @media (max-width: 640px) {
   .hero {
     padding: 64px 0 72px;
-  }
-  .section {
-    padding-top: 28px;
-  }
-  .band {
-    margin-top: 28px;
-    padding-bottom: 28px;
   }
   .statsInner {
     grid-template-columns: repeat(2, 1fr);
