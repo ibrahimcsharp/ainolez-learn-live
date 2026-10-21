@@ -1,6 +1,7 @@
-import { ExternalLink, PanelBottom, PanelTop, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink, PanelBottom, PanelTop, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
 import { Field } from "../../../shared/ui/Field";
 import { EditPanel, useResourceForm } from "../shared/EditPanel";
@@ -30,7 +31,12 @@ const LINK_TYPES = { page: "A page", course: "A course", url: "A web address", n
 export function MenusPage() {
   const list = useApi(`${MENUS}/?page_size=500`);
   const [creating, setCreating] = useState(false);
+  const [tick, setTick] = useState(0); // any change: the header bar list reloads too
   const menus = list.data?.results ?? [];
+  const changed = () => {
+    list.reload();
+    setTick((n) => n + 1);
+  };
 
   return (
     <>
@@ -45,7 +51,7 @@ export function MenusPage() {
       </div>
       {creating && (
         <MenuForm initial={{ name: "", location: "header", show_as: "dropdown" }} onCancel={() => setCreating(false)}
-          onSaved={() => { setCreating(false); list.reload(); }} />
+          onSaved={() => { setCreating(false); changed(); }} />
       )}
       {Object.entries(LOCATIONS).map(([location, { title, icon: Icon, hint }]) => {
         const here = menus.filter((menu) => menu.location === location);
@@ -55,12 +61,14 @@ export function MenusPage() {
               <Icon size={22} /> {title}
             </h2>
             <p className="muted">
-              {hint} Only active menus and links are shown. Use the arrows (or drag) to change the order. A link can hold a
-              sub-menu: a dropdown in the header, an indented list in the footer.
+              {hint} Only active menus and links are shown. A link can hold a sub-menu: a dropdown in the header, an
+              indented list in the footer.
             </p>
+            {location === "header" && <HeaderBar tick={tick} />}
             {list.data && !here.length && <p className="muted">No {location} menu yet.</p>}
-            <SortableList arrows items={here} base={MENUS} onChange={list.reload}
-              renderItem={(menu) => <MenuCard menu={menu} onChange={list.reload} />} />
+            {location === "header" && here.length > 0 && <h3 className={pageStyles.subTitle}>Header menus</h3>}
+            <SortableList arrows sortable={location === "footer"} items={here} base={MENUS} onChange={changed}
+              renderItem={(menu) => <MenuCard menu={menu} onChange={changed} />} />
           </section>
         );
       })}
@@ -119,16 +127,86 @@ function MenuCard({ menu, onChange }) {
         </span>
         <RecordActions base={MENUS} row={menu} onChange={onChange} onEdit={() => setEditing(true)} />
       </div>
-      <MenuItems menuId={menu.id} rows={items.data?.results ?? []} onChange={changed} />
+      <MenuItems menuId={menu.id} rows={items.data?.results ?? []} onChange={changed}
+        topInBar={menu.location === "header" && menu.show_as === "links"} />
     </div>
   );
 }
 
-function MenuItems({ menuId, rows, onChange }) {
+/**
+ * The header bar, left to right: the links of "links" menus and whole dropdown
+ * menus in one list, ordered with the arrows (so a dropdown can sit between links).
+ */
+function HeaderBar({ tick }) {
+  const bar = useApi(`${MENUS}/header-bar/?v=${tick}`);
+  const [order, setOrder] = useState(null); // the answer of the last save
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const rows = (order?.tick === tick && order.rows) || bar.data || [];
+
+  async function move(index, step) {
+    const next = [...rows];
+    [next[index], next[index + step]] = [next[index + step], next[index]];
+    setSaving(true);
+    setError("");
+    try {
+      const saved = await api(`${MENUS}/header-bar/`, {
+        method: "POST",
+        body: { entries: next.map(({ kind, id }) => ({ kind, id })) },
+      });
+      setOrder({ tick, rows: saved });
+    } catch (err) {
+      setError(err.message);
+      bar.reload();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className={pageStyles.bar}>
+      <h3 className={pageStyles.subTitle}>Header bar order</h3>
+      <p className="muted">What the top bar shows, left to right. Use the arrows to place a dropdown menu between links.</p>
+      {error && <p className="notice notice-error">{error}</p>}
+      {bar.data && !rows.length && <p className="muted">Nothing in the header bar yet.</p>}
+      <ol className={styles.sortable}>
+        {rows.map((row, index) => (
+          <li key={`${row.kind}-${row.id}`} className={styles.sortableItem} style={{ alignItems: "center" }}>
+            <span className={styles.order}>
+              <button type="button" title="Move left (up)" aria-label={`Move ${row.label} up`}
+                disabled={saving || index === 0} onClick={() => move(index, -1)}>
+                <ChevronUp size={16} />
+              </button>
+              <button type="button" title="Move right (down)" aria-label={`Move ${row.label} down`}
+                disabled={saving || index === rows.length - 1} onClick={() => move(index, 1)}>
+                <ChevronDown size={16} />
+              </button>
+            </span>
+            <span className={pageStyles.barNumber}>{index + 1}</span>
+            <span className={styles.grow}>
+              <strong>{row.label}</strong>
+              {row.kind === "menu" || row.sub_links ? " ▾" : ""}
+              <div className="muted">{describe(row)}</div>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function describe(row) {
+  const count = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+  if (row.kind === "menu") return `Dropdown menu · ${count(row.sub_links, "link")}`;
+  if (!row.url) return `Heading · ${count(row.sub_links, "sub-link")}`;
+  return row.sub_links ? `${row.url} · ${count(row.sub_links, "sub-link")}` : row.url;
+}
+
+function MenuItems({ menuId, rows, onChange, topInBar }) {
   const [addingUnder, setAddingUnder] = useState(null);
   const top = rows.filter((item) => !item.parent);
   return (
-    <LinkList menuId={menuId} rows={rows} items={top} onChange={onChange} addLabel="Add link"
+    <LinkList menuId={menuId} rows={rows} items={top} onChange={onChange} addLabel="Add link" sortable={!topInBar}
       rowAction={(item) => (
         <button type="button" className={`btn btn-outline ${styles.small}`} title="Add a link to its sub-menu"
           onClick={() => setAddingUnder(item.id)}>
@@ -154,7 +232,7 @@ function MenuItems({ menuId, rows, onChange }) {
  * new link by the "Sub-link" button of its parent row.
  */
 function LinkList({ menuId, rows, items, parent, onChange, addLabel, adding: addingHere, onAddingDone,
-  rowAction, renderBelow }) {
+  rowAction, renderBelow, sortable = true }) {
   const [editingId, setEditingId] = useState(null);
   const [addingOwn, setAddingOwn] = useState(false);
   const adding = addingOwn || addingHere;
@@ -176,7 +254,7 @@ function LinkList({ menuId, rows, items, parent, onChange, addLabel, adding: add
 
   return (
     <>
-      <SortableList arrows items={items} base={ITEMS} onChange={onChange}
+      <SortableList arrows sortable={sortable} items={items} base={ITEMS} onChange={onChange}
         renderItem={(item) => (
           <>
             {editingId === item.id ? form(item) : (

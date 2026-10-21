@@ -6,9 +6,10 @@ import styles from "./admin.module.css";
 /**
  * Drag-and-drop list. After a drop it saves the new order with POST `${base}/reorder/`.
  * `renderItem(item)` draws one row. `arrows` adds Move up / Move down buttons,
- * for ordering without dragging (and from the keyboard).
+ * for ordering without dragging (and from the keyboard). `sortable={false}` draws
+ * the same rows with no ordering at all (when something else sets the order).
  */
-export function SortableList({ items, base, onChange, renderItem, arrows = false }) {
+export function SortableList({ items, base, onChange, renderItem, arrows = false, sortable = true }) {
   const [dragged, setDragged] = useState(null);
   const [saving, setSaving] = useState(false);
 
@@ -43,7 +44,7 @@ export function SortableList({ items, base, onChange, renderItem, arrows = false
           key={item.id}
           className={styles.sortableItem}
           data-dragging={dragged === item.id}
-          draggable
+          draggable={sortable}
           // stopPropagation keeps a list nested inside another (lessons in chapters) separate
           onDragStart={(event) => {
             event.stopPropagation();
@@ -56,7 +57,7 @@ export function SortableList({ items, base, onChange, renderItem, arrows = false
             drop(item);
           }}
         >
-          {arrows ? (
+          {!sortable ? null : arrows ? (
             <span className={styles.order}>
               <button type="button" title="Move up" aria-label="Move up" disabled={saving || index === 0}
                 onClick={() => move(index, -1)}>

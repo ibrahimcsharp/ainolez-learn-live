@@ -147,3 +147,6 @@ npm run build
       page_id to NULL on MySQL, which `ck_menu_items_target` refuses.
       SQL 0019 `menus.show_as` (header only): 'dropdown' = the menu's name in the bar with its
       links under it (default for new menus), 'links' = its links side by side (Main menu).
+      SQL 0020 `header_position` on menus and menu_items: one left-to-right order for the header
+      bar (links of 'links' menus + whole dropdown menus), set in Admin -> Menus -> Header bar
+      order (`GET/POST menus/header-bar/`); unplaced entries come last in menu order.
