@@ -13,8 +13,16 @@ import { PAGES } from "./PagesPage";
 export const MENUS = "/admin/website/menus";
 const ITEMS = "/admin/website/menu-items";
 const LOCATIONS = {
-  header: { title: "Header", icon: PanelTop, hint: "The links in the top bar of every page." },
+  header: {
+    title: "Header",
+    icon: PanelTop,
+    hint: "The top bar of every page. A menu shows as a dropdown named after it, or as links side by side.",
+  },
   footer: { title: "Footer", icon: PanelBottom, hint: "Each footer menu is one column, with its name on top." },
+};
+const SHOW_AS = {
+  dropdown: "A dropdown: its name in the bar, its links under it",
+  links: "Its links side by side in the bar",
 };
 const LINK_TYPES = { page: "A page", course: "A course", url: "A web address", none: "Nothing: a heading for a sub-menu" };
 
@@ -36,7 +44,7 @@ export function MenusPage() {
         </button>
       </div>
       {creating && (
-        <MenuForm initial={{ name: "", location: "footer" }} onCancel={() => setCreating(false)}
+        <MenuForm initial={{ name: "", location: "header", show_as: "dropdown" }} onCancel={() => setCreating(false)}
           onSaved={() => { setCreating(false); list.reload(); }} />
       )}
       {Object.entries(LOCATIONS).map(([location, { title, icon: Icon, hint }]) => {
@@ -61,17 +69,29 @@ export function MenusPage() {
 }
 
 function MenuForm({ initial, onSaved, onCancel }) {
-  const form = useResourceForm(MENUS, initial, onSaved, (v) => ({ name: v.name, location: v.location }));
+  const form = useResourceForm(MENUS, initial, onSaved, (v) => ({
+    name: v.name,
+    location: v.location,
+    show_as: v.show_as,
+  }));
   const { values, onChange, error } = form;
   return (
     <EditPanel title={initial.id ? "Edit menu" : "New menu"} form={form} onCancel={onCancel}>
-      <Field label="Name (the footer column heading)" name="name" required value={values.name} onChange={onChange}
-        error={error} placeholder="Company" />
+      <Field label="Name (the dropdown or footer column heading)" name="name" required value={values.name}
+        onChange={onChange} error={error} placeholder="Games" />
       <Field label="Where it shows" name="location" as="select" value={values.location} onChange={onChange}
         error={error}>
         <option value="header">Header</option>
         <option value="footer">Footer column</option>
       </Field>
+      {values.location === "header" && (
+        <Field label="Show in the header as" name="show_as" as="select" value={values.show_as} onChange={onChange}
+          error={error}>
+          {Object.entries(SHOW_AS).map(([key, label]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
+        </Field>
+      )}
     </EditPanel>
   );
 }
@@ -92,7 +112,10 @@ function MenuCard({ menu, onChange }) {
       <div className={styles.toolbar} style={{ margin: "0 0 8px" }}>
         <span className={styles.grow}>
           <strong>{menu.name}</strong> <StatusBadge row={menu} />
-          <span className="muted"> · {menu.item_count} link{menu.item_count === 1 ? "" : "s"}</span>
+          <span className="muted">
+            {" · "}{menu.item_count} link{menu.item_count === 1 ? "" : "s"}
+            {menu.location === "header" && (menu.show_as === "dropdown" ? " · dropdown" : " · links in the bar")}
+          </span>
         </span>
         <RecordActions base={MENUS} row={menu} onChange={onChange} onEdit={() => setEditing(true)} />
       </div>

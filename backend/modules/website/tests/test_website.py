@@ -34,8 +34,9 @@ def page(admin_api):
     return response.json()
 
 
-def menu_with(admin_api, location="header", name="Test menu"):
-    return admin_api.post(f"{ADMIN}/menus/", {"name": name, "location": location}).json()
+def menu_with(admin_api, location="header", name="Test menu", show_as="links"):
+    body = {"name": name, "location": location, "show_as": show_as}
+    return admin_api.post(f"{ADMIN}/menus/", body).json()
 
 
 # --- pages --------------------------------------------------------------------
@@ -228,6 +229,25 @@ def test_sub_menus_nest_under_their_link(admin_api, api, page):
         x for x in api.get(f"{PUBLIC}/menus/").json()["header"] if x["label"] == "Learn"
     )
     assert [c["label"] for c in learn_link["children"]] == ["All courses"]
+
+
+def test_header_menu_shown_as_a_dropdown_named_after_it(admin_api, api, page):
+    games = menu_with(admin_api, name="Games", show_as="dropdown")
+    add_link(admin_api, games, link_type="url", url="/tic-tac-toe", label="Tic Tac Toe")
+    more = add_link(admin_api, games, link_type="none", label="More").json()
+    add_link(admin_api, games, link_type="page", page=page["id"], parent=more["id"])
+    menu_with(admin_api, name="Empty", show_as="dropdown")  # no links: not shown
+
+    header = api.get(f"{PUBLIC}/menus/").json()["header"]
+    assert {"label": "Games", "url": None, "new_tab": False, "children": [
+        {"label": "Tic Tac Toe", "url": "/tic-tac-toe", "new_tab": False},
+        {"label": "More", "url": None, "new_tab": False, "children": [
+            {"label": "About us", "url": "/about-us", "new_tab": False},
+        ]},
+    ]} in header  # fmt: skip
+    assert not any(link["label"] == "Empty" for link in header)
+    # the seeded Main menu keeps its links in the bar
+    assert {"label": "Courses", "url": "/courses", "new_tab": False} in header
 
 
 def test_sub_menu_rules(admin_api):

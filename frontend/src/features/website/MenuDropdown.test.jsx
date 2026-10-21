@@ -33,3 +33,18 @@ test("a link with a sub-menu keeps its own link and gets an arrow button", () =>
   fireEvent.pointerDown(document.body); // a click outside closes it
   expect(screen.getByRole("button", { name: "Courses menu" }).getAttribute("aria-expanded")).toBe("false");
 });
+
+test("a header menu dropdown shows sub-links under their heading", () => {
+  show({
+    label: "Games",
+    url: null,
+    children: [
+      { label: "Tic Tac Toe", url: "/tic-tac-toe", new_tab: false },
+      { label: "More", url: null, new_tab: false, children: [{ label: "Chess", url: "/chess", new_tab: false }] },
+    ],
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Games" }));
+  expect(screen.getByRole("link", { name: "Tic Tac Toe" }).getAttribute("href")).toBe("/tic-tac-toe");
+  expect(screen.getByText("More").tagName).toBe("SPAN");
+  expect(screen.getByRole("link", { name: "Chess" }).closest("ul").className).toMatch(/nested/);
+});
