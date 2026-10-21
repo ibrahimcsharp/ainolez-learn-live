@@ -1,7 +1,15 @@
+/*
+ * Header dropdown: the trigger in the dark bar, and a light panel under it.
+ * The panel fades and slides in; it stays in the DOM (visibility) so the
+ * animation also runs when it closes.
+ */
 .dropdown {
   position: relative;
   display: inline-flex;
   align-items: center;
+  /* a taller hover area, so the mouse can travel down to the panel */
+  padding-block: 12px;
+  margin-block: -12px;
 }
 .split {
   display: inline-flex;
@@ -12,75 +20,178 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 2px;
+  padding: 6px 8px;
+  margin: -6px -8px;
   border: 0;
+  border-radius: 8px;
   background: none;
   color: inherit;
   font: inherit;
   font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.split .toggle {
+  margin-left: -4px;
+  padding-inline: 4px;
+}
+.toggle:hover,
+.dropdown[data-open="true"] .toggle {
+  background: rgb(255 255 255 / 8%);
+}
+.toggle:focus-visible {
+  outline: 2px solid var(--green-400);
+  outline-offset: 2px;
 }
 .chevron {
-  transition: transform 0.15s ease;
+  opacity: 0.75;
+  transition: transform 0.2s ease, opacity 0.15s ease;
 }
 .dropdown[data-open="true"] .chevron {
   transform: rotate(180deg);
+  opacity: 1;
+  color: var(--green-400);
 }
 
-/* The sub-menu panel, under the link. A gap-free bridge keeps hover open. */
+/* The panel */
 .panel {
   position: absolute;
   top: 100%;
-  left: -12px;
+  left: 50%;
   z-index: 50;
-  display: none;
-  min-width: 200px;
-  margin: 0;
-  padding: 8px 0;
-  list-style: none;
+  min-width: 240px;
+  max-width: 320px;
+  padding: 8px;
   background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: 10px;
-  box-shadow: 0 12px 32px rgb(7 31 56 / 18%);
+  border: 1px solid rgb(5 25 45 / 8%);
+  border-radius: 14px;
+  box-shadow:
+    0 2px 4px rgb(5 25 45 / 6%),
+    0 16px 40px rgb(5 25 45 / 18%);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 6px);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
+}
+/* the little pointer under the trigger */
+.panel::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: calc(50% - 6px);
+  width: 12px;
+  height: 12px;
+  background: var(--white);
+  border-top: 1px solid rgb(5 25 45 / 8%);
+  border-left: 1px solid rgb(5 25 45 / 8%);
+  border-top-left-radius: 3px;
+  transform: rotate(45deg);
 }
 .dropdown[data-open="true"] .panel {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s;
 }
 @media (hover: hover) {
   .dropdown:hover .panel {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s;
   }
 }
-/* Selector repeats .dropdown to beat the header's "a { color: white }" rule. */
-.dropdown .panel li a {
-  display: block;
-  padding: 8px 16px;
-  color: var(--navy-900);
-  font-weight: 500;
-  text-decoration: none;
-  white-space: nowrap;
+
+.list,
+.nested {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-.dropdown .panel li a:hover,
-.dropdown .panel li a:focus-visible {
-  background: var(--gray-50);
-  color: var(--navy-900);
+.list {
+  position: relative; /* above the pointer */
+  display: grid;
+  gap: 2px;
 }
 
-/* A header menu shown as a dropdown can hold links with their own sub-links. */
+/* One row. ".dropdown .panel" outranks the header's "a { color: white }". */
+.dropdown .panel .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--text-900);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-decoration: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.icon {
+  flex: none;
+  color: var(--gray-500);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.12s ease, transform 0.12s ease, color 0.12s ease;
+}
+.dropdown .panel .item:hover,
+.dropdown .panel .item:focus-visible {
+  background: var(--gray-50);
+  color: var(--green-700);
+  outline: none;
+}
+.dropdown .panel .item:hover .icon,
+.dropdown .panel .item:focus-visible .icon {
+  opacity: 1;
+  transform: none;
+  color: var(--green-600);
+}
+/* new-tab links always show their mark */
+.dropdown .panel .item[target="_blank"] .icon {
+  opacity: 1;
+  transform: none;
+}
+/* the page you are on */
+.dropdown .panel .item[aria-current="page"] {
+  background: rgb(4 170 109 / 8%);
+  color: var(--green-700);
+  box-shadow: inset 3px 0 0 var(--green-600);
+}
+
+/* A heading (a link with no address) over its own sub-links */
+.group:not(:first-child) {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--gray-200);
+}
 .heading {
   display: block;
-  padding: 10px 16px 4px;
+  padding: 8px 12px 4px;
   color: var(--gray-500);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .nested {
-  margin: 0 0 4px 16px;
-  padding: 0;
-  list-style: none;
+  display: grid;
+  gap: 2px;
+}
+.group > .item + .nested {
+  margin-left: 12px;
+  padding-left: 8px;
   border-left: 2px solid var(--gray-200);
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* Phones: the header row scrolls sideways and would clip the panel, so it
@@ -88,18 +199,37 @@
 @media (max-width: 760px) {
   .panel {
     position: fixed;
-    top: var(--panel-top);
+    top: calc(var(--panel-top) + 4px);
     left: 16px;
     right: 16px;
     min-width: 0;
+    max-width: none;
+    transform: translateY(6px);
   }
-  .dropdown:hover .panel {
+  .panel::before {
     display: none;
   }
   .dropdown[data-open="true"] .panel {
-    display: block;
+    transform: none;
   }
-  .dropdown .panel li a {
+  .dropdown:hover:not([data-open="true"]) .panel {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .dropdown .panel .item {
+    padding-block: 12px;
     white-space: normal;
+  }
+  .icon {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .chevron,
+  .icon {
+    transition: none;
   }
 }
