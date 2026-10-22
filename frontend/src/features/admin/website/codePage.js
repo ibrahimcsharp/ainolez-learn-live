@@ -20,6 +20,7 @@ function relay(runId) {
     if (typeof value === "object") { try { return JSON.stringify(value); } catch (e) { return String(value); } }
     return String(value);
   }
+  send("ready", ""); // tells the editor the preview really loaded (see CodePageEditor)
   ["log", "info", "warn", "error"].forEach(function (level) {
     var original = console[level];
     console[level] = function () {

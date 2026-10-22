@@ -297,6 +297,48 @@
   background: var(--white);
 }
 
+/* The preview did not load (blocked by the browser) */
+.blocked {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  padding: 24px;
+  overflow: auto;
+  background: var(--white);
+  color: var(--text-900);
+  text-align: center;
+}
+.blocked svg {
+  color: var(--amber-500);
+}
+.blocked strong {
+  font-size: 17px;
+}
+.blocked p {
+  max-width: 420px;
+  margin: 0;
+  color: var(--gray-500);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.blocked code {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--gray-50);
+  color: var(--text-900);
+  font-size: 13px;
+}
+.blocked .blockedNote {
+  font-size: 13px;
+}
+.blocked button {
+  margin-top: 6px;
+}
+
 .console {
   max-height: 34%;
   overflow: auto;

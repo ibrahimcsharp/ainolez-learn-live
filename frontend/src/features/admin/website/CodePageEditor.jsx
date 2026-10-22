@@ -7,6 +7,7 @@ import {
   Monitor,
   RefreshCw,
   Rows2,
+  ShieldAlert,
   Smartphone,
   Tablet,
   Terminal,
@@ -32,6 +33,9 @@ const DEVICES = [
   { key: "phone", label: "Phone", icon: Smartphone, width: 375 },
 ];
 const DELAY_MS = 600; // wait for a pause in typing before the preview reloads
+// No word from the preview this long after its frame loads (or at all): something blocked it.
+const BLOCKED_AFTER_LOAD_MS = 4000;
+const BLOCKED_AFTER_START_MS = 12000;
 
 /**
  * The editor of a custom code page: HTML, CSS and JS tabs, a live preview (in the
@@ -49,6 +53,8 @@ export function CodePageEditor({ title, values, onCode, onSave }) {
   const [showConsole, setShowConsole] = useState(false);
   const [run, setRun] = useState(() => ({ id: crypto.randomUUID(), code: pick(values) }));
   const [loading, setLoading] = useState(true);
+  const [heard, setHeard] = useState(null); // the run id the preview answered for
+  const [blocked, setBlocked] = useState(false);
   const files = useRef(null);
 
   const code = pick(values);
@@ -57,6 +63,7 @@ export function CodePageEditor({ title, values, onCode, onSave }) {
   function refresh() {
     setLogs([]);
     setLoading(true);
+    setBlocked(false);
     setRun({ id: crypto.randomUUID(), code: pick(values) });
   }
 
@@ -74,6 +81,9 @@ export function CodePageEditor({ title, values, onCode, onSave }) {
     function receive(event) {
       const data = event.data;
       if (data?.source !== "ainolez-preview" || data.runId !== run.id) return;
+      setHeard(run.id);
+      setBlocked(false);
+      if (data.type === "ready") return;
       const text = data.type === "link" ? `Link clicked: ${data.text} (opens on the site)` : String(data.text);
       setLogs((previous) => [...previous.slice(-199), { type: data.type, text }]);
       if (data.type === "error") setShowConsole(true);
@@ -81,6 +91,13 @@ export function CodePageEditor({ title, values, onCode, onSave }) {
     window.addEventListener("message", receive);
     return () => window.removeEventListener("message", receive);
   }, [run.id]);
+
+  // A preview that never answers was blocked (often by a browser extension).
+  useEffect(() => {
+    if (heard === run.id) return undefined;
+    const timer = setTimeout(() => setBlocked(true), loading ? BLOCKED_AFTER_START_MS : BLOCKED_AFTER_LOAD_MS);
+    return () => clearTimeout(timer);
+  }, [heard, run.id, loading]);
 
   // Full screen: Escape leaves it, and the page behind does not scroll.
   useEffect(() => {
@@ -226,6 +243,7 @@ export function CodePageEditor({ title, values, onCode, onSave }) {
             <div className={styles.device} style={width ? { width } : undefined} data-device={device}>
               {loading && <LoadingBar inline />}
               <PreviewFrame key={run.id} title={title} run={run} onLoaded={() => setLoading(false)} />
+              {blocked && heard !== run.id && <Blocked onRetry={refresh} />}
             </div>
           </div>
           {showConsole && (
@@ -244,6 +262,24 @@ export function CodePageEditor({ title, values, onCode, onSave }) {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Shown over the preview when it does not load. */
+function Blocked({ onRetry }) {
+  return (
+    <div className={styles.blocked} role="alert">
+      <ShieldAlert size={32} />
+      <strong>The preview could not load</strong>
+      <p>
+        Your browser blocked it. This is usually a browser extension, such as an ad or script blocker. Allow{" "}
+        <code>{new URL(API_ORIGIN).host}</code> in the extension, or open the admin in a private (Incognito) window.
+      </p>
+      <p className={styles.blockedNote}>Your code is not the problem, and saving still works.</p>
+      <button type="button" className="btn btn-primary" onClick={onRetry}>
+        <RefreshCw size={16} /> Try again
+      </button>
     </div>
   );
 }
