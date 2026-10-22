@@ -34,7 +34,15 @@ def save_page(page: SitePage | None, data: dict, by) -> SitePage:
     if not (page.title or "").strip():
         raise ServiceError("Give the page a title.", "no_title")
     page.slug = _page_slug(page, wanted)
-    page.content_html = content.render_markdown(page.content_md or "")  # nh3-sanitised
+    if page.kind == SitePage.Kind.CODE:
+        if not (page.code_html or "").strip() and not (page.code_js or "").strip():
+            raise ServiceError("Add some HTML (or JavaScript) for the page.", "no_code")
+        # The page runs in a sandboxed iframe; this text-only copy is for search engines.
+        page.content_html = content.sanitize(page.code_html or "")
+    elif page.kind == SitePage.Kind.MARKDOWN:
+        page.content_html = content.render_markdown(page.content_md or "")  # nh3-sanitised
+    else:
+        raise ServiceError("Choose a written page or a custom code page.", "bad_kind")
     _save(page, by)
     publish(PageChanged(page.pk))
     return page

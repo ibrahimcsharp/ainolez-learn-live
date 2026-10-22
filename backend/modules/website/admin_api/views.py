@@ -19,7 +19,10 @@ class PageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SitePage
-        fields = ["id", "title", "slug", "summary", "content_md", "content_html", *RECORD_FIELDS]
+        fields = [
+            "id", "title", "slug", "summary", "kind", "content_md", "content_html",
+            "code_html", "code_css", "code_js", *RECORD_FIELDS,
+        ]  # fmt: skip
         read_only_fields = ["content_html", *RECORD_FIELDS]
 
 
@@ -109,7 +112,7 @@ class MenuItemViewSet(ServiceViewSet):
     serializer_class = MenuItemSerializer
     save = services.save_menu_item
     search_fields = ("label", "url")
-    filter_fields = ("menu", "parent", "link_type")
+    filter_fields = ("menu", "parent", "link_type", "page")
     ordering = ("sort_order", "id")
 
     def get_queryset(self):

@@ -97,7 +97,7 @@ function PagesTab({ editing, onOpen, onClose }) {
 
 function SiteTab() {
   const { data, reload } = useApi(`${SEO}/settings/`);
-  if (!data) return <p className="page-loading">Loading…</p>;
+  if (!data) return <p className="page-loading is-loading">Loading…</p>;
   return <SiteForm key={data.updated_at} initial={data} onSaved={reload} />;
 }
 
@@ -163,7 +163,7 @@ function ReportTab({ onOpen }) {
       setBuild(error.message);
     }
   }
-  if (!report.data) return <p className="page-loading">{report.error?.message ?? "Loading…"}</p>;
+  if (!report.data) return <p className={report.error ? "page-loading" : "page-loading is-loading"}>{report.error?.message ?? "Loading…"}</p>;
   const { pages, last_build_at: builtAt, last_build_pages: built, robots_txt: robots } = report.data;
   const shown = onlyIssues ? pages.filter((page) => page.issues.length) : pages;
   return (

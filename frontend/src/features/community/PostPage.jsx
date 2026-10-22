@@ -14,7 +14,7 @@ export function PostPage() {
   const { user } = useAuth();
   const post = useApi(`/community/posts/${id}/`);
   if (post.error?.status === 404) return <NotFound />;
-  if (!post.data) return <p className="page-loading">Loading…</p>;
+  if (!post.data) return <p className="page-loading is-loading">Loading…</p>;
   const data = post.data;
 
   async function accept(replyId) {

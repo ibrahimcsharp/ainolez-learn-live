@@ -27,7 +27,7 @@ export function QuizEditPage() {
   const quiz = useApi(`${QUIZZES}/${id}/`);
   const questions = useApi(`${QUESTIONS}/?quiz=${id}&page_size=500`);
   const [editing, setEditing] = useState(null);
-  if (!quiz.data) return <p className="page-loading">{quiz.error?.message ?? "Loading…"}</p>;
+  if (!quiz.data) return <p className={quiz.error ? "page-loading" : "page-loading is-loading"}>{quiz.error?.message ?? "Loading…"}</p>;
 
   function saved() {
     setEditing(null);

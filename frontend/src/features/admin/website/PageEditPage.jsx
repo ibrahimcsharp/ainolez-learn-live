@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink, Power, PowerOff, Trash2 } from "lucide-react";
+import { ArrowLeft, Code2, ExternalLink, FileText, Power, PowerOff, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { api } from "../../../shared/api/client";
@@ -9,10 +9,17 @@ import { MarkdownEditor } from "../shared/MarkdownEditor";
 import { StatusBadge } from "../shared/RecordActions";
 import styles from "../shared/admin.module.css";
 import { SeoEditor } from "../seo/SeoEditor";
+import { CodePageEditor } from "./CodePageEditor";
+import pageStyles from "./PageEditPage.module.css";
+import { PageMenus } from "./PageMenus";
 import { PAGES } from "./PagesPage";
 
-const BLANK = { title: "", slug: "", summary: "", content_md: "" };
-const TABS = { content: "Content", seo: "SEO" };
+const BLANK = { title: "", slug: "", summary: "", kind: "markdown", content_md: "", code_html: "", code_css: "", code_js: "" };
+const TABS = { content: "Content", menus: "Menus", seo: "SEO" };
+const KINDS = [
+  { key: "markdown", icon: FileText, title: "Written page", text: "Text with headings, images and tips, written in Markdown." },
+  { key: "code", icon: Code2, title: "Custom code", text: "Your own HTML, CSS and JavaScript: a landing page, a tool or a game." },
+];
 
 /** Write a new page (/admin/pages/new) or edit one. */
 export function PageEditPage() {
@@ -23,7 +30,7 @@ export function PageEditPage() {
   const [tab, setTab] = useState("content");
   const [saved, setSaved] = useState("");
 
-  if (!isNew && !page.data) return <p className="page-loading">{page.error?.message ?? "Loading…"}</p>;
+  if (!isNew && !page.data) return <p className={page.error ? "page-loading" : "page-loading is-loading"}>{page.error?.message ?? "Loading…"}</p>;
   const data = page.data;
 
   function onSaved(row) {
@@ -86,8 +93,9 @@ export function PageEditPage() {
       )}
       {/* Kept mounted on the SEO tab, so unsaved text is not lost. */}
       <div hidden={tab !== "content"}>
-        <PageForm key={data?.updated_at ?? "new"} initial={data ?? BLANK} onSaved={onSaved} />
+        <PageForm key={data?.id ?? "new"} initial={data ?? BLANK} onSaved={onSaved} />
       </div>
+      {tab === "menus" && data && <PageMenus page={data} />}
       {tab === "seo" && data && (
         <section className="card">
           <SeoEditor key={data.slug} path={`/${data.slug}`} />
@@ -99,9 +107,11 @@ export function PageEditPage() {
 
 function PageForm({ initial, onSaved }) {
   const form = useResourceForm(PAGES, initial, onSaved, (v) => ({
-    title: v.title, slug: v.slug, summary: v.summary, content_md: v.content_md,
+    title: v.title, slug: v.slug, summary: v.summary, kind: v.kind, content_md: v.content_md,
+    code_html: v.code_html, code_css: v.code_css, code_js: v.code_js,
   }));
-  const { values, onChange, error } = form;
+  const { values, onChange, setValues, error } = form;
+  const setField = (name, value) => setValues((previous) => ({ ...previous, [name]: value }));
   return (
     <EditPanel form={form}>
       <Field label="Title" name="title" required value={values.title} onChange={onChange} error={error}
@@ -112,7 +122,23 @@ function PageForm({ initial, onSaved }) {
         <Field label="Summary (shown by Google and in link previews)" name="summary" value={values.summary}
           onChange={onChange} error={error} maxLength={300} />
       </div>
-      <MarkdownEditor name="content_md" label="Content" value={values.content_md ?? ""} onChange={onChange} />
+      <div className={pageStyles.kinds} role="radiogroup" aria-label="Page type">
+        {KINDS.map(({ key, icon: Icon, title, text }) => (
+          <button key={key} type="button" role="radio" aria-checked={values.kind === key} className={pageStyles.kind}
+            onClick={() => setField("kind", key)}>
+            <Icon size={22} />
+            <span>
+              <strong>{title}</strong>
+              <small>{text}</small>
+            </span>
+          </button>
+        ))}
+      </div>
+      {values.kind === "code" ? (
+        <CodePageEditor title={values.title} values={values} onCode={setField} onSave={() => form.submit()} />
+      ) : (
+        <MarkdownEditor name="content_md" label="Content" value={values.content_md ?? ""} onChange={onChange} />
+      )}
     </EditPanel>
   );
 }

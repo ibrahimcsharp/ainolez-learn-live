@@ -9,3 +9,45 @@
   height: auto;
   border-radius: 8px;
 }
+
+/* A custom code page: full width between the header and the footer. */
+.codePage {
+  position: relative;
+  min-height: 60vh;
+}
+.frame {
+  display: block;
+  width: 100%;
+  height: 70vh; /* until the page reports its own height */
+  border: 0;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.codePage[data-ready="true"] {
+  min-height: 0;
+}
+.codePage[data-ready="true"] .frame {
+  opacity: 1;
+}
+.cover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 24px;
+  color: var(--gray-500);
+  text-align: center;
+  background: var(--white);
+}
+.cover p {
+  margin: 0;
+  font-weight: 500;
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame {
+    transition: none;
+  }
+}

@@ -19,7 +19,7 @@ export function LessonEditPage() {
   const lesson = useApi(`${LESSONS}/${id}/`);
   const blocks = useApi(`/admin/catalog/blocks/?lesson=${id}&page_size=500`);
   const [preview, setPreview] = useState(false);
-  if (!lesson.data) return <p className="page-loading">{lesson.error?.message ?? "Loading…"}</p>;
+  if (!lesson.data) return <p className={lesson.error ? "page-loading" : "page-loading is-loading"}>{lesson.error?.message ?? "Loading…"}</p>;
   const { data } = lesson;
 
   async function exportMarkdown() {
