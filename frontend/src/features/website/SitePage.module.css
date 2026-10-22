@@ -46,6 +46,21 @@
   margin: 0;
   font-weight: 500;
 }
+.alert {
+  color: var(--amber-500);
+}
+.blockedTitle {
+  margin: 0;
+  color: var(--text-900);
+  font-size: 22px;
+}
+.blockedText {
+  max-width: 460px;
+  line-height: 1.5;
+}
+.cover .blockedText {
+  font-weight: 400;
+}
 @media (prefers-reduced-motion: reduce) {
   .frame {
     transition: none;
