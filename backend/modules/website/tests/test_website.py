@@ -83,6 +83,9 @@ def test_code_page_is_served_as_its_own_sandboxed_document(admin_api, api, setti
     policy = frame["Content-Security-Policy"]
     assert policy.startswith("sandbox allow-scripts") and "allow-same-origin" not in policy
     assert settings.FRONTEND_URL in policy
+    settings.CORS_ALLOWED_ORIGINS = [settings.FRONTEND_URL, "https://www.example.com"]
+    policy = api.get(data["frame_path"])["Content-Security-Policy"]
+    assert policy.count(settings.FRONTEND_URL) == 1 and "https://www.example.com" in policy
 
     admin_api.post(f"{ADMIN}/pages/{page['id']}/deactivate/")
     assert api.get(data["frame_path"]).status_code == 404
