@@ -44,7 +44,7 @@ export function AIPanelPage() {
 function SettingsTab() {
   const { data, reload } = useApi(`${ADMIN}/settings/`);
   const [test, setTest] = useState(null);
-  if (!data) return <p className="page-loading">Loading…</p>;
+  if (!data) return <p className="page-loading is-loading">Loading…</p>;
 
   async function runTest() {
     setTest({ detail: "Testing…" });
@@ -127,7 +127,7 @@ function PromptTab() {
     setNotes("");
     versions.reload();
   });
-  if (!versions.data) return <p className="page-loading">Loading…</p>;
+  if (!versions.data) return <p className="page-loading is-loading">Loading…</p>;
 
   async function activate(version) {
     await api(`${ADMIN}/prompts/${version.id}/activate/`, { method: "POST" });
@@ -338,7 +338,7 @@ function ConversationsTab() {
 
 function UsageTab() {
   const { data } = useApi(`${ADMIN}/usage/`);
-  if (!data) return <p className="page-loading">Loading…</p>;
+  if (!data) return <p className="page-loading is-loading">Loading…</p>;
   const used = data.month.tokens_in + data.month.tokens_out;
   const budget = data.monthly_token_budget;
   return (

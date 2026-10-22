@@ -118,7 +118,7 @@ function JobDetail({ id, onBack }) {
     return () => clearInterval(timer);
   }, [status]); // job.reload changes every render; the status decides
 
-  if (!job.data) return <p className="page-loading">{job.error?.message ?? "Loading…"}</p>;
+  if (!job.data) return <p className={job.error ? "page-loading" : "page-loading is-loading"}>{job.error?.message ?? "Loading…"}</p>;
   const data = job.data;
 
   async function run(action) {

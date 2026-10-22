@@ -150,3 +150,11 @@ npm run build
       SQL 0020 `header_position` on menus and menu_items: one left-to-right order for the header
       bar (links of 'links' menus + whole dropdown menus), set in Admin -> Menus -> Header bar
       order (`GET/POST menus/header-bar/`); unplaced entries come last in menu order.
+      SQL 0021 custom code pages (`site_pages.kind` 'code' + code_html/css/js): the API serves the
+      page's own document at `public/site/pages/<slug>/frame/` (`website/code_page.py`) with a
+      `sandbox` CSP, shown in a sandboxed iframe that grows to fit and passes link clicks up
+      (`features/website/CodePageFrame.jsx`). Admin: `CodePageEditor.jsx` (HTML/CSS/JS tabs, live
+      preview on /runner/, device sizes, console, import, templates, full screen, Ctrl+S) and a
+      Menus tab on the page to add it to any menu or sub-menu. `codePage.js` mirrors code_page.py.
+      Loading: `shared/ui/Loader.jsx` (Spinner, LoadingBar, PageLoader); `.page-loading.is-loading`
+      shows the same ring spinner everywhere.

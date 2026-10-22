@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 const LANGUAGES = {
   html: () => import("@codemirror/lang-html").then((m) => m.html()),
   css: () => import("@codemirror/lang-html").then((m) => m.html()),
+  stylesheet: () => import("@codemirror/lang-css").then((m) => m.css()), // plain CSS (code pages)
   javascript: () => import("@codemirror/lang-javascript").then((m) => m.javascript()),
   python: () => import("@codemirror/lang-python").then((m) => m.python()),
   sql: () => import("@codemirror/lang-sql").then((m) => m.sql()),

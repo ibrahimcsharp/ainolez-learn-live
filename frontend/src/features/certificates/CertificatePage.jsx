@@ -9,7 +9,7 @@ export function CertificatePage() {
   const { code } = useParams();
   const { data: cert, error } = useApi(`/public/certificates/${code}/`);
   if (error?.status === 404) return <NotFound />;
-  if (!cert) return <p className="page-loading">Checking the certificate…</p>;
+  if (!cert) return <p className="page-loading is-loading">Checking the certificate…</p>;
 
   const revoked = cert.status === "revoked";
   return (

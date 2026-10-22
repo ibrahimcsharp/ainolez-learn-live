@@ -27,7 +27,8 @@ export function PagesPage() {
         <div className={`card ${styles.empty}`}>
           <h3>{query ? "No page matches your search." : "No pages yet"}</h3>
           <p className="muted">
-            Pages are for About, Contact, Privacy and similar text. Each one gets its own address, like /about,
+            Pages are for About, Contact, Privacy and similar text, or your own HTML, CSS and JavaScript (a
+            custom code page). Each one gets its own address, like /about,
             and you can link it from the header or footer in <Link to="/admin/menus">Menus</Link>.
           </p>
         </div>
@@ -46,6 +47,7 @@ export function PagesPage() {
               <tr key={row.id}>
                 <td>
                   <Link to={`/admin/pages/${row.id}`}>{row.title}</Link> <StatusBadge row={row} />
+                  {row.kind === "code" && <span className={styles.badge}>Custom code</span>}
                   <div className="muted">/{row.slug}</div>
                 </td>
                 <td className="muted">{new Date(row.updated_at).toLocaleDateString()}</td>

@@ -1,4 +1,4 @@
-"""Tables from database/schema/0017_website_pages_menus.sql, 0018-0020."""
+"""Tables from database/schema/0017_website_pages_menus.sql, 0018-0021."""
 
 from django.db import models
 
@@ -6,11 +6,19 @@ from shared.models import BaseModel
 
 
 class SitePage(BaseModel):
+    class Kind(models.TextChoices):  # 0021
+        MARKDOWN = "markdown", "Written page"
+        CODE = "code", "Custom code"  # own HTML, CSS and JS in a sandboxed iframe
+
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=100)
     summary = models.CharField(max_length=300, blank=True)
+    kind = models.CharField(max_length=10, choices=Kind, default=Kind.MARKDOWN)
     content_md = models.TextField(null=True, blank=True)
     content_html = models.TextField(null=True, blank=True)
+    code_html = models.TextField(null=True, blank=True)
+    code_css = models.TextField(null=True, blank=True)
+    code_js = models.TextField(null=True, blank=True)
 
     class Meta(BaseModel.Meta):
         managed = False

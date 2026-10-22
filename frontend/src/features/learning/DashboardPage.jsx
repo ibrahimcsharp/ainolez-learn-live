@@ -15,7 +15,7 @@ const EVENT_LABELS = {
 export function DashboardPage() {
   const { user } = useAuth();
   const { data } = useApi("/learner/dashboard/");
-  if (!data) return <p className="page-loading">Loading…</p>;
+  if (!data) return <p className="page-loading is-loading">Loading…</p>;
   const { stats, courses, certificates } = data;
 
   return (

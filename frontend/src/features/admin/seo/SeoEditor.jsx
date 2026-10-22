@@ -22,7 +22,7 @@ const NULLABLE = ["robots", "twitter_card", "sitemap_priority", "sitemap_changef
  */
 export function SeoEditor({ path, onSaved }) {
   const lookup = useApi(`${SEO}/lookup/?path=${encodeURIComponent(path)}`);
-  if (!lookup.data) return <p className="page-loading">{lookup.error?.message ?? "Loading…"}</p>;
+  if (!lookup.data) return <p className={lookup.error ? "page-loading" : "page-loading is-loading"}>{lookup.error?.message ?? "Loading…"}</p>;
   const { page, automatic, result } = lookup.data;
   const done = () => {
     lookup.reload();

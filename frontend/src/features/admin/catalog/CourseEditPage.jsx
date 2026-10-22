@@ -22,7 +22,7 @@ export function CourseEditPage() {
   const { id } = useParams();
   const course = useApi(`${COURSES}/${id}/`);
   const [tab, setTab] = useState("lessons");
-  if (!course.data) return <p className="page-loading">{course.error?.message ?? "Loading…"}</p>;
+  if (!course.data) return <p className={course.error ? "page-loading" : "page-loading is-loading"}>{course.error?.message ?? "Loading…"}</p>;
   const { data } = course;
 
   return (
@@ -131,7 +131,7 @@ function Chapters({ courseId }) {
     lessons.reload();
   };
   const addChapter = (title) => api(`${CHAPTERS}/`, { method: "POST", body: { course: courseId, title } }).then(reload);
-  if (!chapters.data) return <p className="page-loading">Loading…</p>;
+  if (!chapters.data) return <p className="page-loading is-loading">Loading…</p>;
 
   if (!chapters.data.results.length) {
     return (

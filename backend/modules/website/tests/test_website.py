@@ -58,6 +58,51 @@ def test_active_page_is_public_and_hidden_page_is_not(admin_api, api, page):
     assert api.get(f"{PUBLIC}/pages/about-us/").status_code == 404
 
 
+def test_code_page_is_served_as_its_own_sandboxed_document(admin_api, api, settings):
+    response = admin_api.post(f"{ADMIN}/pages/", {
+        "title": "Games",
+        "kind": "code",
+        "code_html": "<h1>Play</h1><a href='/courses'>Courses</a>",
+        "code_css": "h1 { color: red }",
+        "code_js": "console.log('</script>')",
+    }, format="json")  # fmt: skip
+    assert response.status_code == 201, response.json()
+    page = response.json()
+    assert "<h1>Play</h1>" in page["content_html"]  # text copy for search engines
+
+    data = api.get(f"{PUBLIC}/pages/games/").json()
+    assert data["kind"] == "code" and data["content_html"] == ""
+    assert data["frame_path"].startswith("/api/v1/public/site/pages/games/frame/?v=")
+
+    frame = api.get(data["frame_path"])
+    html = frame.content.decode()
+    assert frame.status_code == 200
+    assert "<style>h1 { color: red }</style>" in html
+    assert r"console.log('<\/script>')" in html  # cannot close the tag early
+    assert html.index("<h1>Play</h1>") < html.index("console.log")
+    policy = frame["Content-Security-Policy"]
+    assert policy.startswith("sandbox allow-scripts") and "allow-same-origin" not in policy
+    assert settings.FRONTEND_URL in policy
+
+    admin_api.post(f"{ADMIN}/pages/{page['id']}/deactivate/")
+    assert api.get(data["frame_path"]).status_code == 404
+
+
+def test_code_page_keeps_a_whole_document_and_needs_code(admin_api, api, page):
+    whole = "<!DOCTYPE html><html><head><title>X</title></head><body><p>Hi</p></body></html>"
+    admin_api.post(f"{ADMIN}/pages/", {
+        "title": "Whole", "kind": "code", "code_html": whole, "code_js": "go()",
+    }, format="json")  # fmt: skip
+    html = api.get(f"{PUBLIC}/pages/whole/frame/").content.decode()
+    assert html.startswith("<!DOCTYPE html><html><head><title>X</title>")
+    assert html.index("ainolez-page") < html.index("</head>")
+    assert html.endswith("<script>go()</script></body></html>")
+
+    empty = admin_api.post(f"{ADMIN}/pages/", {"title": "Empty", "kind": "code"}, format="json")
+    assert empty.status_code == 400 and empty.json()["code"] == "no_code"
+    assert api.get(f"{PUBLIC}/pages/about-us/frame/").status_code == 404  # a written page
+
+
 def test_trash_and_restore(admin_api, api, page):
     admin_api.post(f"{ADMIN}/pages/{page['id']}/soft-delete/")
     assert api.get(f"{PUBLIC}/pages/about-us/").status_code == 404

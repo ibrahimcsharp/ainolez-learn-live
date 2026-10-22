@@ -36,7 +36,7 @@ export function AnalyticsPage() {
       </div>
       {error && <p className="notice notice-error">{error.message}</p>}
       {!data ? (
-        !error && <p className="page-loading">Loading…</p>
+        !error && <p className="page-loading is-loading">Loading…</p>
       ) : (
         <>
           <div className={styles.totals}>

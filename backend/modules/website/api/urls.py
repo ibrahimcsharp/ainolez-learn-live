@@ -5,4 +5,5 @@ from modules.website.api import views
 urlpatterns = [
     path("menus/", views.MenusView.as_view()),
     path("pages/<slug:slug>/", views.PageView.as_view()),
+    path("pages/<slug:slug>/frame/", views.page_frame),
 ]

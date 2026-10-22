@@ -18,7 +18,7 @@ export function LessonPage() {
   const progress = useLearnerProgress(user, page?.lesson.id);
   useLessonForAssistant(page?.lesson.id);
   if (error?.status === 404) return <NotFound />;
-  if (!page) return <p className="page-loading">{error ? error.message : "Loading…"}</p>;
+  if (!page) return <p className={error ? "page-loading" : "page-loading is-loading"}>{error ? error.message : "Loading…"}</p>;
 
   const done = new Set(progress.state?.course.completed_lesson_ids ?? []);
   const pager = (
