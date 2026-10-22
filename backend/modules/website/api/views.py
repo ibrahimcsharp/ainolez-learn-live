@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.http import Http404, HttpResponse
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -6,6 +5,7 @@ from rest_framework.views import APIView
 
 from modules.website import code_page, selectors
 from modules.website.models import SitePage
+from shared.runner import frame_ancestors
 
 
 class PublicView(APIView):
@@ -58,9 +58,7 @@ def page_frame(request, slug):
     code = (page.code_html or "", page.code_css or "", page.code_js or "")
     html = code_page.document(page.title, *code)
     response = HttpResponse(html)
-    response["Content-Security-Policy"] = (
-        f"{FRAME_SANDBOX}; frame-ancestors 'self' {settings.FRONTEND_URL}"
-    )
+    response["Content-Security-Policy"] = f"{FRAME_SANDBOX}; {frame_ancestors()}"
     response["X-Robots-Tag"] = "noindex"  # the page itself (/<slug>) is what search shows
     response["Cache-Control"] = "public, max-age=300"
     return response
