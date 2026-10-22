@@ -1,0 +1,14 @@
+{
+  "title": "Python How To: Small Programs",
+  "slug": "python-how-to",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "beginner",
+  "language_key": "python",
+  "short_description": "Short recipes for everyday tasks: remove duplicates, reverse text, add numbers, count words, check numbers and passwords, convert units and print patterns.",
+  "description": "Each lesson in this course solves one small, common problem, the kind you meet in coding exercises, interviews and real scripts. You see two or three ways to solve it, learn which one to pick and why, and then write it yourself. It is a good place to practise after Python for Absolute Beginners, or to look up a quick answer.",
+  "chapters": [
+    {"title": "Working with Lists and Text", "description": "Duplicates, reversing and counting.", "lessons": ["01-remove-duplicates.md", "02-reverse-string.md", "03-count-words.md"]},
+    {"title": "Working with Numbers", "description": "Adding, checking and converting.", "lessons": ["04-add-numbers.md", "05-number-checks.md", "06-unit-conversion.md"]},
+    {"title": "Small Programs", "description": "Patterns and input checks.", "lessons": ["07-loop-patterns.md", "08-password-check.md"]}
+  ]
+}

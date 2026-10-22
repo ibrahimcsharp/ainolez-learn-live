@@ -130,6 +130,13 @@ npm run build
       the course generator.
       5 more Python seed courses (original text, following the W3Schools Python topic list):
       python-essentials, python-standard-library, python-oop, python-dsa, python-databases.
+      3 more for the remaining W3Schools topics (22 lessons): python-data-types (slicing, escapes,
+      string/list/tuple/set/dict methods, unpacking, nested dicts, project), python-functions
+      (arguments, *args/**kwargs, scope/global/nonlocal, lambda + closures, recursion, raise and
+      custom exceptions, built-in functions, statistics + cmath), python-how-to (remove duplicates,
+      reverse a string, count words, add numbers, number checks, unit conversion, loop patterns,
+      password check). New lessons go in new course folders: `seed_courses` skips courses that
+      already exist, so lessons added to an existing course never reach the live site.
       CGI fallback for the API (`deploy/cpanel/cgi/`) while the host has Passenger off.
 - [x] Pages and menus: SQL 0017 (`site_pages`, `menus`, `menu_items`; seo_pages.entity_type
       gains 'page'). `website` module: pages at `/<slug>` (Markdown → nh3-sanitised HTML on

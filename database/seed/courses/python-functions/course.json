@@ -1,0 +1,16 @@
+{
+  "title": "Python Functions and Errors in Depth",
+  "slug": "python-functions",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "intermediate",
+  "language_key": "python",
+  "short_description": "Function arguments, scope, lambda, recursion, your own exceptions, the built-in functions and the statistics and cmath modules.",
+  "description": "Functions are where Python programs get their shape. This course goes past def and return: every way to pass arguments, including *args and **kwargs, where a name lives (scope, global and nonlocal), small lambda functions and functions that build functions, recursion, raising and defining your own exceptions, a tour of the built-in functions worth knowing, and two handy maths modules, statistics and cmath. Take it after Python for Absolute Beginners or Python Essentials.",
+  "chapters": [
+    {"title": "Passing Values In", "description": "Every kind of function argument.", "lessons": ["01-arguments.md"]},
+    {"title": "Where Names Live", "description": "Local, enclosing and global scope.", "lessons": ["02-scope.md"]},
+    {"title": "Functions as Values", "description": "lambda, closures and recursion.", "lessons": ["03-lambda.md", "04-recursion.md"]},
+    {"title": "When Things Go Wrong", "description": "Raise, define and handle exceptions.", "lessons": ["05-exceptions.md"]},
+    {"title": "Ready-Made Tools", "description": "Built-in functions and maths modules.", "lessons": ["06-built-in-functions.md", "07-statistics-cmath.md"]}
+  ]
+}
