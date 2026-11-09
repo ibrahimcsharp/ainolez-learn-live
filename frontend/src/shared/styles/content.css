@@ -65,6 +65,45 @@
   border: 0;
 }
 
+/* Video timestamps ("00:40 | IDE Choice" lines in Markdown) */
+.lesson-content .timestamps {
+  margin: 16px 0 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  background: var(--white);
+}
+.lesson-content .timestamps-title {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.lesson-content .timestamps ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lesson-content .timestamps li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 3px 0;
+}
+.lesson-content .timestamp {
+  flex: none;
+  min-width: 52px;
+  padding: 1px 8px;
+  border-radius: 4px;
+  background: var(--sky-100);
+  font-family: var(--font-code, monospace);
+  font-size: 14px;
+  text-align: center;
+  text-decoration: none;
+}
+.lesson-content .timestamp:hover {
+  background: var(--green-600);
+  color: var(--white);
+}
+
 /* Callouts (callout blocks) and admonitions (!!! note in Markdown) */
 .lesson-content .callout,
 .lesson-content .admonition {

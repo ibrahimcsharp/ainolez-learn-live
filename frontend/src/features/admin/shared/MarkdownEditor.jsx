@@ -9,6 +9,7 @@ import {
   Link as LinkIcon,
   List,
   ListOrdered,
+  ListVideo,
   Minus,
   Quote,
   SquarePlay,
@@ -43,6 +44,11 @@ const TOOLS = [
   { icon: Lightbulb, label: "Note box", callout: true },
   { icon: Table, label: "Table", block: () => "| Column | Column |\n| --- | --- |\n| Text | Text |" },
   { icon: SquarePlay, label: "Video (YouTube, Vimeo, .mp4)", block: () => "{{video:https://www.youtube.com/watch?v=}}" },
+  {
+    icon: ListVideo,
+    label: "Video timestamps (paste them under a video; each time jumps the video)",
+    block: (text) => text || "Timestamps\n00:00 | Introduction\n01:30 | Next topic",
+  },
   { icon: Minus, label: "Divider", block: () => "---" },
 ];
 const CALLOUTS = ["note", "tip", "warning", "example"];

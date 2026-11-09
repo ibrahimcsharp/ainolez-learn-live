@@ -8,6 +8,9 @@ import { AssistantProvider } from "./features/assistant/AssistantProvider";
 import "./shared/styles/tokens.css";
 import "./shared/styles/base.css";
 import "./shared/styles/content.css";
+import { enableTimestampLinks } from "./shared/ui/timestamps";
+
+enableTimestampLinks();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

@@ -62,7 +62,8 @@ def video_html(provider: str, ref: str, start: int = 0, caption: str = "") -> st
         }[provider]
         player = (
             f'<iframe src="{escape(src)}" title="{escape(caption or "Video")}" loading="lazy" '
-            'allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>'
+            'allow="accelerometer; autoplay; encrypted-media; picture-in-picture" '
+            "allowfullscreen></iframe>"
         )
     figcaption = f"<figcaption>{escape(caption)}</figcaption>" if caption else ""
     return f'<figure class="video"><div class="media-frame">{player}</div>{figcaption}</figure>'
