@@ -78,3 +78,15 @@ def test_catalog_has_categories_courses_and_lesson_counts(api, published):
     (course,) = data["courses"]
     assert course["slug"] == "python" and course["lesson_count"] == 2  # the draft is not counted
     assert data["paths"] == []
+
+
+@pytest.mark.django_db
+def test_course_description_is_markdown_shown_as_safe_html(api, published):
+    admin = published.created_by
+    text = "## What you learn\n\n- **Lists**\n- Loops\n\n<script>alert(1)</script>"
+    services.save_course(published, {"description": text}, admin)
+    data = api.get(f"{PUBLIC}/courses/python/").json()
+    assert data["description"] == text
+    html = data["description_html"]
+    assert ">What you learn</h2>" in html and "<strong>Lists</strong>" in html
+    assert "<script" not in html

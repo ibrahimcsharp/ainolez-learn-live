@@ -46,7 +46,10 @@ export function CoursePage() {
           // Built and escaped by the API from an allow-listed video link.
           <div className={`lesson-content ${styles.intro}`} dangerouslySetInnerHTML={{ __html: course.intro_video_html }} />
         )}
-        {course.description && <p>{course.description}</p>}
+        {course.description_html && (
+          // Markdown from the admin's smart editor, sanitised by the API.
+          <div className="lesson-content" dangerouslySetInnerHTML={{ __html: course.description_html }} />
+        )}
         {course.chapters.map((chapter, index) => (
           <section key={chapter.title + index} className="card">
             <h3>
