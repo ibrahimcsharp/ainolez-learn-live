@@ -39,6 +39,27 @@ def test_render_expands_video_shortcode_but_not_inside_code():
     assert "{{youtube:dQw4w9WgXcQ}}" in html
 
 
+def test_timestamps_under_a_video_become_a_linked_list():
+    text = (
+        "{{youtube:dQw4w9WgXcQ}}\n\n⏳ Timestamps ⏳\n00:00 | Overview\n00:40 | IDE Choice\n"
+        "1:01:56 - Backend <b>vs</b> Frontend\n\nMeet at 10:30 today.\n\n```\n00:10 a\n00:20 b\n```"
+    )
+    html = services.render_markdown(text)
+    assert '<p class="timestamps-title">⏳ Timestamps ⏳</p>' in html
+    assert html.count('class="timestamp"') == 3
+    assert 'href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;t=40s"' in html
+    assert "t=3716s" in html  # 1:01:56
+    assert "<span>IDE Choice</span>" in html
+    assert "&lt;b&gt;vs&lt;/b&gt;" in html  # labels are text, never HTML
+    assert "<p>Meet at 10:30 today.</p>" in html  # one time in a sentence stays text
+    assert "00:10 a\n00:20 b" in html  # not inside code
+
+
+def test_timestamps_without_a_video_link_to_the_player_above():
+    html = services.render_markdown("- 00:10 First\n- 00:20 Second")
+    assert 'href="#t=10"' in html and 'href="#t=20"' in html
+
+
 def test_iframes_from_unknown_sites_lose_their_src():
     html = services.render_markdown('<iframe src="https://evil.example.com/x"></iframe>')
     assert "evil.example.com" not in html
