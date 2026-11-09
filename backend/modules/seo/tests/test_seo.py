@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from modules.catalog import services as catalog
@@ -140,3 +142,5 @@ def test_build_writes_pages_sitemap_and_robots(tmp_path, settings, course):
     assert "/login" not in sitemap  # noindex pages stay out
     assert "Sitemap: http://localhost:5173/sitemap.xml" in (tmp_path / "robots.txt").read_text()
     assert SeoPage.objects.filter(path="/").exists()
+    catalog = json.loads((tmp_path / "catalog.json").read_text(encoding="utf-8"))
+    assert [c["slug"] for c in catalog["courses"]] == ["python-basics"]

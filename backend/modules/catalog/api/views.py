@@ -30,6 +30,13 @@ class CategoriesView(PublicView):
         return Response(s.CategorySerializer(selectors.public_categories(), many=True).data)
 
 
+class CatalogView(PublicView):
+    """The whole /courses page in one request (the website reads catalog.json first)."""
+
+    def get(self, request):
+        return Response(selectors.public_catalog())
+
+
 class CoursesView(PublicView):
     def get(self, request):
         courses = list(selectors.public_courses(request.query_params.get("category", "")))
