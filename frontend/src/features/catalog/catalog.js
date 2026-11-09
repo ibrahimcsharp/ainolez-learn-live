@@ -3,10 +3,8 @@ import { api } from "../../shared/api/client";
 
 /*
  * The /courses data: { categories, courses (with lesson_count), paths }.
- * Read from /catalog.json, a static file the API's SEO build writes next to the website
- * (fast, no Python start-up); the API is only asked when that file is missing, e.g. in
- * local development. The copy from the last visit is shown first, so a repeat visit
- * draws at once. Loaded once per visit, so moving between pages never waits again.
+ * api() reads the SEO build's static copy first (see client.js). The copy from the last
+ * visit is shown first, so a repeat visit draws at once. Loaded once per visit.
  */
 const KEY = "ainolez.catalog";
 
@@ -14,10 +12,7 @@ let current = saved();
 let loading = null;
 
 function load() {
-  loading ??= fetch("/catalog.json", { cache: "no-cache" })
-    .then((response) => (response.ok ? response.json() : Promise.reject(response)))
-    .then((data) => (isCatalog(data) ? data : Promise.reject(data)))
-    .catch(() => api("/public/catalog/"))
+  loading ??= api("/public/catalog/")
     .then((data) => {
       current = data;
       try {

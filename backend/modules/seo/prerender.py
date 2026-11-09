@@ -3,7 +3,7 @@ Writes the public website's SEO files into PRERENDER_DIR (public_html on cPanel)
 
     index.html, python/index.html, python/lists/index.html ...   one per page
     sitemap.xml, robots.txt
-    catalog.json    the /courses page's data, read before the (slower) API
+    data/...        copies of the public API's answers for those pages (see write_data)
 
 Each HTML file is the app's shell.html (the React build) with the page's
 title, meta tags, JSON-LD and a plain copy of its content, so search engines
@@ -14,10 +14,13 @@ JavaScript. Apache serves the file; React then starts and takes over.
 import json
 import logging
 import re
+import shutil
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
 
 from django.conf import settings
+from django.test import RequestFactory
+from django.urls import resolve
 from django.utils import timezone
 from django.utils.html import escape
 
@@ -71,13 +74,66 @@ def build() -> int:
     _remove_stale(root, set(written))
     (root / "sitemap.xml").write_text(sitemap(pages, site), encoding="utf-8")
     (root / "robots.txt").write_text(robots_txt(site), encoding="utf-8")
-    (root / "catalog.json").write_text(_json(catalog.public_catalog()), encoding="utf-8")
+    write_data(root, pages)
 
     site.last_build_at = timezone.now()
     site.last_build_pages = len(written)
     site.save(update_fields=["last_build_at", "last_build_pages"])
     logger.info("SEO build wrote %s pages", len(written))
     return len(written)
+
+
+DATA = "data"
+API = "/api/v1/public"
+
+
+def write_data(root: Path, pages: list[resolver.PageMeta]) -> None:
+    """Copies of the public API answers the website needs, as static files:
+    /public/courses/python/ -> data/courses/python.json, and so on. The website reads
+    them first (the web server sends a file at once; the API has to start Python),
+    and asks the API only when a file is missing. The frontend's staticCopy() in
+    shared/api/client.js maps paths the same way. The folder is replaced whole, so
+    removed courses and pages disappear."""
+    paths = ["/catalog/", "/site/menus/"]
+    for meta in pages:
+        if meta.status != 200 or not meta.entity:
+            continue
+        kind, parts = meta.entity[0], meta.path.strip("/").split("/")
+        if kind == "course" and len(parts) == 1:
+            paths.append(f"/courses/{parts[0]}/")
+        elif kind == "lesson" and len(parts) == 2:
+            paths.append(f"/courses/{parts[0]}/lessons/{parts[1]}/")
+        elif kind == "page" and len(parts) == 1:
+            paths.append(f"/site/pages/{parts[0]}/")
+
+    fresh, current, old = root / f"{DATA}.new", root / DATA, root / f"{DATA}.old"
+    shutil.rmtree(fresh, ignore_errors=True)
+    for path in paths:
+        data = _public_get(path)
+        if data is not None:
+            target = fresh / f"{path.strip('/')}.json"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(data, encoding="utf-8")
+    shutil.rmtree(old, ignore_errors=True)
+    if current.exists():
+        current.rename(old)
+    fresh.rename(current)
+    shutil.rmtree(old, ignore_errors=True)
+    (root / "catalog.json").unlink(missing_ok=True)  # where the catalog used to be written
+
+
+def _public_get(path: str) -> str | None:
+    """The JSON a GET of the public API returns, made in this process (no HTTP)."""
+    host = next((h.lstrip(".") for h in settings.ALLOWED_HOSTS if h != "*"), "localhost")
+    url = API + path
+    match = resolve(url)
+    view = match.func.cls.as_view(throttle_classes=[])  # a build is not a visitor
+    response = view(RequestFactory().get(url, HTTP_HOST=host), *match.args, **match.kwargs)
+    response.render()
+    if response.status_code != 200:
+        logger.warning("SEO build: %s answered %s", url, response.status_code)
+        return None
+    return response.content.decode("utf-8")
 
 
 def render(

@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { useAuth } from "../../app/AuthProvider";
+import { api, fromStatic } from "../../shared/api/client";
 import { useApi } from "../../shared/hooks/useApi";
 import { PageLoader } from "../../shared/ui/Loader";
 import { SitePage } from "../website/SitePage";
@@ -8,9 +10,9 @@ import styles from "./Catalog.module.css";
 export function CoursePage() {
   const { courseSlug } = useParams();
   const { user } = useAuth();
-  const { data: course, error } = useApi(`/public/courses/${courseSlug}/`);
+  const { course, isPage, error } = useCourseOrPage(courseSlug);
   const { data: progress } = useApi(user && course ? `/learner/courses/${course.id}/progress/` : null);
-  if (error?.status === 404) return <SitePage slug={courseSlug} />; // no course here: maybe a page
+  if (isPage) return <SitePage slug={courseSlug} />; // no course here: maybe a page
   if (error) return <p className="page-loading">{error.message}</p>;
   if (!course) return <PageLoader />;
 
@@ -65,4 +67,30 @@ export function CoursePage() {
       </div>
     </>
   );
+}
+
+/**
+ * Courses and site pages share /<slug>. The static copies answer which one it is at once;
+ * only when neither has a copy (e.g. something published a moment ago) is the API asked.
+ */
+function useCourseOrPage(slug) {
+  const [state, setState] = useState({ course: null, isPage: false, error: null });
+  useEffect(() => {
+    let live = true;
+    setState({ course: null, isPage: false, error: null });
+    const path = `/public/courses/${slug}/`;
+    (async () => {
+      const copy = await fromStatic(path);
+      if (!copy && (await fromStatic(`/public/site/pages/${slug}/`))) return { isPage: true };
+      try {
+        return { course: copy ?? (await api(path)) };
+      } catch (error) {
+        return error.status === 404 ? { isPage: true } : { error };
+      }
+    })().then((result) => live && setState({ course: null, isPage: false, error: null, ...result }));
+    return () => {
+      live = false;
+    };
+  }, [slug]);
+  return state;
 }

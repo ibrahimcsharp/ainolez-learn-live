@@ -1,25 +1,5 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router";
-import { ProfilePage } from "../features/account/ProfilePage";
-import { AdminDashboardPage } from "../features/admin/AdminDashboardPage";
-import { AnalyticsPage } from "../features/admin/analytics/AnalyticsPage";
-import { CourseGeneratorPage } from "../features/admin/ai-authoring/CourseGeneratorPage";
-import { AIPanelPage } from "../features/admin/assistant/AIPanelPage";
-import { QuizEditPage } from "../features/admin/assessment/QuizEditPage";
-import { ModerationPage } from "../features/admin/community/ModerationPage";
-import { CertificatesPage } from "../features/admin/certification/CertificatesPage";
-import { GamificationPage } from "../features/admin/gamification/GamificationPage";
-import { CategoriesPage } from "../features/admin/catalog/CategoriesPage";
-import { CourseEditPage } from "../features/admin/catalog/CourseEditPage";
-import { CoursesPage } from "../features/admin/catalog/CoursesPage";
-import { LessonEditPage } from "../features/admin/catalog/LessonEditPage";
-import { PathsPage } from "../features/admin/catalog/PathsPage";
-import { MarkdownToolPage } from "../features/admin/content-tools/MarkdownToolPage";
-import { MediaPage } from "../features/admin/media/MediaPage";
-import { SeoPage } from "../features/admin/seo/SeoPage";
-import { TrashPage } from "../features/admin/trash/TrashPage";
-import { MenusPage } from "../features/admin/website/MenusPage";
-import { PageEditPage } from "../features/admin/website/PageEditPage";
-import { PagesPage } from "../features/admin/website/PagesPage";
 import { ForgotPasswordPage } from "../features/auth/ForgotPasswordPage";
 import { LoginPage } from "../features/auth/LoginPage";
 import { RegisterPage } from "../features/auth/RegisterPage";
@@ -33,13 +13,50 @@ import { CertificatePage } from "../features/certificates/CertificatePage";
 import { LeaderboardPage } from "../features/gamification/LeaderboardPage";
 import { CoursePage } from "../features/catalog/CoursePage";
 import { HomePage } from "../features/home/HomePage";
-import { DashboardPage } from "../features/learning/DashboardPage";
 import { LessonPage } from "../features/lesson/LessonPage";
 import { SearchPage } from "../features/search/SearchPage";
 import { PortalLayout } from "./layouts/PortalLayout";
 import { PublicLayout } from "./layouts/PublicLayout";
 import { NotFound } from "./NotFound";
 import { RequireRole } from "./RequireRole";
+import { PageLoader } from "../shared/ui/Loader";
+
+/*
+ * The learner portal and the admin panel load only when opened, so a visitor's first
+ * download carries just the public website.
+ */
+function lazyPage(load, name) {
+  const Page = lazy(() => load().then((module) => ({ default: module[name] })));
+  return function LazyPage() {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <Page />
+      </Suspense>
+    );
+  };
+}
+const ProfilePage = lazyPage(() => import("../features/account/ProfilePage"), "ProfilePage");
+const AdminDashboardPage = lazyPage(() => import("../features/admin/AdminDashboardPage"), "AdminDashboardPage");
+const AnalyticsPage = lazyPage(() => import("../features/admin/analytics/AnalyticsPage"), "AnalyticsPage");
+const CourseGeneratorPage = lazyPage(() => import("../features/admin/ai-authoring/CourseGeneratorPage"), "CourseGeneratorPage");
+const AIPanelPage = lazyPage(() => import("../features/admin/assistant/AIPanelPage"), "AIPanelPage");
+const QuizEditPage = lazyPage(() => import("../features/admin/assessment/QuizEditPage"), "QuizEditPage");
+const ModerationPage = lazyPage(() => import("../features/admin/community/ModerationPage"), "ModerationPage");
+const CertificatesPage = lazyPage(() => import("../features/admin/certification/CertificatesPage"), "CertificatesPage");
+const GamificationPage = lazyPage(() => import("../features/admin/gamification/GamificationPage"), "GamificationPage");
+const CategoriesPage = lazyPage(() => import("../features/admin/catalog/CategoriesPage"), "CategoriesPage");
+const CourseEditPage = lazyPage(() => import("../features/admin/catalog/CourseEditPage"), "CourseEditPage");
+const CoursesPage = lazyPage(() => import("../features/admin/catalog/CoursesPage"), "CoursesPage");
+const LessonEditPage = lazyPage(() => import("../features/admin/catalog/LessonEditPage"), "LessonEditPage");
+const PathsPage = lazyPage(() => import("../features/admin/catalog/PathsPage"), "PathsPage");
+const MarkdownToolPage = lazyPage(() => import("../features/admin/content-tools/MarkdownToolPage"), "MarkdownToolPage");
+const MediaPage = lazyPage(() => import("../features/admin/media/MediaPage"), "MediaPage");
+const SeoPage = lazyPage(() => import("../features/admin/seo/SeoPage"), "SeoPage");
+const TrashPage = lazyPage(() => import("../features/admin/trash/TrashPage"), "TrashPage");
+const MenusPage = lazyPage(() => import("../features/admin/website/MenusPage"), "MenusPage");
+const PageEditPage = lazyPage(() => import("../features/admin/website/PageEditPage"), "PageEditPage");
+const PagesPage = lazyPage(() => import("../features/admin/website/PagesPage"), "PagesPage");
+const DashboardPage = lazyPage(() => import("../features/learning/DashboardPage"), "DashboardPage");
 
 export function AppRoutes() {
   return (
