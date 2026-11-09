@@ -69,3 +69,12 @@ def test_search_finds_published_lessons_only(committed_db, api, published):
     results = api.get(f"{PUBLIC}/search/?q=enumerate").json()
     assert sorted(r["slug"] for r in results) == ["lists", "loops"]
     assert api.get(f"{PUBLIC}/search/?q=loops").json()[0]["slug"] == "loops"
+
+
+@pytest.mark.django_db
+def test_catalog_has_categories_courses_and_lesson_counts(api, published):
+    data = api.get(f"{PUBLIC}/catalog/").json()
+    assert [c["slug"] for c in data["categories"]] == ["python"]
+    (course,) = data["courses"]
+    assert course["slug"] == "python" and course["lesson_count"] == 2  # the draft is not counted
+    assert data["paths"] == []

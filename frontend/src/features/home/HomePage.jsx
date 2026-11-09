@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import { useAuth, homeFor } from "../../app/AuthProvider";
-import { useApi } from "../../shared/hooks/useApi";
+import { useCatalog } from "../catalog/catalog";
 import { CourseCard } from "../catalog/CatalogPage";
 import styles from "./HomePage.module.css";
 
@@ -43,8 +43,8 @@ const FEATURES = [
 
 export function HomePage() {
   const { user } = useAuth();
-  const courses = useApi("/public/courses/");
-  const count = courses.data?.length;
+  const courses = useCatalog().data?.courses;
+  const count = courses?.length;
 
   return (
     <>
@@ -137,7 +137,7 @@ export function HomePage() {
             link={<Link to="/courses">See all courses <ArrowRight size={16} /></Link>}
           />
           <div className={styles.courses}>
-            {courses.data.slice(0, 6).map((course) => (
+            {courses.slice(0, 6).map((course) => (
               <CourseCard key={course.slug} course={course} />
             ))}
           </div>

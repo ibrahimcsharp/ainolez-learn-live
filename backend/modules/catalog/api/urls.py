@@ -3,6 +3,7 @@ from django.urls import path
 from modules.catalog.api import views
 
 urlpatterns = [
+    path("catalog/", views.CatalogView.as_view()),
     path("categories/", views.CategoriesView.as_view()),
     path("courses/", views.CoursesView.as_view()),
     path("courses/<slug:slug>/", views.CourseDetailView.as_view()),

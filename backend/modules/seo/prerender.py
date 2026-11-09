@@ -3,6 +3,7 @@ Writes the public website's SEO files into PRERENDER_DIR (public_html on cPanel)
 
     index.html, python/index.html, python/lists/index.html ...   one per page
     sitemap.xml, robots.txt
+    catalog.json    the /courses page's data, read before the (slower) API
 
 Each HTML file is the app's shell.html (the React build) with the page's
 title, meta tags, JSON-LD and a plain copy of its content, so search engines
@@ -70,6 +71,7 @@ def build() -> int:
     _remove_stale(root, set(written))
     (root / "sitemap.xml").write_text(sitemap(pages, site), encoding="utf-8")
     (root / "robots.txt").write_text(robots_txt(site), encoding="utf-8")
+    (root / "catalog.json").write_text(_json(catalog.public_catalog()), encoding="utf-8")
 
     site.last_build_at = timezone.now()
     site.last_build_pages = len(written)

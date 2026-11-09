@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 
 from django.db import connection
-from django.db.models import Prefetch, QuerySet
+from django.db.models import Count, Prefetch, QuerySet
 
 from modules.catalog.models import (
     Category,
@@ -95,6 +95,41 @@ def public_paths() -> list[tuple[LearningPath, list[Course]]]:
         (path, [visible[pc.course_id] for pc in path.path_courses.all() if pc.course_id in visible])
         for path in paths
     ]
+
+
+def public_catalog() -> dict:
+    """Everything the /courses page shows, in one piece: categories, courses (with their
+    lesson count) and learning paths. Served by the API and written to catalog.json."""
+    from modules.catalog.api import serializers as s  # the serializers import services
+    from modules.media import selectors as media
+
+    courses = list(public_courses())
+    paths = public_paths()
+    shown = courses + [course for _, path_courses in paths for course in path_courses]
+    context = {"thumbnails": media.urls_for(course.thumbnail_media_id for course in shown)}
+    counts = dict(
+        _visible_lessons()
+        .values_list("course_id")
+        .annotate(n=Count("id"))
+        .values_list("course_id", "n")
+    )
+    cards = s.CourseCardSerializer(courses, many=True, context=context).data
+    for card in cards:
+        card["lesson_count"] = counts.get(card["id"], 0)
+    return {
+        "categories": s.CategorySerializer(public_categories(), many=True).data,
+        "courses": cards,
+        "paths": [
+            {
+                "title": path.title,
+                "slug": path.slug,
+                "description": path.description,
+                "level": path.level,
+                "courses": s.CourseCardSerializer(path_courses, many=True, context=context).data,
+            }
+            for path, path_courses in paths
+        ],
+    }
 
 
 def search_lessons(query: str) -> list[Lesson]:

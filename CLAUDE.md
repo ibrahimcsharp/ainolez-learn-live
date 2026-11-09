@@ -192,3 +192,9 @@ start of every run (`backend/conftest.py`), so MySQL must be running.
       Menus tab on the page to add it to any menu or sub-menu. `codePage.js` mirrors code_page.py.
       Loading: `shared/ui/Loader.jsx` (Spinner, LoadingBar, PageLoader); `.page-loading.is-loading`
       shows the same ring spinner everywhere.
+- [x] Courses page: one `catalog` payload (`catalog.selectors.public_catalog`: categories, courses
+      with `lesson_count`, paths) served at `/public/catalog/` and written by `seo_build` to
+      `catalog.json` beside the website, which `features/catalog/catalog.js` reads first (static,
+      no CGI start-up) and falls back to the API; last visit's copy shows at once. Filters and
+      search run in the browser; skeleton cards while loading. Category edits reach catalog.json
+      at the next build (course and lesson changes trigger one).
