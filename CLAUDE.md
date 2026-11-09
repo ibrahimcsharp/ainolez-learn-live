@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # ainolez
 
 Free coding and AI learning platform. Full plan, diagrams and database design:
@@ -39,6 +43,10 @@ Free coding and AI learning platform. Full plan, diagrams and database design:
   each module refuses a slug the other uses.
 - Code must run on Python 3.11 (cPanel) and MariaDB 10.4 (local XAMPP, via
   `config/db/mariadb104`).
+- `managed = False` models still need a Django migration file (state only). CI runs
+  `makemigrations --check`, so add one whenever a model's fields or Meta change.
+- `.container` sets only side padding (`--gutter`); give a page its own top/bottom space
+  with `.page-body` or a module class, never a `padding` shorthand on a `.container`.
 
 ## Local commands (Windows, XAMPP MySQL running)
 ```
@@ -47,14 +55,33 @@ cd backend
 .venv\Scripts\python manage.py migrate
 .venv\Scripts\python manage.py runserver
 .venv\Scripts\python manage.py run_jobs --watch   # sends queued emails (printed to console)
+.venv\Scripts\python manage.py seed_courses       # imports database/seed/courses (new slugs only)
+.venv\Scripts\python manage.py seo_build          # prerendered pages, sitemap, robots
 .venv\Scripts\python -m pytest
+.venv\Scripts\python -m pytest modules/catalog/tests/test_admin_catalog.py -k trash   # one test
+.venv\Scripts\python manage.py makemigrations --check --dry-run
 .venv\Scripts\python -m ruff check . ; .venv\Scripts\python -m ruff format .
 
 cd frontend
 npm run dev     # http://localhost:5173, proxies /api to :8000
 npm test
+npx vitest run src/features/website/menus.test.jsx   # one test file
 npm run build
 ```
+pytest wipes and rebuilds the `ainolez_test` database from `database/schema/*.sql` at the
+start of every run (`backend/conftest.py`), so MySQL must be running.
+
+## CI and deploy
+- `.github/workflows/ci.yml`, on every push: backend (ruff check + format check,
+  `makemigrations --check`, pytest on MariaDB) and frontend (vitest, build).
+- A push to `main` that passes deploys to cPanel by itself: CI adds `frontend/dist` to a
+  `deploy` branch (each commit on top of the last, so the server always fast-forwards),
+  `deploy/cpanel/github_deploy.sh` makes cPanel pull it and run `.cpanel.yml` →
+  `deploy/cpanel/release.sh` (pip install, DB backup, `apply_schema`, `migrate`,
+  `seed_courses`, copy the site to `public_html`, `seo_build`). Details and fixes:
+  `deploy/cpanel/README.md`. Pushing to `main` therefore means going live.
+- The repository is public. The untracked zips, `.vscode/` and the root
+  `package-lock.json` must not be committed.
 
 ## Progress
 - [x] Sprint 1: brand + tokens, layouts (public, learner, admin), shared kernel, identity
