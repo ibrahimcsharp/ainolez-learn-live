@@ -63,4 +63,33 @@ function onClick(event) {
 /** Called once from main.jsx: one listener serves every page. */
 export function enableTimestampLinks() {
   document.addEventListener("click", onClick);
+  seekFromAddress();
+}
+
+/**
+ * /python/lists?t=40 (the "key moment" links Google shows) starts the page's first video
+ * at 0:40 once the lesson has loaded.
+ */
+export function seekFromAddress(search = window.location.search, wait = 15000) {
+  const at = Number(new URLSearchParams(search).get("t"));
+  if (!Number.isInteger(at) || at <= 0) return;
+  const find = () =>
+    [...document.querySelectorAll(".lesson-content iframe, .lesson-content video")].find(
+      (player) => player.tagName === "VIDEO" || isVideoFrame(player),
+    );
+  const start = (player) => {
+    seek(player, at);
+    player.scrollIntoView?.({ block: "center" });
+  };
+  const now = find();
+  if (now) return start(now);
+  const watcher = new MutationObserver(() => {
+    const player = find();
+    if (player) {
+      watcher.disconnect();
+      start(player);
+    }
+  });
+  watcher.observe(document.body, { childList: true, subtree: true });
+  setTimeout(() => watcher.disconnect(), wait);
 }

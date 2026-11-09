@@ -3,6 +3,10 @@ Options -Indexes
 DirectorySlash Off
 DirectoryIndex index.html
 
+# Markdown copies of pages and llms.txt (written by seo_build) for AI engines.
+AddType "text/markdown; charset=utf-8" .md
+AddType "text/plain; charset=utf-8" .txt
+
 RewriteEngine On
 RewriteBase /
 
@@ -38,7 +42,7 @@ RewriteRule . /shell.html [L]
   <If "%{REQUEST_URI} =~ m#^/assets/#">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </If>
-  <FilesMatch "^(index|shell)\.html$|^(sitemap\.xml|robots\.txt)$">
+  <FilesMatch "^(index|shell)\.html$|^(sitemap\.xml|robots\.txt|llms\.txt|llms-full\.txt)$|\.md$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
   # Rewritten by every SEO build: the browser checks for a newer copy each time.

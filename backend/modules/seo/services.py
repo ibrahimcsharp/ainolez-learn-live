@@ -1,12 +1,14 @@
 """Write use cases of the seo module."""
 
+import re
 from datetime import timedelta
 
 from django.db import connection
 from django.utils import timezone
 
-from modules.seo import content, resolver
-from modules.seo.models import SeoPage, SeoSettings
+from modules.seo import changes as change_log
+from modules.seo import content, geo, indexnow, resolver
+from modules.seo.models import AiBot, SeoChangeLog, SeoPage, SeoSettings
 from shared import audit, jobs
 from shared.exceptions import ServiceError
 from shared.models import Job
@@ -16,7 +18,11 @@ SETTING_FIELDS = (
     "default_image_url", "locale", "twitter_site", "facebook_app_id",
     "google_site_verification", "bing_site_verification", "organization_logo_url",
     "social_profiles", "allow_indexing", "robots_txt_extra",
+    "geo_site_summary", "geo_llms_details", "geo_llms_enabled", "geo_llms_full_enabled",
+    "geo_markdown_copies", "geo_video_moments", "indexnow_enabled",
 )  # fmt: skip
+BOT_FIELDS = ("user_agent", "owner", "purpose", "allowed", "notes", "sort_order")
+USER_AGENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{1,59}$")
 URL_FIELDS = ("canonical_url", "og_image_url")
 BUILD_JOB = "seo.build"
 
@@ -28,12 +34,22 @@ def update_settings(changes: dict, by) -> SeoSettings:
         raise ServiceError("Social profiles must be a list of https:// links.", "bad_profiles")
     if "{title}" not in changes.get("title_template", site.title_template):
         raise ServiceError("The title template needs {title} in it.", "bad_template")
+    before = change_log.values(site, SETTING_FIELDS)
     for name in SETTING_FIELDS:
         if name in changes:
             setattr(site, name, changes[name])
+    if site.indexnow_enabled and not site.indexnow_key:
+        site.indexnow_key = indexnow.new_key()
     site.updated_by = by
     site.save()
     audit.record("seosettings.updated", actor=by, entity=site, after=changes)
+    change_log.record(
+        "settings",
+        before=before,
+        after={name: changes[name] for name in SETTING_FIELDS if name in changes},
+        by=by,
+        target="Site settings",
+    )
     schedule_build()
     return site
 
@@ -54,6 +70,7 @@ def save_page(page: SeoPage | None, data: dict, by) -> SeoPage:
         raise ServiceError(
             "Structured data must be a JSON-LD object or a list of them.", "bad_json"
         )
+    before = change_log.values(page, data.keys()) if page.pk else {}
     for name, value in data.items():
         setattr(page, name, value)
     is_new = page.pk is None
@@ -62,8 +79,85 @@ def save_page(page: SeoPage | None, data: dict, by) -> SeoPage:
     page.updated_by = by
     page.save()
     audit.record(f"seopage.{'created' if is_new else 'updated'}", actor=by, entity=page)
+    change_log.record(
+        "page",
+        before=before,
+        after=change_log.values(page, data.keys()),
+        by=by,
+        target=page.path or f"{page.entity_type} {page.entity_id}",
+        target_id=page.pk,
+        summary="Added SEO settings" if is_new else "",
+    )
     schedule_build()
     return page
+
+
+def save_bot(bot: AiBot | None, data: dict, by) -> AiBot:
+    """Add or change an AI crawler rule (robots.txt is rewritten by the next build)."""
+    bot = bot or AiBot()
+    agent = data.get("user_agent", bot.user_agent)
+    if not USER_AGENT.match(agent or ""):
+        raise ServiceError("Type the crawler's User-agent name, e.g. GPTBot.", "bad_agent")
+    if AiBot.objects.exclude(pk=bot.pk).filter(user_agent__iexact=agent).exists():
+        raise ServiceError(f"{agent} is already in the list.", "duplicate")
+    if data.get("purpose", bot.purpose) not in AiBot.Purpose.values:
+        raise ServiceError("Choose training, search or user.", "bad_purpose")
+    is_new = bot.pk is None
+    before = {} if is_new else change_log.values(bot, BOT_FIELDS)
+    for name in BOT_FIELDS:
+        if name in data:
+            setattr(bot, name, data[name])
+    if is_new:
+        bot.created_by = by
+    bot.updated_by = by
+    bot.save()
+    audit.record(f"aibot.{'created' if is_new else 'updated'}", actor=by, entity=bot)
+    summary = ""
+    if is_new:
+        summary = f"Added crawler {bot.user_agent}"
+    elif before["allowed"] != bot.allowed:
+        summary = f"{'Allowed' if bot.allowed else 'Blocked'} {bot.user_agent}"
+    change_log.record("ai_bot", before=before, after=change_log.values(bot, BOT_FIELDS), by=by,
+                   target=bot.user_agent, target_id=bot.pk, summary=summary)  # fmt: skip
+    schedule_build()
+    return bot
+
+
+def undo(entry: SeoChangeLog, by) -> SeoChangeLog:
+    """Put back the old values of a logged admin change (logged again as a new change)."""
+    if not change_log.can_undo(entry):
+        raise ServiceError("This change cannot be undone.", "no_undo")
+    old = {item["field"]: item["old"] for item in entry.changes}
+    if entry.area == "settings":
+        update_settings(old, by)
+    elif entry.area == "page":
+        page = SeoPage.all_objects.filter(pk=entry.target_id).first()
+        if page is None or page.deleted_at:
+            raise ServiceError("These page settings were deleted.", "gone")
+        save_page(page, old, by)
+    elif entry.area == "ai_bot":
+        bot = AiBot.all_objects.filter(pk=entry.target_id).first()
+        if bot is None or bot.deleted_at:
+            raise ServiceError("This crawler was deleted.", "gone")
+        save_bot(bot, old, by)
+    entry.undone_at = timezone.now()
+    entry.undone_by = by
+    entry.save(update_fields=["undone_at", "undone_by"])
+    return entry
+
+
+def record_referral(path: str, referrer: str = "", utm_source: str = "") -> None:
+    """Count a visit that came from a search engine, an AI engine or a social site."""
+    found = geo.classify(referrer, utm_source)
+    if found is None:
+        return
+    kind, source = found
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO referral_visits_daily (day, kind, source, path, visits) "
+            "VALUES (%s, %s, %s, %s, 1) ON DUPLICATE KEY UPDATE visits = visits + 1",
+            [timezone.now().date(), kind, source, path[:255]],
+        )
 
 
 def record_view(path: str) -> None:

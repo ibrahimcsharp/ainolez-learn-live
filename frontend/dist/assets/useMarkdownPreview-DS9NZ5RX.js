@@ -1,0 +1,1 @@
+import{r as e,d as c}from"./index-D4ZaKwZN.js";function a(t){const[o,r]=e.useState("");return e.useEffect(()=>{const s=setTimeout(()=>{c("/admin/content-tools/md-convert/",{method:"POST",body:{markdown:t}}).then(n=>r(n.html)).catch(()=>{})},400);return()=>clearTimeout(s)},[t]),o}export{a as u};

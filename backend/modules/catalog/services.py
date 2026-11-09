@@ -256,6 +256,14 @@ def export_lesson_markdown(lesson: Lesson) -> str:
     return "\n\n".join(part for part in parts if part) + "\n"
 
 
+def reader_markdown(blocks) -> str:
+    """Published blocks as Markdown for readers and AI engines (seo's Markdown copies and
+    llms-full.txt). Exercises and quizzes are left out, so no answer or solution leaks."""
+    hidden = (LessonBlock.Type.EXERCISE, LessonBlock.Type.QUIZ)
+    parts = [_block_markdown(block) for block in blocks if block.type not in hidden]
+    return "\n\n".join(part.strip() for part in parts if part and part.strip())
+
+
 # --- helpers ----------------------------------------------------------------
 
 

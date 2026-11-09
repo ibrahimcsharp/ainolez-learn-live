@@ -37,6 +37,7 @@ class Content:
     body_html: str = ""
     entity: tuple[str, int] | None = None
     updated_at: datetime | None = None
+    markdown: bool = False  # has a Markdown copy (geo.markdown_for)
 
 
 def for_path(path: str, site) -> Content | None:
@@ -167,6 +168,7 @@ def _course(slug: str, site) -> Content | None:
         ),
         entity=("course", course.pk),
         updated_at=course.updated_at,
+        markdown=True,
     )
 
 
@@ -177,7 +179,7 @@ def _lesson(course_slug: str, lesson_slug: str) -> Content | None:
     lesson, course = page.lesson, page.lesson.course
     parts = []
     for block in page.blocks:
-        if block.type in ("markdown", "callout"):
+        if block.type in ("markdown", "callout", "video"):
             parts.append(block.content_html or "")
         elif block.type == "example" and block.code_example:
             parts.append(f"<pre><code>{escape(block.code_example.starter_code)}</code></pre>")
@@ -214,6 +216,7 @@ def _lesson(course_slug: str, lesson_slug: str) -> Content | None:
         ),
         entity=("lesson", lesson.pk),
         updated_at=lesson.updated_at,
+        markdown=True,
     )
 
 
@@ -240,6 +243,7 @@ def _page(slug: str) -> Content | None:
         body_html=f"<h1>{escape(page.title)}</h1>{page.content_html or ''}",
         entity=("page", page.pk),
         updated_at=page.updated_at,
+        markdown=page.kind == "markdown",
     )
 
 
