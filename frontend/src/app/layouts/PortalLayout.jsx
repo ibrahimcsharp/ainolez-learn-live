@@ -72,7 +72,7 @@ const MENUS = {
       items: [
         { to: "/admin/pages", label: "Pages", icon: FileText },
         { to: "/admin/menus", label: "Menus", icon: Menu },
-        { to: "/admin/seo", label: "SEO", icon: Globe },
+        { to: "/admin/seo", label: "SEO & GEO", icon: Globe },
         { to: "/admin/trash", label: "Trash", icon: Trash2 },
       ],
     },

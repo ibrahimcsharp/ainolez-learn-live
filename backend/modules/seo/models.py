@@ -1,4 +1,4 @@
-"""Tables from database/schema/0011_seo.sql."""
+"""Tables from database/schema/0011_seo.sql and 0022_seo_geo.sql."""
 
 from django.conf import settings
 from django.db import models
@@ -23,6 +23,17 @@ class SeoSettings(models.Model):
     social_profiles = models.JSONField(default=list)
     allow_indexing = models.BooleanField(default=True)
     robots_txt_extra = models.TextField(null=True, blank=True)
+    # GEO: what AI engines get (0022)
+    geo_site_summary = models.CharField(max_length=500, blank=True)
+    geo_llms_details = models.TextField(null=True, blank=True)
+    geo_llms_enabled = models.BooleanField(default=True)
+    geo_llms_full_enabled = models.BooleanField(default=True)
+    geo_markdown_copies = models.BooleanField(default=True)
+    geo_video_moments = models.BooleanField(default=True)
+    indexnow_enabled = models.BooleanField(default=False)
+    indexnow_key = models.CharField(max_length=64, blank=True)
+    indexnow_last_at = models.DateTimeField(null=True, blank=True)
+    indexnow_last_result = models.CharField(max_length=300, blank=True)
     last_build_at = models.DateTimeField(null=True)
     last_build_pages = models.IntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
@@ -96,3 +107,75 @@ class PageViewDaily(models.Model):
     class Meta:
         managed = False
         db_table = "page_views_daily"
+
+
+class AiBot(BaseModel):
+    """An AI crawler and whether robots.txt lets it read the site."""
+
+    class Purpose(models.TextChoices):
+        TRAINING = "training"
+        SEARCH = "search"
+        USER = "user"
+
+    user_agent = models.CharField(max_length=60)
+    owner = models.CharField(max_length=60, blank=True)
+    purpose = models.CharField(max_length=10, choices=Purpose)
+    allowed = models.BooleanField(default=True)
+    notes = models.CharField(max_length=300, blank=True)
+    sort_order = models.IntegerField(default=0)
+
+    class Meta(BaseModel.Meta):
+        managed = False
+        db_table = "ai_bots"
+
+    @property
+    def title(self) -> str:
+        return self.user_agent
+
+
+class ReferralVisitDaily(models.Model):
+    """Visits from search engines, AI engines and social sites. The real key is
+    (day, kind, source, path); rows are written with SQL and only read here."""
+
+    day = models.DateField(primary_key=True)
+    kind = models.CharField(max_length=10)
+    source = models.CharField(max_length=40)
+    path = models.CharField(max_length=255)
+    visits = models.IntegerField(default=0)
+
+    class Meta:
+        managed = False
+        db_table = "referral_visits_daily"
+
+
+class SeoChangeLog(models.Model):
+    class Actor(models.TextChoices):
+        ADMIN = "admin"
+        AUTO = "auto"
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    actor = models.CharField(max_length=10, choices=Actor)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="+",
+        db_column="user_id",
+    )
+    area = models.CharField(max_length=40)
+    target = models.CharField(max_length=255, blank=True)
+    target_id = models.BigIntegerField(null=True)
+    summary = models.CharField(max_length=500, blank=True)
+    changes = models.JSONField(null=True)
+    undone_at = models.DateTimeField(null=True)
+    undone_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="+",
+        db_column="undone_by",
+    )
+
+    class Meta:
+        managed = False
+        db_table = "seo_change_log"

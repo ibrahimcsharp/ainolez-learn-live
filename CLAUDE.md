@@ -204,3 +204,20 @@ start of every run (`backend/conftest.py`), so MySQL must be running.
       Copies lag edits until the next build (scheduled a minute after course, lesson, page and
       menu changes). The browser skips the session check when it was signed out last time
       (`signedInBefore`). Learner portal and admin routes are lazy-loaded (`router.jsx`).
+- [x] Video timestamps: runs of "00:40 | Title" lines in Markdown become a chapter list
+      (`content_tools/markdown_render.py`); a click jumps the video above (`shared/ui/timestamps.js`).
+- [ ] SEO & GEO Center (Admin -> SEO & GEO). Phase 1 done: SQL 0022 (GEO + IndexNow columns on
+      seo_settings, `ai_bots`, `referral_visits_daily`, `seo_change_log`). GEO lives in the `seo`
+      module (`geo.py`, `video.py`, `indexnow.py`, `changes.py`), not a separate module, because
+      the build writes its files. `seo_build` also writes llms.txt, llms-full.txt, a Markdown copy
+      per course/lesson/markdown page (`/python.md`, `/python/lists.md`, linked as
+      rel=alternate), robots.txt groups for blocked AI crawlers, and the IndexNow key file; then
+      sends changed pages to IndexNow. Markdown copies use `catalog.services.reader_markdown`,
+      which leaves out exercises and quizzes. VideoObject + Clip JSON-LD from timestamps
+      (`?t=40` opens the page with the video at 0:40). SeoManager sends `ref`/`utm` on the first
+      page of a visit; `record_referral` counts search, AI and social visits. Admin: Overview
+      (SEO and GEO scores, Fix next with one-click "Turn on", traffic), AI & GEO (automatic tasks,
+      site summary for AI, crawler rules, file previews), Change log with Undo (settings, page
+      SEO, crawlers). Next: phase 2 (redirects, content health, suggestions with AI, summaries /
+      FAQ fields, auto-apply switches), phase 3 (Search Console, page speed, crawler logs, AI
+      visibility tracker).

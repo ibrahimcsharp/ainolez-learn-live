@@ -11,10 +11,11 @@ prerendered HTML files, so both always show the same tags.
 
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from django.utils.html import escape
 
-from modules.seo import content
+from modules.seo import content, video
 from modules.seo.models import SeoPage, SeoSettings
 
 SAFE_PATH = re.compile(r"^/[a-z0-9/-]*$")  # paths the admin may add, and file names
@@ -42,6 +43,8 @@ class PageMeta:
     sitemap_priority: str | None = None
     sitemap_changefreq: str | None = None
     lastmod: str | None = None  # ISO date for the sitemap
+    updated_at: datetime | None = None  # when the content last changed (IndexNow)
+    has_markdown: bool = False  # a Markdown copy exists for AI engines (geo.py)
     page_id: int | None = None  # the seo_pages row used, if any
     entity: tuple[str, int] | None = None
 
@@ -97,6 +100,12 @@ def _merge(path: str, site: SeoSettings, row: SeoPage | None, found) -> PageMeta
     robots = row.robots or (found and found.robots) or "index,follow"
     image = content.absolute(row.og_image_url or (found and found.image) or site.default_image_url)
     extra = row.structured_data or []
+    canonical = row.canonical_url or content.absolute(path)
+    videos = []
+    if found and found.body_html and site.geo_video_moments:
+        videos = video.video_objects(
+            found.body_html, content.absolute(path), found.name, description, found.updated_at
+        )
     return PageMeta(
         path=path,
         status=200,
@@ -104,13 +113,15 @@ def _merge(path: str, site: SeoSettings, row: SeoPage | None, found) -> PageMeta
         description=description,
         keywords=row.keywords or site.default_keywords,
         robots=robots if site.allow_indexing else NOINDEX,
-        canonical=row.canonical_url or content.absolute(path),
+        canonical=canonical,
         image=image,
         og_type=row.og_type or (found.og_type if found else "website"),
         og_title=row.og_title or title,
         og_description=row.og_description or description,
         twitter_card=row.twitter_card or ("summary_large_image" if image else "summary"),
-        json_ld=(found.json_ld if found else []) + (extra if isinstance(extra, list) else [extra]),
+        json_ld=(found.json_ld if found else [])
+        + videos
+        + (extra if isinstance(extra, list) else [extra]),
         body_html=(
             found.body_html if found and found.body_html else _plain_body(title, description)
         ),
@@ -118,6 +129,8 @@ def _merge(path: str, site: SeoSettings, row: SeoPage | None, found) -> PageMeta
         sitemap_priority=str(row.sitemap_priority) if row.sitemap_priority is not None else None,
         sitemap_changefreq=row.sitemap_changefreq,
         lastmod=found.updated_at.date().isoformat() if found and found.updated_at else None,
+        updated_at=found.updated_at if found else None,
+        has_markdown=bool(found and found.markdown and site.geo_markdown_copies),
         page_id=row.pk,
         entity=found.entity if found else None,
     )
@@ -150,6 +163,9 @@ def head_tags(meta: PageMeta, site: SeoSettings) -> list[dict]:
         },
         {"tag": "meta", "name": "msvalidate.01", "content": site.bing_site_verification},
     ]
+    if meta.has_markdown:  # the clean copy for AI engines, written by the build
+        tags.append({"tag": "link", "rel": "alternate", "type": "text/markdown",
+                     "href": content.absolute(f"{meta.path}.md")})  # fmt: skip
     if meta.status != 200:
         tags = [t for t in tags if t.get("name") == "robots"]
     return [t for t in tags if t.get("content") or t.get("href")]

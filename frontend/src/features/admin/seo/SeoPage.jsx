@@ -6,12 +6,16 @@ import { useFormFields, useSubmit } from "../../../shared/hooks/useForm";
 import { Field, FormError } from "../../../shared/ui/Field";
 import { RecordActions, StatusBadge } from "../shared/RecordActions";
 import styles from "../shared/admin.module.css";
+import { ChangeLogTab, GeoTab, OverviewTab } from "./Center";
 import { ImageField, SEO, SeoEditor } from "./SeoEditor";
 import seo from "./Seo.module.css";
 
-/** Admin -> SEO: site-wide defaults, any page's tags, and a report of problems. */
+/**
+ * Admin -> SEO & GEO Center: scores and what to fix next, every page's tags, site-wide
+ * defaults, what AI engines read (GEO), the SEO report and the change log.
+ */
 export function SeoPage() {
-  const [tab, setTab] = useState("pages");
+  const [tab, setTab] = useState("overview");
   const [editing, setEditing] = useState(null); // a URL path
   const open = (path) => {
     setEditing(path);
@@ -19,16 +23,19 @@ export function SeoPage() {
     window.scrollTo({ top: 0 });
   };
   const tabs = {
+    overview: ["Overview", <OverviewTab key="overview" onTab={setTab} />],
     pages: ["Pages", <PagesTab key="pages" editing={editing} onOpen={open} onClose={() => setEditing(null)} />],
     site: ["Site defaults", <SiteTab key="site" />],
+    geo: ["AI & GEO", <GeoTab key="geo" />],
     report: ["SEO report and sitemap", <ReportTab key="report" onOpen={open} />],
+    changes: ["Change log", <ChangeLogTab key="changes" />],
   };
   return (
     <>
-      <h1>SEO</h1>
+      <h1>SEO & GEO Center</h1>
       <p className="muted">
-        Every public page gets its title, description, robots, canonical link, Open Graph, X / Twitter tags and
-        schema.org data from here. Empty fields are automatic (from the course, lesson or post).
+        How search engines and AI engines see the site, and everything to improve it. Page tags left empty are
+        automatic (from the course, lesson or post).
       </p>
       <div className={styles.tabs}>
         {Object.entries(tabs).map(([key, [label]]) => (

@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "vitest";
-import { enableTimestampLinks, playerBefore, secondsOf } from "./timestamps";
+import { enableTimestampLinks, playerBefore, secondsOf, seekFromAddress } from "./timestamps";
 
 afterEach(() => {
   document.body.innerHTML = "";
@@ -34,4 +34,12 @@ test("a click moves the video above to that moment instead of leaving the page",
 test("without a video above, the link works as a normal link", () => {
   document.body.innerHTML = `<a class="timestamp" href="https://www.youtube.com/watch?v=abc&amp;t=40s">00:40</a>`;
   expect(playerBefore(document.querySelector("a"))).toBeNull();
+});
+
+test("an address with ?t=40 starts the page's video at 0:40 once it appears", async () => {
+  seekFromAddress("?t=40");
+  document.body.innerHTML = `<div class="lesson-content">
+    <iframe src="https://www.youtube-nocookie.com/embed/abc?start=0"></iframe></div>`;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(document.querySelector("iframe").src).toContain("start=40");
 });

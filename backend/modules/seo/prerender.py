@@ -4,6 +4,8 @@ Writes the public website's SEO files into PRERENDER_DIR (public_html on cPanel)
     index.html, python/index.html, python/lists/index.html ...   one per page
     sitemap.xml, robots.txt
     data/...        copies of the public API's answers for those pages (see write_data)
+    llms.txt, llms-full.txt, python.md, python/lists.md ...   for AI engines (geo.py)
+    <key>.txt       the IndexNow key, when IndexNow is on (indexnow.py)
 
 Each HTML file is the app's shell.html (the React build) with the page's
 title, meta tags, JSON-LD and a plain copy of its content, so search engines
@@ -26,7 +28,7 @@ from django.utils.html import escape
 
 from modules.catalog import selectors as catalog
 from modules.community import selectors as community
-from modules.seo import resolver
+from modules.seo import changes, geo, indexnow, resolver
 from modules.seo.models import SeoPage, SeoSettings
 from modules.website import selectors as website
 from shared.exceptions import ServiceError
@@ -71,16 +73,86 @@ def build() -> int:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(render(shell, meta, site, menus), encoding="utf-8")
             written.append(relative)
-    _remove_stale(root, set(written))
+    page_count = len(written)
+    extras = write_geo(root, pages, site)
+    if site.indexnow_enabled and site.indexnow_key:
+        (root / f"{site.indexnow_key}.txt").write_text(site.indexnow_key, encoding="utf-8")
+        extras.append(f"{site.indexnow_key}.txt")
+    _remove_stale(root, set(written) | set(extras))
     (root / "sitemap.xml").write_text(sitemap(pages, site), encoding="utf-8")
     (root / "robots.txt").write_text(robots_txt(site), encoding="utf-8")
     write_data(root, pages)
 
+    previous_build = site.last_build_at
     site.last_build_at = timezone.now()
-    site.last_build_pages = len(written)
+    site.last_build_pages = page_count
     site.save(update_fields=["last_build_at", "last_build_pages"])
-    logger.info("SEO build wrote %s pages", len(written))
-    return len(written)
+    copies = sum(1 for name in extras if name.endswith(".md"))
+    changes.record(
+        "build",
+        summary=f"Rebuilt {page_count} pages, sitemap.xml and robots.txt"
+        + (f", {copies} Markdown copies" if copies else "")
+        + (", llms.txt" if "llms.txt" in extras else ""),
+    )
+    if site.indexnow_enabled and site.indexnow_key:
+        # the first time IndexNow runs it sends every page, then only the changed ones
+        notify_indexnow(site, pages, previous_build if site.indexnow_last_at else None)
+    logger.info("SEO build wrote %s pages", page_count)
+    return page_count
+
+
+def write_geo(root: Path, pages: list[resolver.PageMeta], site: SeoSettings) -> list[str]:
+    """Markdown copies, llms.txt and llms-full.txt. Returns the files written."""
+    written, markdown = [], {}
+    for meta in pages:
+        if not (meta.indexable and meta.has_markdown and resolver.SAFE_PATH.match(meta.path)):
+            continue
+        text = geo.markdown_for(meta.path, meta.entity)
+        if text is None:
+            continue
+        markdown[meta.path] = text
+        relative = geo.markdown_path(meta.path).lstrip("/")
+        target = root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+        written.append(relative)
+    if site.geo_llms_enabled and site.allow_indexing:
+        (root / "llms.txt").write_text(geo.llms_txt(site, pages, set(markdown)), "utf-8")
+        written.append("llms.txt")
+    if site.geo_llms_full_enabled and site.allow_indexing:
+        full = geo.llms_full_txt(site, pages, markdown or all_markdown(pages))
+        (root / "llms-full.txt").write_text(full, encoding="utf-8")
+        written.append("llms-full.txt")
+    return written
+
+
+def all_markdown(pages: list[resolver.PageMeta]) -> dict[str, str]:
+    """Markdown of every course and lesson, for llms-full.txt when copies are off."""
+    found = {}
+    for meta in pages:
+        if meta.indexable and meta.entity and meta.entity[0] in ("course", "lesson"):
+            text = geo.markdown_for(meta.path, meta.entity)
+            if text:
+                found[meta.path] = text
+    return found
+
+
+def notify_indexnow(site: SeoSettings, pages: list[resolver.PageMeta], since) -> None:
+    """Send the pages that changed since the last build (all of them the first time)."""
+    urls = [
+        meta.canonical
+        for meta in pages
+        if meta.indexable
+        and meta.in_sitemap
+        and (since is None or (meta.updated_at and meta.updated_at > since))
+    ]
+    if not urls and since is not None:
+        return  # nothing new: no request, no log line
+    result = indexnow.submit(site.indexnow_key, urls)
+    site.indexnow_last_at = timezone.now()
+    site.indexnow_last_result = result[:300]
+    site.save(update_fields=["indexnow_last_at", "indexnow_last_result"])
+    changes.record("indexnow", summary=result)
 
 
 DATA = "data"
@@ -195,6 +267,7 @@ def robots_txt(site: SeoSettings) -> str:
     if not site.allow_indexing:
         return "User-agent: *\nDisallow: /\n"
     lines = ["User-agent: *", "Disallow: /admin", "Disallow: /dashboard"]
+    lines += geo.robots_lines()
     if site.robots_txt_extra and site.robots_txt_extra.strip():
         lines += ["", site.robots_txt_extra.strip()]
     lines += ["", f"Sitemap: {settings.FRONTEND_URL.rstrip('/')}/sitemap.xml"]
