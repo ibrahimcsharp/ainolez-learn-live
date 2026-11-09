@@ -6,6 +6,7 @@ import { useApi } from "../../../shared/hooks/useApi";
 import { useSubmit } from "../../../shared/hooks/useForm";
 import { Field, FormError } from "../../../shared/ui/Field";
 import { EditPanel, useResourceForm } from "../shared/EditPanel";
+import { MarkdownEditor } from "../shared/MarkdownEditor";
 import { MediaPicker } from "../shared/MediaPicker";
 import { RecordActions, StatusBadge } from "../shared/RecordActions";
 import { SortableList } from "../shared/SortableList";
@@ -116,8 +117,9 @@ function CourseForm({ initial, onSaved }) {
       <div style={{ gridColumn: "1 / -1" }}>
         <Field label="Short description (on course cards)" name="short_description" value={values.short_description}
           onChange={onChange} error={error} />
-        <Field label="Description (on the course page)" name="description" as="textarea" rows={3}
-          value={values.description ?? ""} onChange={onChange} error={error} />
+        <MarkdownEditor name="description" label="Description (on the course page)" rows={10}
+          value={values.description ?? ""} onChange={onChange} />
+        {error?.fields?.description && <span className="field-error">{error.fields.description[0]}</span>}
       </div>
     </EditPanel>
   );

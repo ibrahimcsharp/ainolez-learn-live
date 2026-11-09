@@ -15,6 +15,7 @@ from django.conf import settings
 from django.utils.html import escape, strip_tags
 
 from modules.catalog import selectors as catalog
+from modules.catalog import services as catalog_services
 from modules.certification import selectors as certification
 from modules.community import selectors as community
 from modules.media import selectors as media
@@ -128,7 +129,8 @@ def _course(slug: str, site) -> Content | None:
         return None
     course, chapters = found
     url = absolute(f"/{course.slug}")
-    description = course.short_description or snippet(course.description or "")
+    description_html = catalog_services.course_description_html(course)
+    description = course.short_description or snippet(description_html)
     data = {
         "@context": "https://schema.org",
         "@type": "Course",
@@ -159,7 +161,10 @@ def _course(slug: str, site) -> Content | None:
         description=description,
         image=thumbnail,
         json_ld=[data, _breadcrumbs([("Courses", "/courses"), (course.title, f"/{course.slug}")])],
-        body_html=f"<h1>{escape(course.title)}</h1><p>{escape(description)}</p>{outline}",
+        body_html=(
+            f"<h1>{escape(course.title)}</h1><p>{escape(course.short_description)}</p>"
+            f"{description_html}{outline}"
+        ),
         entity=("course", course.pk),
         updated_at=course.updated_at,
     )

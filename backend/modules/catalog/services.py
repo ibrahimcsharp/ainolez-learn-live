@@ -96,6 +96,12 @@ def publish_course(course: Course, by) -> int:
     return len(drafts)
 
 
+def course_description_html(course: Course) -> str:
+    """The course page's description: Markdown (the admin's smart editor) as sanitised HTML.
+    Plain text from before the editor is valid Markdown, so it needs no conversion."""
+    return content.render_markdown(course.description) if course.description else ""
+
+
 def course_video_html(course: Course) -> str:
     if not course.intro_video_url:
         return ""

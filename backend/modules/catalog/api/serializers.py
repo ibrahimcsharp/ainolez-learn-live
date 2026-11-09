@@ -42,10 +42,16 @@ class ChapterOutlineSerializer(serializers.ModelSerializer):
 
 
 class CourseDetailSerializer(CourseCardSerializer):
+    description_html = serializers.SerializerMethodField()
     intro_video_html = serializers.SerializerMethodField()
 
     class Meta(CourseCardSerializer.Meta):
-        fields = [*CourseCardSerializer.Meta.fields, "description", "intro_video_html"]
+        fields = [
+            *CourseCardSerializer.Meta.fields, "description", "description_html", "intro_video_html"
+        ]  # fmt: skip
+
+    def get_description_html(self, course):
+        return services.course_description_html(course)
 
     def get_intro_video_html(self, course):
         return services.course_video_html(course)
