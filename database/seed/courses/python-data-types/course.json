@@ -1,0 +1,15 @@
+{
+  "title": "Python Data Types in Depth",
+  "slug": "python-data-types",
+  "category": {"name": "Python", "icon": "🐍", "color": "#3776AB", "description": "Learn Python from your first line of code to data and automation."},
+  "level": "beginner",
+  "language_key": "python",
+  "short_description": "Go deeper into strings, lists, tuples, sets and dictionaries: slicing, the most useful methods, copying, unpacking and nesting.",
+  "description": "You already know how to make a string, a list or a dictionary. This course shows what you can do with them once you have them. You learn to cut text with slices, write special characters, use the string methods you need every day, grow, shrink, sort and copy lists without surprises, unpack tuples, combine sets like Venn diagrams, and work with dictionaries inside dictionaries. It ends with a small contacts project. Take it after Python for Absolute Beginners.",
+  "chapters": [
+    {"title": "Strings", "description": "Slices, special characters and string methods.", "lessons": ["01-string-slicing.md", "02-string-methods.md"]},
+    {"title": "Lists and Tuples", "description": "Change, sort, copy and unpack.", "lessons": ["03-list-methods.md", "04-tuples.md"]},
+    {"title": "Sets and Dictionaries", "description": "Unique values and key-value data.", "lessons": ["05-sets.md", "06-dictionaries.md"]},
+    {"title": "Project", "description": "Put it all together.", "lessons": ["07-project.md"]}
+  ]
+}
