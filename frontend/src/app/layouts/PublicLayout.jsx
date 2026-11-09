@@ -104,7 +104,7 @@ function SiteFooter({ columns }) {
           </nav>
         ))}
       </div>
-      <div className={`container ${styles.footerBottom}`}>© {new Date().getFullYear()} ainolez</div>
+      <div className={`container ${styles.footerBottom}`}>© {new Date().getFullYear()} ainolez. All Rights Reserved.</div>
     </footer>
   );
 }
