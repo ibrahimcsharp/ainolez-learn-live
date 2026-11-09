@@ -30,10 +30,7 @@ beforeEach(() => {
   localStorage.clear();
   api.mockReset();
 });
-afterEach(() => {
-  cleanup();
-  vi.unstubAllGlobals();
-});
+afterEach(cleanup);
 
 async function renderPage() {
   const { CatalogPage } = await import("./CatalogPage");
@@ -44,15 +41,15 @@ async function renderPage() {
   );
 }
 
-test("shows placeholders, then the courses from catalog.json, and filters them", async () => {
+test("shows placeholders, then the courses, and filters them in the browser", async () => {
   let reply;
-  vi.stubGlobal("fetch", vi.fn(() => new Promise((resolve) => (reply = resolve))));
+  api.mockReturnValue(new Promise((resolve) => (reply = resolve)));
   await renderPage();
   expect(screen.getByRole("status", { name: "Loading courses" })).toBeTruthy();
 
-  await act(async () => reply({ ok: true, json: async () => catalog }));
+  await act(async () => reply(catalog));
   expect(screen.getByText("2 courses", { selector: "p" })).toBeTruthy();
-  expect(api).not.toHaveBeenCalled(); // the static file was enough
+  expect(api).toHaveBeenCalledTimes(1);
 
   fireEvent.change(screen.getByLabelText("Search courses"), { target: { value: "sql" } });
   expect(screen.getByText("1 of 2 courses", { selector: "p", exact: false })).toBeTruthy();
@@ -62,12 +59,4 @@ test("shows placeholders, then the courses from catalog.json, and filters them",
   fireEvent.click(screen.getByRole("button", { name: /Web/ }));
   expect(screen.getByRole("heading", { name: "HTML" })).toBeTruthy();
   expect(screen.queryByRole("heading", { name: "SQL" })).toBeNull();
-});
-
-test("asks the API when catalog.json is missing", async () => {
-  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false })));
-  api.mockResolvedValue(catalog);
-  await renderPage();
-  expect(await screen.findByText("2 courses", { selector: "p" })).toBeTruthy();
-  expect(api).toHaveBeenCalledWith("/public/catalog/");
 });

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { api, refreshAccess, setAccessToken } from "../shared/api/client";
+import { api, refreshAccess, setAccessToken, signedInBefore } from "../shared/api/client";
 
 export const AuthContext = createContext(null);
 
@@ -7,10 +7,13 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
-  // On page load, the refresh cookie (if any) restores the session.
+  // On page load, the refresh cookie (if any) restores the session. A browser that was
+  // signed out last time skips the check, which spares the API a request per visit.
   useEffect(() => {
     (async () => {
-      if (await refreshAccess()) setUser(await api("/auth/me/").catch(() => null));
+      if (signedInBefore() !== false && (await refreshAccess())) {
+        setUser(await api("/auth/me/").catch(() => null));
+      }
       setReady(true);
     })();
   }, []);

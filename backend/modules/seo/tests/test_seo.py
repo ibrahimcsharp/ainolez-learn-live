@@ -142,5 +142,15 @@ def test_build_writes_pages_sitemap_and_robots(tmp_path, settings, course):
     assert "/login" not in sitemap  # noindex pages stay out
     assert "Sitemap: http://localhost:5173/sitemap.xml" in (tmp_path / "robots.txt").read_text()
     assert SeoPage.objects.filter(path="/").exists()
-    catalog = json.loads((tmp_path / "catalog.json").read_text(encoding="utf-8"))
+    data = tmp_path / "data"
+    catalog = json.loads((data / "catalog.json").read_text(encoding="utf-8"))
     assert [c["slug"] for c in catalog["courses"]] == ["python-basics"]
+    course = json.loads((data / "courses" / "python-basics.json").read_text(encoding="utf-8"))
+    assert course["chapters"][0]["lessons"][0]["slug"] == "lists"
+    lesson = json.loads((data / "courses/python-basics/lessons/lists.json").read_text("utf-8"))
+    assert lesson["lesson"]["title"] == "Lists"
+    assert (data / "site" / "menus.json").exists()
+
+    (data / "courses" / "gone.json").write_text("{}")  # the next build replaces the folder
+    prerender.build()
+    assert not (data / "courses" / "gone.json").exists()

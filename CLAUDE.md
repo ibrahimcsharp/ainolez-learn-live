@@ -193,8 +193,14 @@ start of every run (`backend/conftest.py`), so MySQL must be running.
       Loading: `shared/ui/Loader.jsx` (Spinner, LoadingBar, PageLoader); `.page-loading.is-loading`
       shows the same ring spinner everywhere.
 - [x] Courses page: one `catalog` payload (`catalog.selectors.public_catalog`: categories, courses
-      with `lesson_count`, paths) served at `/public/catalog/` and written by `seo_build` to
-      `catalog.json` beside the website, which `features/catalog/catalog.js` reads first (static,
-      no CGI start-up) and falls back to the API; last visit's copy shows at once. Filters and
-      search run in the browser; skeleton cards while loading. Category edits reach catalog.json
-      at the next build (course and lesson changes trigger one).
+      with `lesson_count`, paths) at `/public/catalog/`; filters and search run in the browser;
+      skeleton cards while loading; last visit's copy shows at once (`features/catalog/catalog.js`).
+- [x] Faster pages (the API runs as CGI, ~3 s per request): `seo_build` also writes static copies
+      of public API answers to `data/` beside the website (`seo/prerender.write_data`: catalog,
+      menus, each course, lesson and site page; the folder is replaced whole). `api()` in
+      `shared/api/client.js` reads the copy first for those paths (`staticCopy` mirrors the file
+      names) and asks the API only when it is missing; `/public/seo/` stays live because it counts
+      page views. `CoursePage` checks the static course and page copies before asking the API.
+      Copies lag edits until the next build (scheduled a minute after course, lesson, page and
+      menu changes). The browser skips the session check when it was signed out last time
+      (`signedInBefore`). Learner portal and admin routes are lazy-loaded (`router.jsx`).
