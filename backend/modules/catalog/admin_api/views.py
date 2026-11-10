@@ -29,6 +29,13 @@ class CourseViewSet(ServiceViewSet):
     filter_fields = ("category", "status")
     ordering = ("title",)
 
+    def get_queryset(self):
+        return super().get_queryset().select_related("category")
+
+    def get_serializer_class(self):
+        # The list leaves out the long description, which only the editor needs.
+        return s.CourseListSerializer if self.action == "list" else s.CourseAdminSerializer
+
     def record_changed(self, course):
         publish(CourseChanged(course.pk))
 

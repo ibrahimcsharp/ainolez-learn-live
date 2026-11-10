@@ -368,3 +368,40 @@
 .insert {
   margin-bottom: 8px;
 }
+
+/* Table loading and empty states */
+.loadingRow,
+.emptyRow {
+  color: var(--gray-500);
+  text-align: center !important;
+}
+.loadingRow {
+  font-size: 14px;
+}
+.loadingRow > span {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.emptyRow {
+  padding: 32px 12px !important;
+}
+.skeletonRow span {
+  display: block;
+  height: 12px;
+  width: 50%;
+  margin: 4px 0;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--gray-50) 25%, var(--gray-200) 50%, var(--gray-50) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeletonRow span {
+    animation: none;
+  }
+}
