@@ -1,7 +1,9 @@
-import { Plus } from "lucide-react";
-import { useState } from "react";
+import { Plus, RotateCw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { api } from "../../../shared/api/client";
 import { useApi } from "../../../shared/hooks/useApi";
+import { LoadingBar, Spinner } from "../../../shared/ui/Loader";
 import { Field } from "../../../shared/ui/Field";
 import { EditPanel, useResourceForm } from "../shared/EditPanel";
 import { RecordActions, StatusBadge } from "../shared/RecordActions";
@@ -13,14 +15,63 @@ export const LANGUAGES = [
   ["ai", "AI (no code)"], ["other", "Other"],
 ].map(([key, label]) => <option key={key} value={key}>{label}</option>);
 
+/*
+ * Every API call takes a few seconds, so the list loads once (without the long
+ * descriptions) and search runs in the browser. The last list is kept for this tab, so
+ * coming back from a course shows it at once while a fresh copy loads.
+ */
+const KEY = "ainolez.admin.courses";
+let remembered = recall();
+
+export function useCourseList() {
+  const [state, setState] = useState({ rows: remembered, error: null, loading: true });
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    let live = true;
+    setState((previous) => ({ ...previous, error: null, loading: true }));
+    api(`${COURSES}/?page_size=500`)
+      .then((data) => {
+        remembered = data.results;
+        try {
+          sessionStorage.setItem(KEY, JSON.stringify(remembered));
+        } catch {
+          // storage full or blocked: the list still shows
+        }
+        if (live) setState({ rows: remembered, error: null, loading: false });
+      })
+      .catch((error) => live && setState((previous) => ({ ...previous, error, loading: false })));
+    return () => {
+      live = false;
+    };
+  }, [version]);
+  return { ...state, reload: () => setVersion((v) => v + 1) };
+}
+
+function recall() {
+  try {
+    const rows = JSON.parse(sessionStorage.getItem(KEY));
+    return Array.isArray(rows) ? rows : null;
+  } catch {
+    return null;
+  }
+}
+
+export function matches(row, query) {
+  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const text = `${row.title} ${row.slug} ${row.category_name ?? ""} ${row.status}`.toLowerCase();
+  return words.every((word) => text.includes(word));
+}
+
 export function CoursesPage() {
   const [query, setQuery] = useState("");
-  const list = useApi(`${COURSES}/?page_size=500&q=${encodeURIComponent(query)}`);
+  const list = useCourseList();
   const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
+  const rows = list.rows?.filter((row) => matches(row, query));
 
   return (
     <>
+      <LoadingBar done={!list.loading} />
       <div className={styles.toolbar}>
         <h1>Courses</h1>
         <input type="search" placeholder="Search courses" value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -31,7 +82,15 @@ export function CoursesPage() {
       {creating && (
         <NewCourseForm onSaved={(course) => navigate(`/admin/courses/${course.id}`)} onCancel={() => setCreating(false)} />
       )}
-      <table className={styles.table}>
+      {list.error && (
+        <p className="notice notice-error" role="alert">
+          {list.rows ? "Couldn't refresh the list. It may be out of date. " : "Couldn't load the courses. "}
+          <button className={`btn btn-outline ${styles.small}`} onClick={list.reload}>
+            <RotateCw /> Try again
+          </button>
+        </p>
+      )}
+      <table className={styles.table} aria-busy={list.loading}>
         <thead>
           <tr>
             <th>Course</th>
@@ -41,7 +100,8 @@ export function CoursesPage() {
           </tr>
         </thead>
         <tbody>
-          {(list.data?.results ?? []).map((row) => (
+          {!rows && !list.error && <SkeletonRows />}
+          {rows?.map((row) => (
             <tr key={row.id}>
               <td>
                 <Link to={`/admin/courses/${row.id}`}>{row.title}</Link>
@@ -56,8 +116,43 @@ export function CoursesPage() {
               </td>
             </tr>
           ))}
+          {rows && !rows.length && (
+            <tr>
+              <td colSpan={4} className={styles.emptyRow}>
+                {list.rows.length ? `No course matches “${query}”.` : "No courses yet. Press New course to add one."}
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
+    </>
+  );
+}
+
+/** Grey placeholder rows with a spinner while the first list loads. */
+function SkeletonRows() {
+  return (
+    <>
+      <tr>
+        <td colSpan={4} className={styles.loadingRow}>
+          <Spinner size={22} label="Loading courses" /> Loading courses…
+        </td>
+      </tr>
+      {[70, 55, 80, 60, 45].map((width) => (
+        <tr key={width} className={styles.skeletonRow} aria-hidden>
+          <td>
+            <span style={{ width: `${width}%` }} />
+            <span style={{ width: "30%" }} />
+          </td>
+          <td>
+            <span />
+          </td>
+          <td>
+            <span style={{ width: 64 }} />
+          </td>
+          <td />
+        </tr>
+      ))}
     </>
   );
 }

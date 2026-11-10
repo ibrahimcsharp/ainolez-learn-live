@@ -38,6 +38,11 @@ class CourseAdminSerializer(serializers.ModelSerializer):
         extra_kwargs = {"slug": SLUG}
 
 
+class CourseListSerializer(CourseAdminSerializer):
+    class Meta(CourseAdminSerializer.Meta):
+        fields = [f for f in CourseAdminSerializer.Meta.fields if f != "description"]
+
+
 class ChapterAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter

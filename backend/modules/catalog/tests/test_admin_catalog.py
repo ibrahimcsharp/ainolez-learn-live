@@ -184,3 +184,18 @@ def test_seed_skips_a_course_that_is_in_the_trash(make_user):
 
     assert services.import_course_folder(folder, publish=True, by=admin) is None
     assert Course.all_objects.filter(slug="python-essentials").count() == 1
+
+
+def test_course_list_is_light_and_needs_few_queries(
+    admin_api, course, django_assert_max_num_queries
+):
+    for n in range(5):
+        admin_api.post(
+            f"{ADMIN}/courses/", {"category": course["category"], "title": f"Course {n}"}
+        )  # fmt: skip
+    with django_assert_max_num_queries(6):  # not one per course for its category
+        rows = admin_api.get(f"{ADMIN}/courses/", {"page_size": 500}).json()["results"]
+    assert len(rows) == 6 and rows[0]["category_name"] == "Python"
+    assert "description" not in rows[0]
+    detail = admin_api.get(f"{ADMIN}/courses/{course['id']}/").json()
+    assert "description" in detail
